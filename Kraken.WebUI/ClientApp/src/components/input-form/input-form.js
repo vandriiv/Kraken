@@ -1,6 +1,8 @@
 ﻿import React, { Component } from 'react';
 import { Form, FormGroup, Label, Input, Button,Row,Col } from 'reactstrap';
 import Select from '../select';
+import InputErrorsList from '../input-errors-list';
+import './input-form.css';
 
 export default class InputForm extends Component {
 
@@ -39,7 +41,7 @@ export default class InputForm extends Component {
         sd: [],
         nrd: 0,
         rd: [],
-        error: {}
+        error: null
     };
 
     interpolationTypes = [
@@ -185,17 +187,179 @@ export default class InputForm extends Component {
 
     onSubmit = (e)=> {
         e.preventDefault();
-        console.log(this.state);
+        this.setState({ error: null });
+        this.validateAndFormatData();
     }
 
     validateAndFormatData = () => {
-        
+        const error = {};
+        let { frequency, nModes, nMedia, topBCType, interpolationType, isVolumeAttenuatonAdded, zt, cpt,
+            cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, zb, cpb,
+            csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd } = this.state;
+
+        if (frequency <= 0) {
+            error.frequency = "Frequency ";
+        }
+
+        if (nModes <= 0) {
+            error.nModes = "Number of modes ";
+        }
+
+        if (nMedia <= 0) {
+            error.nModes = "Number of media ";
+        }
+
+        if (topBCType.length !== 1 || !this.topBoundaryConditions.some(x => x.key === topBCType)) {
+            error.topBCType = "Top boundary conditions ";
+        }
+
+        if (interpolationType.length !== 1 || !this.interpolationTypes.some(x => x.key === interpolationType)) {
+            error.interpolationType = "Interpolation type ";
+        }
+
+        if (topBCType === 'A' && zt < 0) {
+            error.zt = "Z Top";
+        }
+        if (topBCType === 'A' && cpt < 0) {
+            error.cpt = "CP Top";
+        }
+        if (topBCType === 'A' && cst < 0) {
+            error.cst = "CP Top";
+        }
+
+        if (topBCType === 'A' && rhot < 0) {
+            error.rhot = "RHO Top";
+        }
+
+        if (topBCType === 'A' && apt < 0) {
+            error.apt = "AP Top";
+        }
+
+        if (topBCType === 'A' && ast < 0) {
+            error.ast = "AS Top";
+        }
+
+        if ((topBCType === 'S' || topBCType === 'H' || topBCType === 'T' || topBCType === 'I') && bumDen < 0) {
+            error.bumDen = "Bump density ";
+        }
+
+        if ((topBCType === 'S' || topBCType === 'H' || topBCType === 'T' || topBCType === 'I') && eta <0) {
+            error.eta = "Principal radius 1";
+        }
+
+        if ((topBCType === 'S' || topBCType === 'H' || topBCType === 'T' || topBCType === 'I') && xi < 0) {
+            error.eta = "Principal radius 2";
+        }
+
+        if (bottomBCType.length !== 1 || !this.bottomBoundaryConditions.some(x => x.key === bottomBCType)) {
+            error.bottomBCType = "Bottom boundary conditions";
+        }
+
+        if (bottomBCType === 'A' && zb < 0) {
+            error.zb = "Z Bottom";
+        }
+        if (bottomBCType === 'A' && cpb < 0) {
+            error.cpb = "CP Bottom";
+        }
+        if (bottomBCType === 'A' && csb < 0) {
+            error.csb = "CP Bottom";
+        }
+
+        if (bottomBCType === 'A' && rhob < 0) {
+            error.rhob = "RHO Bottom";
+        }
+
+        if (bottomBCType === 'A' && apb < 0) {
+            error.apb = "AP Bottom";
+        }
+
+        if (bottomBCType === 'A' && asb < 0) {
+            error.asb = "AS Bottom";
+        }
+
+        if (cLow <= 0) {
+            error.cLow = "Lower phase speed limit";
+        }
+
+        if (cHigh <= 0) {
+            error.cHigh = "Upper phase speed limit";
+        }
+
+        if (rMax <= 0) {
+            error.rMax = "Maximum range";
+        }
+
+        if (nsd <= 0) {
+            error.nsd = "Number of source depth";
+        }
+
+        if (nrd <= 0) {
+            error.nrd = "Number of receiver depth";
+        }
+
+        try {
+            sd = this.parseOneDimensionalArray(sd);
+        }
+        catch (e) {            
+            error.sd = "Source depth format";
+        }
+
+        try {
+            rd = this.parseOneDimensionalArray(rd);
+        }
+        catch (e) {
+            error.rd = "Source depth format";
+        }
+
+        try {
+            mediumInfo = this.parseTwoDimensionalArray(mediumInfo);
+        }
+        catch (e) {
+            error.mediumInfo = "Medium info format";
+        }
+
+        try {
+            ssp = this.parseTwoDimensionalArray(ssp);
+        }
+        catch (e) {
+            error.ssp = "SSP format";
+        }
+
+        if (error !== {}) {
+            this.setState({ error: error });
+        }
     }
 
+    parseOneDimensionalArray = (str) => {
+        const array = JSON.parse('[' + str + ']');
+        if (!Array.isArray(array)) {
+            throw "Given string is not array";
+        }
+
+        if (Array.isArray(array[0])) {
+            throw "Given string is not one dimensional array";
+        }
+
+        return array;
+    };
+
+
+    parseTwoDimensionalArray = (str) => {
+        const array = JSON.parse('[' + str + ']');
+        if (!Array.isArray(array)) {
+            throw "Given string is not array";
+        }
+
+        if (!Array.isArray(array[0])) {
+            throw "Given string is not two dimensional array";
+        }
+
+        return array;
+    };
 
     render() {
 
-        const { isBottomAcoustic, isTopAcoustic, isTopTwersky } = this.state;
+        const { isBottomAcoustic, isTopAcoustic, isTopTwersky, error } = this.state;
 
         return (
             <Form onSubmit={this.onSubmit} >
@@ -403,6 +567,11 @@ export default class InputForm extends Component {
                     </Col>
                 </Row>
                 <Button outline color="secondary">Submit</Button>
+                <div className="validation-errors-list">
+                {error !== null ?
+                    <InputErrorsList error={error} />
+                        : null}
+                </div>
             </Form>
             );
     }

@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.WebUI", "Kraken.WebUI\Kraken.WebUI.csproj", "{3040D3AD-CAF9-4BDF-A8AB-10B58A972E28}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kraken.WebUI", "Kraken.WebUI\Kraken.WebUI.csproj", "{3040D3AD-CAF9-4BDF-A8AB-10B58A972E28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.NormalModesCalculation", "Kraken.NormalModesCalculation\Kraken.NormalModesCalculation.csproj", "{1CA12AB2-C65C-475C-851C-B3DB89683E1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kraken.NormalModesCalculation", "Kraken.NormalModesCalculation\Kraken.NormalModesCalculation.csproj", "{1CA12AB2-C65C-475C-851C-B3DB89683E1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.Application", "Kraken.Application\Kraken.Application.csproj", "{4AD7E68D-7E7B-44D3-8A82-4DB989E11FD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{1CA12AB2-C65C-475C-851C-B3DB89683E1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CA12AB2-C65C-475C-851C-B3DB89683E1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CA12AB2-C65C-475C-851C-B3DB89683E1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AD7E68D-7E7B-44D3-8A82-4DB989E11FD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AD7E68D-7E7B-44D3-8A82-4DB989E11FD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AD7E68D-7E7B-44D3-8A82-4DB989E11FD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AD7E68D-7E7B-44D3-8A82-4DB989E11FD7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

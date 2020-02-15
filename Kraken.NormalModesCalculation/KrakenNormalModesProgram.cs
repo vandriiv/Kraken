@@ -34,12 +34,12 @@ Output:
   cp = nm phase spees
   zm = depths of mode functions
   modes = nm mode functions at depths zm*/
-    public class Kraken
+    public class KrakenNormalModesProgram
     {
         public void OceanAcousticNormalModes(int nm, double frq, int nl, string note1, List<List<double>> bb, int nc,
                                              List<List<double>> ssp, string note2, double bsig,List<double> clh, double rng, int nsr, List<double> zsr,
                                              int nrc, List<double> zrc, int nz, List<double> tahsp, List<double> tsp, List<double> bahsp,ref List<double> cg, ref List<double> cp,
-                                             ref List<double> zm,ref List<List<double>> modes)
+                                             ref List<double> zm,ref List<List<double>> modes, ref List<double> k)
         {
             var krakMod = new KrakMod();
             krakMod.Init();           
@@ -752,23 +752,19 @@ Output:
                 PHIPow.Insert(0, 0);
                 SQNRM += krakMod.H[Medium] * PHIPow.Sum() / rhoM;             
                 var tempList = new List<double>();
-                
+
                 for (var i = J1; i < J; i++)//changed
                 {
-                    tempList.Add(krakMod.B1C[i+L1] * PHIPow[i]);
-                }
-                var a = tempList.Sum();
+                    tempList.Add(krakMod.B1C[i + L1 - J1] * PHIPow[i]);
+                }               
                 PERK += krakMod.H[Medium] * krakMod.i * tempList.Sum() / rhoM;
 
                 tempList.Clear();
-                for (var i = 0; i < J-J1; i++)//changed
+                for (var i = J1; i < J; i++)//changed
                 {
-                    tempList.Add((krakMod.B1[i+L1]+2) * PHIPow[i+J1]);
-                }
-
-                a = tempList.Sum();
+                    tempList.Add((krakMod.B1[i + L1 - J1] + 2) * PHIPow[i]);
+                }               
                 SLOW += krakMod.H[Medium] * tempList.Sum() / rhoOMH2;
-
                 L += 1;
                 J += 1;
                 SQNRM += 0.5 * krakMod.H[Medium] * Math.Pow(PHI[J], 2) / rhoM;

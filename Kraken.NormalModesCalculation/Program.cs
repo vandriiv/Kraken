@@ -284,7 +284,7 @@ namespace Kraken.NormalModesCalculation
             var nz = nsr + nrc;
             var nc = ssp.Count;
             var bahsp = new List<double> { 0, 5000.0, 2000, 0, 2.0, 0, 0 };
-            var kraken = new Kraken();
+            var kraken = new KrakenNormalModesProgram();
             var cg = new List<double>();
             var cp = new List<double>();
             var zm = new List<double>();

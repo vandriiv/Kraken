@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Kraken.WebUI.Models
+namespace Kraken.Application.Models
 {
-    public class KrakenInputModel
+    public class AcousticProblemData
     {
         public double Frequency { get; set; }
         public int NModes { get; set; }

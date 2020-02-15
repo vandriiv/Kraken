@@ -1,3 +1,7 @@
+using Kraken.Application.Services.Implementation;
+using Kraken.Application.Services.Interfaces;
+using Kraken.NormalModesCalculation;
+using Kraken.WebUI.Models.Mappers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -22,6 +26,10 @@ namespace Kraken.WebUI
         {
 
             services.AddControllersWithViews();
+            services.AddTransient<KrakenInputModelMapper>();
+            services.AddTransient<KrakenResultModelMapper>();
+            services.AddTransient<IKrakenService, KrakenService>();
+            services.AddTransient<KrakenNormalModesProgram>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
