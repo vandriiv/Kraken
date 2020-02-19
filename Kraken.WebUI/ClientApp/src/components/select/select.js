@@ -17,11 +17,11 @@ export default class Select extends Component {
     }
 
     render() {
-        const { label, name, options, onChange } = this.props;
+        const { label, name, options, onChange, initValue } = this.props;
         return (
             <React.Fragment>
                 <Label for="name">{label}</Label>
-                <Input ref={"select"} type="select" name={name} id={name} onChange={onChange} required>
+                <Input ref={"select"} type="select" name={name} id={name} onChange={onChange} defaultValue={initValue} required>
                     {options && this.renderOptions(options)}
                 </Input>
             </React.Fragment>

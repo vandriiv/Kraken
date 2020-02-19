@@ -2,17 +2,16 @@
 import { Form, FormGroup, Label, Input, Button,Row,Col } from 'reactstrap';
 import Select from '../select';
 import InputErrorsList from '../input-errors-list';
-import './input-form.css';
+import './initialized-input-form.css';
 
-export default class InputForm extends Component {
+export default class InitializedInputForm extends Component {
 
     state = {
         frequency: 0,
         nModes: 0,
         nMedia: 0,
         topBCType: '',
-        interpolationType: '',
-        attenuationUnits:'',
+        interpolationType:'',
         isTopAcoustic: false,
         isTopTwersky: false,
         isBottomAcoustic: false,
@@ -44,6 +43,18 @@ export default class InputForm extends Component {
         rd: [],
         error: null
     };
+
+    constructor(props) {
+        super(props);
+        const { acousticProblemData } = props;
+
+        const isTopAcoustic = acousticProblemData.topBCType === 'A';
+        const isTopTwersky = (acousticProblemData.topBCType === 'T' || acousticProblemData.topBCType === 'S'
+            || acousticProblemData.topBCType === 'I' || acousticProblemData.topBCType === 'H');
+        const isBottomAcoustic = acousticProblemData.bottomBCType === 'A';       
+
+        this.state = { ...acousticProblemData, isTopAcoustic, isTopTwersky, isBottomAcoustic, error: null };       
+    }
 
     interpolationTypes = [
         {
@@ -195,7 +206,7 @@ export default class InputForm extends Component {
     validateAndFormatData = () => {
         const error = {};
         let { frequency, nModes, nMedia, topBCType, interpolationType, isVolumeAttenuatonAdded, zt, cpt,
-            cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, zb, cpb,
+            cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd } = this.state;
 
         if (frequency <= 0) {
@@ -360,32 +371,35 @@ export default class InputForm extends Component {
 
     render() {
 
-        const { isBottomAcoustic, isTopAcoustic, isTopTwersky, error } = this.state;        
+        const { isBottomAcoustic, isTopAcoustic, isTopTwersky, error } = this.state;
+        const { frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
+            cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
+            csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd } = this.state;
 
         return (
             <Form onSubmit={this.onSubmit} >
                 <FormGroup>
                     <Label for="frequency">Frequency (Hz)</Label>
-                    <Input type="number" name="frequency" id="frequency" onChange={this.handleChange} placeholder="Frequency" required/>
+                    <Input type="number" name="frequency" id="frequency" onChange={this.handleChange} placeholder="Frequency" defaultValue={frequency} required />
                 </FormGroup>
                 <FormGroup>
                     <Label for="nModes">Number of modes</Label>
-                    <Input type="number" name="nModes" id="nModes" onChange={this.handleChange} placeholder="Number of modes" required/>
+                    <Input type="number" name="nModes" id="nModes" onChange={this.handleChange} placeholder="Number of modes" defaultValue={nModes} required />
                 </FormGroup>                
                 <FormGroup>
                     <Label for="nMedia">Number of media</Label>
-                    <Input type="number" name="nMedia" id="nMedia" onChange={this.handleChange} placeholder="Number of media" required/>
+                    <Input type="number" name="nMedia" id="nMedia" onChange={this.handleChange} placeholder="Number of media" defaultValue={nMedia} required />
                  </FormGroup>
 
                 <Row form>                    
                     <Col md={6}>
                         <FormGroup>
-                            <Select label={"Type of interpolation"} name={"interpolationType"} onChange={this.handleChange} options={this.interpolationTypes} />
+                            <Select label={"Type of interpolation"} name={"interpolationType"} onChange={this.handleChange} options={this.interpolationTypes} initValue={interpolationType} />
                         </FormGroup>
                     </Col>
                     <Col md={6}>
                         <FormGroup>
-                            <Select label={"Type of top boundary condition"} name={"topBCType"} onChange={this.handleTopBCTypeChange} options={this.topBoundaryConditions} />
+                            <Select label={"Type of top boundary condition"} name={"topBCType"} onChange={this.handleTopBCTypeChange} options={this.topBoundaryConditions} initValue={topBCType} />
                         </FormGroup>
                     </Col>
                 </Row>
@@ -394,37 +408,37 @@ export default class InputForm extends Component {
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="zt">Depth (m)</Label>
-                                <Input type="number" name="zt" id="zt" onChange={this.handleChange} required/>
+                                <Input type="number" name="zt" id="zt" onChange={this.handleChange} required defaultValue={zt} />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="cpt">Top P-wave speed (m/s)</Label>
-                                <Input type="number" name="cpt" id="cpt" onChange={this.handleChange} required/>
+                                <Input type="number" name="cpt" id="cpt" onChange={this.handleChange} required defaultValue={cpt} />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="cst">Top S-wave speed (m/s)</Label>
-                                <Input type="number" name="cst" id="cst" onChange={this.handleChange} required />
+                                <Input type="number" name="cst" id="cst" onChange={this.handleChange} required defaultValue={cst} />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="rhot">Top density (g/cm3)</Label>
-                                <Input type="number" name="rhot" id="rhot" onChange={this.handleChange} required/>
+                                <Input type="number" name="rhot" id="rhot" onChange={this.handleChange} required defaultValue={rhot} />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="apt">Top P-wave attenuation</Label>
-                                <Input type="number" name="apt" id="apt" onChange={this.handleChange} required/>
+                                <Input type="number" name="apt" id="apt" onChange={this.handleChange} required defaultValue={apt} />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="ast">Top S-wave attenuation</Label>
-                                <Input type="number" name="ast" id="ast" onChange={this.handleChange} required/>
+                                <Input type="number" name="ast" id="ast" onChange={this.handleChange} required defaultValue={ast} />
                             </FormGroup>
                         </Col>
                     </Row>
@@ -434,50 +448,50 @@ export default class InputForm extends Component {
                         <Col md={4}>
                             <FormGroup>
                                 <Label for="bumDen">Bump density (ridges/km)</Label>
-                                <Input type="number" name="bumDen" id="bumDen" onChange={this.handleChange} required/>
+                                <Input type="number" name="bumDen" id="bumDen" onChange={this.handleChange} required defaultValue={bumDen} />
                             </FormGroup>
                         </Col>
                         <Col md={4}>
                             <FormGroup>
                                 <Label for="eta">Principal radius 1 (m)</Label>
-                                <Input type="number" name="eta" id="eta" onChange={this.handleChange} required/>
+                                <Input type="number" name="eta" id="eta" onChange={this.handleChange} required defaultValue={eta} />
                             </FormGroup>
                         </Col>
                         <Col md={4}>
                             <FormGroup>
                                 <Label for="xi">Principal radius 2 (m)</Label>
-                                <Input type="number" name="xi" id="xi" onChange={this.handleChange} required/>
+                                <Input type="number" name="xi" id="xi" onChange={this.handleChange} required defaultValue={xi} />
                             </FormGroup>
                         </Col>
                     </Row>
                     : null}
                 <FormGroup>
-                    <Select label={"Attenuation units"} name={"attenuationUnits"} onChange={this.handleChange} options={this.attenuationUnits} required />
+                    <Select label={"Attenuation units"} name={"attenuationUnits"} onChange={this.handleChange} options={this.attenuationUnits} required initValue={attenuationUnits} />
                 </FormGroup>
                 <FormGroup check>
                     <Label check>
-                        <Input type="checkbox" name="isVolumeAttenuatonAdded" id="isVolumeAttenuatonAdded" onChange={this.handleCheckboxChange} />{' '}
+                        <Input type="checkbox" name="isVolumeAttenuatonAdded" id="isVolumeAttenuatonAdded" onChange={this.handleCheckboxChange} defaultValue={isVolumeAttenuatonAdded} />{' '}
                         Add volume attenuation
                     </Label>
                 </FormGroup>
                 <FormGroup>
                     <Label for="mediumInfo">Medium info </Label>
-                    <Input type="textarea" name="mediumInfo" id="mediumInfo" onChange={this.handleChange} required placeholder={"e.g. [300,0,3000], [200,0,500]"} />                  
+                    <Input type="textarea" name="mediumInfo" id="mediumInfo" onChange={this.handleChange} required placeholder={"e.g. [300,0,3000], [200,0,500]"} defaultValue={mediumInfo} />                  
                 </FormGroup>
                 <FormGroup>
                     <Label for="ssp">Sound speed profile</Label>
-                    <Input type="textarea" name="ssp" id="ssp" onChange={this.handleChange} required placeholder={"e.g. [0,1500, 0, 1.0, 0, 0],[3000, 1500, 0, 1.0, 0, 0.00000],[3000, 1500, 0, 2.0000, 0, 0.00000],[5000, 1500, 0, 2.0000, 0, 0]"}/>
+                    <Input type="textarea" name="ssp" id="ssp" onChange={this.handleChange} required defaultValue={ssp} placeholder={"e.g. [0,1500, 0, 1.0, 0, 0],[3000, 1500, 0, 1.0, 0, 0.00000],[3000, 1500, 0, 2.0000, 0, 0.00000],[5000, 1500, 0, 2.0000, 0, 0]"} />
                 </FormGroup>
                 <Row form>
                     <Col md={6}>
                         <FormGroup>
-                            <Select label={"Type of bottom boundary condition"} name={"bottomBCType"} onChange={this.handleBottomBCTypeChange} options={this.bottomBoundaryConditions} />
+                            <Select label={"Type of bottom boundary condition"} name={"bottomBCType"} onChange={this.handleBottomBCTypeChange} options={this.bottomBoundaryConditions} initValue={bottomBCType} />
                         </FormGroup>
                     </Col>
                     <Col md={6}>
                         <FormGroup>
                             <Label for="sigma">Interfacial roughness (m)</Label>
-                            <Input type="number" name="sigma" id="sigma" onChange={this.handleChange} required/>
+                            <Input type="number" name="sigma" id="sigma" onChange={this.handleChange} required defaultValue={sigma} />
                         </FormGroup>
                     </Col>
                 </Row>
@@ -486,37 +500,37 @@ export default class InputForm extends Component {
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="zb">Depth (m)</Label>
-                                <Input type="number" name="zb" id="zb" onChange={this.handleChange} required/>
+                                <Input type="number" name="zb" id="zb" onChange={this.handleChange} required defaultValue={zb} />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="cpb">Bottom P-wave speed (m/s)</Label>
-                                <Input type="text" name="cpb" id="cpb" onChange={this.handleChange} required/>
+                                <Input type="text" name="cpb" id="cpb" onChange={this.handleChange} required defaultValue={cpb} />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="csb">Bottom S-wave speed (m/s)</Label>
-                                <Input type="text" name="csb" id="csb" onChange={this.handleChange} required/>
+                                <Input type="text" name="csb" id="csb" onChange={this.handleChange} required defaultValue={csb} />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="rhob">Bottom density (g/cm3)</Label>
-                                <Input type="text" name="rhob" id="rhob" onChange={this.handleChange} required/>
+                                <Input type="text" name="rhob" id="rhob" onChange={this.handleChange} required defaultValue={rhob} />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="apb">Bottom P-wave atten.</Label>
-                                <Input type="text" name="apb" id="apb" onChange={this.handleChange} required/>
+                                <Input type="text" name="apb" id="apb" onChange={this.handleChange} required defaultValue={apb} />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="asb">Bottom S-wave atten.</Label>
-                                <Input type="text" name="asb" id="asb" onChange={this.handleChange} required/>
+                                <Input type="text" name="asb" id="asb" onChange={this.handleChange} required defaultValue={asb} />
                             </FormGroup>
                         </Col>
                     </Row>
@@ -525,31 +539,31 @@ export default class InputForm extends Component {
                     <Col md={6}>
                         <FormGroup>
                             <Label for="cLow">Lower phase speed limit (m/s)</Label>
-                            <Input type="number" name="cLow" id="cLow" onChange={this.handleChange} required/>
+                            <Input type="number" name="cLow" id="cLow" onChange={this.handleChange} required defaultValue={cLow} />
                         </FormGroup>
                     </Col>
                     <Col md={6}>
                         <FormGroup>
                             <Label for="cHigh">Upper phase speed limit (m/s)</Label>
-                            <Input type="number" name="cHigh" id="cHigh" onChange={this.handleChange} required/>
+                            <Input type="number" name="cHigh" id="cHigh" onChange={this.handleChange} required defaultValue={cHigh} />
                         </FormGroup>
                     </Col>
                 </Row>
                 <FormGroup>
                     <Label for="rMax">Maximum range (km)</Label>
-                    <Input type="number" name="rMax" id="rMax" onChange={this.handleChange} required/>
+                    <Input type="number" name="rMax" id="rMax" onChange={this.handleChange} required defaultValue={rMax} />
                 </FormGroup>
                 <Row form>
                     <Col md={6}>
                         <FormGroup>
                             <Label for="nsd">The number of soure depths</Label>
-                            <Input type="number" name="nsd" id="nsd" onChange={this.handleChange} required/>
+                            <Input type="number" name="nsd" id="nsd" onChange={this.handleChange} required defaultValue={nsd} />
                         </FormGroup>
                     </Col>
                     <Col md={6}>
                         <FormGroup>
                             <Label for="sd">The source depths (m)</Label>
-                            <Input type="textarea" name="sd" id="sd" onChange={this.handleChange} required/>
+                            <Input type="textarea" name="sd" id="sd" onChange={this.handleChange} required defaultValue={sd} />
                         </FormGroup>
                     </Col>
                 </Row>
@@ -557,13 +571,13 @@ export default class InputForm extends Component {
                     <Col md={6}>
                         <FormGroup>
                             <Label for="nrd">The number of receiver depths</Label>
-                            <Input type="number" name="nrd" id="nrd" onChange={this.handleChange} required/>
+                            <Input type="number" name="nrd" id="nrd" onChange={this.handleChange} required defaultValue={nrd} />
                         </FormGroup>
                     </Col>
                     <Col md={6}>
                         <FormGroup>
                             <Label for="rd">The receiver depths (m)</Label>
-                            <Input type="textarea" name="rd" id="rd" onChange={this.handleChange} required/>
+                            <Input type="textarea" name="rd" id="rd" onChange={this.handleChange} required defaultValue={rd} />
                         </FormGroup>
                     </Col>
                 </Row>
