@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Serialization;
 
 namespace Kraken.WebUI
 {
@@ -25,7 +26,7 @@ namespace Kraken.WebUI
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddNewtonsoftJson();
             services.AddTransient<KrakenInputModelMapper>();
             services.AddTransient<KrakenResultModelMapper>();
             services.AddTransient<IKrakenService, KrakenService>();

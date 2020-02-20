@@ -39,7 +39,7 @@ Output:
         public void OceanAcousticNormalModes(int nm, double frq, int nl, string note1, List<List<double>> bb, int nc,
                                              List<List<double>> ssp, string note2, double bsig,List<double> clh, double rng, int nsr, List<double> zsr,
                                              int nrc, List<double> zrc, int nz, List<double> tahsp, List<double> tsp, List<double> bahsp,ref List<double> cg, ref List<double> cp,
-                                             ref List<double> zm,ref List<List<double>> modes, ref List<double> k)
+                                             ref List<double> zm,ref List<List<double>> modes, ref List<Complex> k)
         {
             var krakMod = new KrakMod();
             krakMod.Init();           
@@ -108,17 +108,19 @@ Output:
                 for (var i = 1; i <= krakMod.M; i++)
                 {
                     krakMod.k[i] = Complex.Sqrt(krakMod.Extrap[1][i] + krakMod.k[i]);
-                }
+                }               
 
                 var MMM = Math.Min(krakMod.M, nm);
 
                 cp = Enumerable.Repeat(0d, MMM + 1).ToList();
                 cg = Enumerable.Repeat(0d, MMM + 1).ToList();
+                k = Enumerable.Repeat(new Complex(), MMM + 1).ToList();
 
                 for (krakMod.Mode = 1; krakMod.Mode <= MMM; krakMod.Mode++)
                 {
                     cp[krakMod.Mode] = (OMEGA / krakMod.k[krakMod.Mode]).Real;
                     cg[krakMod.Mode] = krakMod.VG[krakMod.Mode];
+                    k[krakMod.Mode] = krakMod.k[krakMod.Mode];
                 }
             }
         }
@@ -743,10 +745,10 @@ Output:
                 L = L + krakMod.N[Medium] - 1;
                 var J1 = J + 1;
                 J = J + krakMod.N[Medium] - 1;
-                var PHIPow = new List<double>(J - J1+ 1);                
-                for(var i = J1; i < J; i++)
+                var PHIPow = Enumerable.Repeat(0d, PHI.Count).ToList();
+                for (var i = J1; i < J; i++)
                 {
-                    PHIPow.Add(PHI[i] * PHI[i]);
+                    PHIPow[i] = PHI[i] * PHI[i];
                 }
                 PHIPow.Insert(0, 0);
                 PHIPow.Insert(0, 0);

@@ -98,27 +98,31 @@ namespace Kraken.NormalModesCalculation
                 krakMod.eta = tsp[2];
                 krakMod.xi = tsp[3];
             }
-            
-            var CP = new List<Complex>(MaxSSP+1);
-            var CS = new List<Complex>(MaxSSP+1);
 
-            for(var Medium = 1; Medium<=krakMod.NMedia;Medium++){
+            var CP = new List<Complex>(MaxSSP + 1);
+            var CS = new List<Complex>(MaxSSP + 1);
+
+            for (var Medium = 1; Medium <= krakMod.NMedia; Medium++)
+            {
                 var Task = "INIT";
-                PROFIL(krakMod,krakMod.Depth,CP, CS, rho,Medium,ref NElts,0, krakMod.Freq, SSPType,
-                AttenUnit,Task,nc,ssp);
+                PROFIL(krakMod, krakMod.Depth, CP, CS, rho, Medium, ref NElts, 0, krakMod.Freq, SSPType,
+                AttenUnit, Task, nc, ssp);
 
                 var C = alphaR;
-                if(betaR>0){
-                    C= betaR;
+                if (betaR > 0)
+                {
+                    C = betaR;
                 }
-                var deltaZ = C/krakMod.Freq/20;
-                var Nneeded = (krakMod.Depth[Medium+1] - krakMod.Depth[Medium])/deltaZ;
-                Nneeded = Math.Max(Nneeded,10);
-                if(krakMod.NG[Medium] == 0){
+                var deltaZ = C / krakMod.Freq / 20;
+                var Nneeded = (krakMod.Depth[Medium + 1] - krakMod.Depth[Medium]) / deltaZ;
+                Nneeded = Math.Max(Nneeded, 10);
+                if (krakMod.NG[Medium] == 0)
+                {
                     krakMod.NG[Medium] = (int)Nneeded;
                 }
-                else if(krakMod.NG[Medium]<Nneeded/2){
-                 
+                else if (krakMod.NG[Medium] < Nneeded / 2)
+                {
+
                 }
             }
 
@@ -135,7 +139,7 @@ namespace Kraken.NormalModesCalculation
                 krakMod.CSB = CRCI(betaR, betaI, krakMod.Freq, AttenUnit);
                 krakMod.rhoB = rhoR;
             }
-        }      
+        }
 
         public void PROFIL(KrakMod krakMod, List<double> Depth, List<Complex> CP, List<Complex> CS, List<double> rhoT,
                           int Medium, ref int N1, int next, double Freq, string SSPType, string AttenUnit, string Task, int nc, List<List<double>> ssp)
@@ -143,13 +147,13 @@ namespace Kraken.NormalModesCalculation
             switch (SSPType)
             {
                 case "N":
-                    N2LIN(krakMod,Depth, CP, CS, rhoT, Medium, ref N1, next,Freq, AttenUnit, Task, nc, ssp);
+                    N2LIN(krakMod, Depth, CP, CS, rhoT, Medium, ref N1, next, Freq, AttenUnit, Task, nc, ssp);
                     break;
                 case "C":
-                    CLIN(krakMod, Depth, CP, CS, rhoT, Medium, ref N1, next,Freq, AttenUnit, Task, nc, ssp);
+                    CLIN(krakMod, Depth, CP, CS, rhoT, Medium, ref N1, next, Freq, AttenUnit, Task, nc, ssp);
                     break;
                 case "S":
-                    CCUBIC(krakMod, Depth, CP, CS, rhoT, Medium,ref N1, next, Freq, AttenUnit, Task, nc, ssp);
+                    CCUBIC(krakMod, Depth, CP, CS, rhoT, Medium, ref N1, next, Freq, AttenUnit, Task, nc, ssp);
                     break;
                 default:
                     throw new ArgumentException("Unknown profile option (SSPType)");
@@ -210,10 +214,10 @@ namespace Kraken.NormalModesCalculation
             return CRCI;
         }
 
-        public void N2LIN(KrakMod krakMod, List<double> Depth, List<Complex> CP, List<Complex> CS, List<double> rhoT, int Medium,ref int N1,
+        public void N2LIN(KrakMod krakMod, List<double> Depth, List<Complex> CP, List<Complex> CS, List<double> rhoT, int Medium, ref int N1,
                           int next, double Freq, string AttenUnit, string Task, int nc, List<List<double>> ssp)
         {
-            var MaxSSP = 2001;                
+            var MaxSSP = 2001;
 
             int ILoc;
             if (Task.Contains("INIT"))
@@ -280,18 +284,20 @@ namespace Kraken.NormalModesCalculation
                     }
 
                     var R = (ZT - Z[ILoc + Lay]) / (Z[ILoc + Lay + 1] - Z[ILoc + Lay]);
-                    
-                    var N2TOP = 1.0 / Complex.Pow(alpha[ILoc+Lay],2);
-                    var N2BOT = 1.0 / Complex.Pow(alpha[ILoc + Lay + 1],2);
-                    CP[I] = 1.0 / Complex.Sqrt((1.0-R)*N2TOP + R*N2BOT);
 
-                    if(beta[ILoc+Lay] != 0){
-                        N2TOP = 1.0/ Complex.Pow(beta[ILoc + Lay],2);
-                        N2BOT = 1.0/ Complex.Pow(beta[ILoc + Lay + 1],2);
-                        CS[I] = 1.0 / Complex.Sqrt((1.0-R)*N2TOP + R*N2BOT);
+                    var N2TOP = 1.0 / Complex.Pow(alpha[ILoc + Lay], 2);
+                    var N2BOT = 1.0 / Complex.Pow(alpha[ILoc + Lay + 1], 2);
+                    CP[I] = 1.0 / Complex.Sqrt((1.0 - R) * N2TOP + R * N2BOT);
+
+                    if (beta[ILoc + Lay] != 0)
+                    {
+                        N2TOP = 1.0 / Complex.Pow(beta[ILoc + Lay], 2);
+                        N2BOT = 1.0 / Complex.Pow(beta[ILoc + Lay + 1], 2);
+                        CS[I] = 1.0 / Complex.Sqrt((1.0 - R) * N2TOP + R * N2BOT);
                     }
-                    else{
-                        CS[I] = new Complex(0.0,0.0);
+                    else
+                    {
+                        CS[I] = new Complex(0.0, 0.0);
                     }
 
                     rhoT[I] = (1.0 - R) * rho[ILoc + Lay] + R * rho[ILoc + Lay + 1];
@@ -302,8 +308,8 @@ namespace Kraken.NormalModesCalculation
         public void CLIN(KrakMod krakMod, List<double> Depth, List<Complex> CP, List<Complex> CS, List<double> rhoT, int Medium, ref int N1,
                           int next, double Freq, string AttenUnit, string Task, int nc, List<List<double>> ssp)
         {
-            var MaxSSP = 2001;            
-           
+            var MaxSSP = 2001;
+
             int ILoc;
             if (Task.Contains("INIT"))
             {
@@ -382,7 +388,7 @@ namespace Kraken.NormalModesCalculation
             var MaxSSP = 2001;
 
             int ILoc;
-            if (Task.Contains("INIT")) 
+            if (Task.Contains("INIT"))
             {
                 NSSPPts[Medium] = N1;
 
@@ -435,25 +441,25 @@ namespace Kraken.NormalModesCalculation
             }
             else
             {
-                ILoc = NSSPPts[Medium-1];
+                ILoc = NSSPPts[Medium - 1];
                 var N = N1 - 1;
-                var H = (Z[ILoc + NSSPPts[Medium]] - Z[ILoc+1]) / N; //check
+                var H = (Z[ILoc + NSSPPts[Medium]] - Z[ILoc + 1]) / N; //check
                 var Lay = 1;
-                for (var I = next; I <= N1+next-1; I++)
+                for (var I = next; I <= N1 + next - 1; I++)
                 {
                     double ZT = Z[ILoc + 1] + (I - next) * H;
-                    if (I == N1+next)
+                    if (I == N1 + next)
                     {
                         ZT = Z[ILoc + NSSPPts[Medium]];
                     }
 
-                    while (ZT > Z[ILoc + Lay+1])
+                    while (ZT > Z[ILoc + Lay + 1])
                     {
                         Lay += 1;
                     }
                     var splineC = new Splinec();
                     var HSPLNE = ZT - Z[ILoc + Lay];
-                    CP[I] = splineC.ESPLINE(alphaC, ILoc + Lay, HSPLNE); 
+                    CP[I] = splineC.ESPLINE(alphaC, ILoc + Lay, HSPLNE);
                     CS[I] = splineC.ESPLINE(betaC, ILoc + Lay, HSPLNE);
                     rhoT[I] = splineC.ESPLINE(rhoC, ILoc + Lay, HSPLNE).Real;
                 }

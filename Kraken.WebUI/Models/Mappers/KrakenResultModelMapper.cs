@@ -1,4 +1,6 @@
 ﻿using Kraken.Application.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Kraken.WebUI.Models.Mappers
 {
@@ -8,13 +10,18 @@ namespace Kraken.WebUI.Models.Mappers
         {
             var resultModel = new KrakenResultModel
             {
-                Alpha = normalModes.Alpha,
+                Alpha = normalModes.K.Select(x=>x.Imaginary),
                 GroupSpeed = normalModes.GroupSpeed,
                 PhaseSpeed = normalModes.PhaseSpeed,
-                K = normalModes.K,
-                Modes = normalModes.Modes,
-                ZM = normalModes.ZM
+                K = normalModes.K.Select(x=>x.Real)
             };
+
+            var depthsCount = normalModes.ZM.Count;
+            resultModel.Modes = new Dictionary<double, List<double>>(depthsCount);
+            for(var i = 0; i < depthsCount; i++)
+            {
+                resultModel.Modes[i] = normalModes.Modes[i];
+            }            
 
             return resultModel;
         }

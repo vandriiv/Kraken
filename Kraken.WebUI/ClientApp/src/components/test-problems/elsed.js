@@ -2,6 +2,7 @@
 import InitializedInputForm from '../initialized-input-form';
 import { Row, Col } from 'reactstrap';
 import { Helmet } from "react-helmet";
+import FormWrapper from '../form-wrapper';
 
 export default class Elsed extends Component {
     acousticProblemData = {
@@ -54,7 +55,7 @@ export default class Elsed extends Component {
                     </figure>
                     <p>The FLUSED is modified by including shear properties in the sediment. This problem has several interfacial modes with phase velocities below 1300 m/s which have been excluded from the calculation.</p>
                 </div>
-                <InitializedInputForm acousticProblemData={this.acousticProblemData} />
+                <FormWrapper form={<InitializedInputForm acousticProblemData={this.acousticProblemData} />} />
             </Col>
         </Row>)
     }

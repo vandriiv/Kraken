@@ -11,7 +11,8 @@ export default class InitializedInputForm extends Component {
         nModes: 0,
         nMedia: 0,
         topBCType: '',
-        interpolationType:'',
+        interpolationType: '',
+        attenuationUnits:'',
         isTopAcoustic: false,
         isTopTwersky: false,
         isBottomAcoustic: false,
@@ -200,14 +201,17 @@ export default class InitializedInputForm extends Component {
     onSubmit = (e)=> {
         e.preventDefault();
         this.setState({ error: null });
-        this.validateAndFormatData();
+        const data = this.validateAndFormatData();
+        if (data !== null) {
+            this.props.onSubmit(data);
+        }
     }
 
     validateAndFormatData = () => {
         const error = {};
-        let { frequency, nModes, nMedia, topBCType, interpolationType, isVolumeAttenuatonAdded, zt, cpt,
+        let { frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
-            csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd } = this.state;
+            csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd } = this.state;        
 
         if (frequency <= 0) {
             error.frequency = "Frequency ";
@@ -335,10 +339,19 @@ export default class InitializedInputForm extends Component {
         }
         catch (e) {
             error.ssp = "SSP format";
-        }
+        }       
 
-        if (error !== {}) {
+        if (!(Object.entries(error).length === 0 && error.constructor === Object)) {
             this.setState({ error: error });
+            return null;
+        }
+        else {
+            const addedVolumeAttenuation = isVolumeAttenuatonAdded === true ? 'T' : '';
+            return {
+                frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, addedVolumeAttenuation, zt, cpt,
+                cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
+                csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd
+            };
         }
     }
 
@@ -374,7 +387,7 @@ export default class InitializedInputForm extends Component {
         const { isBottomAcoustic, isTopAcoustic, isTopTwersky, error } = this.state;
         const { frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
-            csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd } = this.state;
+            csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd } = this.state;       
 
         return (
             <Form onSubmit={this.onSubmit} >

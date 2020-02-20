@@ -2,6 +2,7 @@
 import InitializedInputForm from '../initialized-input-form';
 import { Row, Col } from 'reactstrap';
 import { Helmet } from "react-helmet";
+import FormWrapper from '../form-wrapper';
 
 export default class Double extends Component {
     acousticProblemData = {
@@ -54,7 +55,7 @@ export default class Double extends Component {
                     </figure>
                     <p>The ocean profile is converted to one involving three piecewise linear segments defining a double-duct profile.</p>
                 </div>
-                <InitializedInputForm acousticProblemData={this.acousticProblemData} />
+                <FormWrapper form={<InitializedInputForm acousticProblemData={this.acousticProblemData} />} />
             </Col>
         </Row>)
     }

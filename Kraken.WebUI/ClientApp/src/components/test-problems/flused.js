@@ -2,6 +2,7 @@
 import InitializedInputForm from '../initialized-input-form';
 import { Row, Col } from 'reactstrap';
 import { Helmet } from "react-helmet";
+import FormWrapper from '../form-wrapper';
 
 export default class Flused extends Component {
     acousticProblemData = {
@@ -54,7 +55,7 @@ export default class Flused extends Component {
                     </figure>
                     <p>A fluid sediment is inserted between the bottom half-space and the ocean.</p>
                 </div>
-                <InitializedInputForm acousticProblemData={this.acousticProblemData} />
+                <FormWrapper form={<InitializedInputForm acousticProblemData={this.acousticProblemData} />} />
             </Col>
         </Row>)
     }

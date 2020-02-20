@@ -2,6 +2,7 @@
 import InitializedInputForm from '../initialized-input-form';
 import { Row, Col } from 'reactstrap';
 import { Helmet } from "react-helmet";
+import FormWrapper from '../form-wrapper';
 
 export default class Normal extends Component {
     acousticProblemData = {
@@ -21,7 +22,7 @@ export default class Normal extends Component {
         bumDen: 0,
         eta: 0,
         xi: 0,
-        mediumInfo: '[300,0,5000],[200,0,5000]',
+        mediumInfo: '[300,0,3000],[200,0,5000]',
         ssp: '[0,1500,0,1,0,0], [3000,1500,0,1,0,0],[3000,1500,0,2,0,0],[5000,1500,0,2,0,0]',
         bottomBCType: 'A',
         sigma: 0,
@@ -54,7 +55,7 @@ export default class Normal extends Component {
                     </figure>
                     <p>Mode normalization is checked using several density changes. Due to the shear in the lower halfspace, there is a Scholte wave with a phase velocity of about 1393 m/s. It has been excluded from the calculation.</p>
                 </div>
-                <InitializedInputForm acousticProblemData={this.acousticProblemData} />
+                <FormWrapper form={<InitializedInputForm acousticProblemData={this.acousticProblemData} />} />
             </Col>
         </Row>)
     }

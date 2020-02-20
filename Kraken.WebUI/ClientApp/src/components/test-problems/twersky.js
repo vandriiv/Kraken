@@ -2,6 +2,7 @@
 import InitializedInputForm from '../initialized-input-form';
 import { Row, Col } from 'reactstrap';
 import { Helmet } from "react-helmet";
+import FormWrapper from '../form-wrapper';
 
 export default class Twersky extends Component {
     acousticProblemData = {
@@ -54,7 +55,7 @@ export default class Twersky extends Component {
                     </figure>
                     <p>The Pekeris problem is modified by the inclusion of surface scatter. The rough surface involves a density of 0.092 bosses per km of width 8.2 m and height 5.1 m</p>
                 </div>
-                <InitializedInputForm acousticProblemData={this.acousticProblemData} />
+                <FormWrapper form={<InitializedInputForm acousticProblemData={this.acousticProblemData} />} />
             </Col>
         </Row>)
     }

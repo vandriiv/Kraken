@@ -25,9 +25,11 @@ namespace Kraken.WebUI.Controllers
         {
             var acousticProblem = _krakenInputModelMapper.MapAcousticProblemData(model);
 
-            var result = _krakenResultModelMapper.MapNormalModes(_krakenService.ComputeModes(acousticProblem));
+            var computingResult = _krakenService.ComputeModes(acousticProblem);
 
-            return Json(result);
+            var viewModel = _krakenResultModelMapper.MapNormalModes(computingResult);
+
+            return Json(viewModel);
         }
     }
 }

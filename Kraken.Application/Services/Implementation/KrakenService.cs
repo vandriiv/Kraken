@@ -3,6 +3,7 @@ using Kraken.Application.Services.Interfaces;
 using Kraken.NormalModesCalculation;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace Kraken.Application.Services.Implementation
 {
@@ -55,19 +56,30 @@ namespace Kraken.Application.Services.Implementation
 
             var cg = new List<double>();
             var cp = new List<double>();
-            var k = new List<double>();
+            var k = new List<Complex>();
             var zm = new List<double>();
             var modes = new List<List<double>>();
 
             _krakenNormalModeProgram.OceanAcousticNormalModes(acousticProblemData.NModes,acousticProblemData.Frequency,acousticProblemData.NMedia, options,
                 mediumInfo,ssp.Count,ssp,bottomBC,acousticProblemData.Sigma,cLowHight,acousticProblemData.RMax,acousticProblemData.NSD,sd, acousticProblemData.NRD,
-                acousticProblemData.RD,nz,topAHSP,twerskyParams,bottomAHSP, ref cg, ref cp, ref zm, ref modes,ref k);
+                rd,nz,topAHSP,twerskyParams,bottomAHSP, ref cg, ref cp, ref zm, ref modes,ref k);
 
-            result.PhaseSpeed = cp;
+            result.PhaseSpeed = cp; 
             result.GroupSpeed = cg;
             result.K = k;
             result.Modes = modes;
             result.ZM = zm;
+
+            result.PhaseSpeed.RemoveAt(0);
+            result.GroupSpeed.RemoveAt(0);
+            result.K.RemoveAt(0);
+            result.ZM.RemoveAt(0);
+
+            result.Modes.RemoveAt(0);
+            foreach(var mode in result.Modes)
+            {
+                mode.RemoveAt(0);
+            }
 
             return result;
         }

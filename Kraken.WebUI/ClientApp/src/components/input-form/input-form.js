@@ -12,11 +12,11 @@ export default class InputForm extends Component {
         nMedia: 0,
         topBCType: '',
         interpolationType: '',
-        attenuationUnits:'',
+        attenuationUnits: '',
         isTopAcoustic: false,
         isTopTwersky: false,
         isBottomAcoustic: false,
-        isVolumeAttenuatonAdded:false,
+        isVolumeAttenuatonAdded: false,
         zt: 0,
         cpt: 0,
         cst: 0,
@@ -25,7 +25,7 @@ export default class InputForm extends Component {
         ast: 0,
         bumDen: 0,
         eta: 0,
-        xi:0,
+        xi: 0,
         mediumInfo: [],
         ssp: [],
         bottomBCType: '',
@@ -186,16 +186,19 @@ export default class InputForm extends Component {
         this.setState({ [name]: checked });
     }
 
-    onSubmit = (e)=> {
+    onSubmit = (e) => {
         e.preventDefault();
         this.setState({ error: null });
-        this.validateAndFormatData();
+        const data = this.validateAndFormatData();
+        if (data !== null) {
+            this.props.onSubmit(data);
+        }
     }
 
     validateAndFormatData = () => {
         const error = {};
-        let { frequency, nModes, nMedia, topBCType, interpolationType, isVolumeAttenuatonAdded, zt, cpt,
-            cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, zb, cpb,
+        let { frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
+            cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd } = this.state;
 
         if (frequency <= 0) {
@@ -244,7 +247,7 @@ export default class InputForm extends Component {
             error.bumDen = "Bump density ";
         }
 
-        if ((topBCType === 'S' || topBCType === 'H' || topBCType === 'T' || topBCType === 'I') && eta <0) {
+        if ((topBCType === 'S' || topBCType === 'H' || topBCType === 'T' || topBCType === 'I') && eta < 0) {
             error.eta = "Principal radius 1";
         }
 
@@ -301,7 +304,7 @@ export default class InputForm extends Component {
         try {
             sd = this.parseOneDimensionalArray(sd);
         }
-        catch (e) {            
+        catch (e) {
             error.sd = "Source depth format";
         }
 
@@ -326,8 +329,17 @@ export default class InputForm extends Component {
             error.ssp = "SSP format";
         }
 
-        if (error !== {}) {
+        if (!(Object.entries(error).length === 0 && error.constructor === Object)) {
             this.setState({ error: error });
+            return null;
+        }
+        else {
+            const addedVolumeAttenuation = isVolumeAttenuatonAdded === true ? 'T' : '';
+            return {
+                frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, addedVolumeAttenuation, zt, cpt,
+                cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
+                csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd
+            };
         }
     }
 
