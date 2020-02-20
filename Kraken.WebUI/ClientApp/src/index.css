@@ -1,3 +1,20 @@
 ﻿figure {
     margin-top:16px;
 }
+
+table ol{
+    padding-left:0;
+}
+
+.tables-wrapper{
+    margin-top:16px;
+}
+
+.tables-wrapper .switch.btn-sm {       
+        margin-bottom: 16px;
+        margin-top: 16px;
+}
+
+.switch.btn-sm {
+    min-width: 4.5rem;
+}

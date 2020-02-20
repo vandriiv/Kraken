@@ -6,6 +6,7 @@
     "axios": "^0.19.2",
     "babel-eslint": "10.0.3",
     "bootstrap": "^4.4.0",
+    "bootstrap-switch-button-react": "^1.2.0",
     "classnames": "^2.2.6",
     "eslint": "^6.6.0",
     "merge": "^1.2.1",

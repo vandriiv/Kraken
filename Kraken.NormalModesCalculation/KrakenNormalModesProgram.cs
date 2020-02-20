@@ -715,8 +715,7 @@ Output:
             Complex DEL = new Complex();
 
             double SLOW, SQNRM;
-            SQNRM = 0.0;
-            PERK = 0.0;
+            SQNRM = 0.0;           
             SLOW = 0.0;
 
             if (krakMod.TopOpt[1] == 'A')

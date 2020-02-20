@@ -20,7 +20,7 @@ namespace Kraken.WebUI.Models.Mappers
             resultModel.Modes = new Dictionary<double, List<double>>(depthsCount);
             for(var i = 0; i < depthsCount; i++)
             {
-                resultModel.Modes[i] = normalModes.Modes[i];
+                resultModel.Modes.Add(normalModes.ZM[i], normalModes.Modes[i]);
             }            
 
             return resultModel;
