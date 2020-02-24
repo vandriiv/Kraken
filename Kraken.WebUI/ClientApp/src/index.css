@@ -18,3 +18,9 @@ table ol{
 .switch.btn-sm {
     min-width: 4.5rem;
 }
+
+.lg-chart-wrapper {
+    max-width: 100%;
+    margin: 16px auto;
+}
+

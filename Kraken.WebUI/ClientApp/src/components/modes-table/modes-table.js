@@ -4,11 +4,11 @@ import { Table } from 'reactstrap';
 export default class ModesTable extends Component {
 
     mapModes = (modes) => {
-        return Object.keys(modes).map((key,idx) => {
+        return modes.map((val,idx) => {
             return (<tr>
                 <td>{idx + 1}</td>
-                <td>{key}</td>
-                <td><ol>{modes[key].map(m => <li>{m}</li>)}</ol></td>
+                <td>{val.depth}</td>
+                <td><ol>{val.modes.map(m => <li>{m}</li>)}</ol></td>
             </tr>)
         });
     };
