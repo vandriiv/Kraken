@@ -13,7 +13,7 @@ export default class ModesChart extends Component{
       );
     };
 
-    transformData = (data) => {
+    mapData = (data) => {
         const result = [];
         for (let i = 0; i < data[0].modes.length; i++) {
             result.push([]);
@@ -33,19 +33,19 @@ export default class ModesChart extends Component{
 
     render() {
         const { data } = this.props;
-        const transformedData = this.transformData(data);
+        const chartData = this.mapData(data);
         this.colors = distinctColors(data[0].modes.length).map(x => `rgb(${x[0]}, ${x[1]},${x[2]})`);      
 
         return (
             <div className="lg-chart-wrapper">
                 <ResponsiveContainer height={700} width="100%">
-                    <LineChart margin={{left: 10 }}> 
+                    <LineChart margin={{ left: 10, top: 35 }}> 
                     <CartesianGrid strokeDasharray="10 10" />
                         <XAxis dataKey="x" type="number" domain={['dataMin', 'dataMax']} label={{ value: 'Depth (m)', position: 'insideBottomRight', offset: 0, dy: 10 }}/>
-                        <YAxis dataKey="y" type="number" tickCount={20} label={{ value: 'Mode amplitude', angle: -90, position: 'insideTopLeft', dx: -15, dy:115 }} />
+                        <YAxis dataKey="y" type="number" tickCount={20} label={{ value: 'Mode amplitude', position: 'insideTopLeft', dx: -10, dy: -35 }} />
                     <Tooltip />
                     <Legend />
-                    {this.mapLines(transformedData)}
+                    {this.mapLines(chartData)}
                     </LineChart>
                 </ResponsiveContainer>
             </div>);

@@ -3,6 +3,8 @@ import KrakenService from '../../services/kraken-service';
 import ComputingResultTables from '../computing-result-tables';
 import ModesChart from '../modes-chart';
 import SoundSpeedChart from '../sound-speed-chart';
+import ModeCharacteristicChart from '../mode-characteristic-chart';
+import Charts from '../charts';
 
 export default class FormWrapper extends Component {
 
@@ -48,8 +50,7 @@ export default class FormWrapper extends Component {
         return (<Fragment>
             {formWithProps}
             {isSuccess && <ComputingResultTables computingResult={computingResult} />}
-            {isSuccess && <ModesChart data={computingResult.modes} />}
-            {isSuccess && <SoundSpeedChart data={formData.ssp} />}
+            {isSuccess && <Charts modesData={computingResult} ssp={formData.ssp}/>}
         </Fragment>);
     }
 }
