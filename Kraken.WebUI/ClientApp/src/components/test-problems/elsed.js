@@ -8,7 +8,7 @@ export default class Elsed extends Component {
     acousticProblemData = {
         frequency: 10,
         nModes: 10,
-        nMedia: 2,
+        nMedia: 1,
         topBCType: 'V',
         interpolationType: 'N',
         attenuationUnits: 'F',
@@ -26,7 +26,7 @@ export default class Elsed extends Component {
         ssp: '[0,1500,0,1,0,0], [5000,1500,0,1,0,0],[5000,1400,700,1.5,0,0],[5100,1400,700,1.5,0,0]',
         bottomBCType: 'A',
         sigma: 0,
-        zb: 5000,
+        zb: 5100,
         cpb: 4000,
         csb: 0,
         rhob: 2,
