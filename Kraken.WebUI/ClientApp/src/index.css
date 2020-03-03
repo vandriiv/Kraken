@@ -29,3 +29,10 @@ table ol {
     margin-left: 16px;
     vertical-align: middle;
 }
+.recharts-legend-wrapper {
+    max-width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+}

@@ -43,8 +43,8 @@ export default class ModesChart extends Component{
                     <CartesianGrid strokeDasharray="10 10" />
                         <XAxis dataKey="x" type="number" domain={['dataMin', 'dataMax']} label={{ value: 'Depth (m)', position: 'insideBottomRight', offset: 0, dy: 10 }}/>
                         <YAxis dataKey="y" type="number" tickCount={20} label={{ value: 'Mode amplitude', position: 'insideTopLeft', dx: -10, dy: -35 }} />
-                    <Tooltip />
-                    <Legend />
+                        <Tooltip />
+                        <Legend className="chart-legend" />
                     {this.mapLines(chartData)}
                     </LineChart>
                 </ResponsiveContainer>

@@ -17,7 +17,7 @@ export default class KrakenResultTable extends Component {
 
     render() {
         const { data } = this.props;
-        return (<Table>
+        return (<Table responsive bordered hover>
             <thead>
                 <tr>
                     <th>#</th>
