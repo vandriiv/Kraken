@@ -6,61 +6,72 @@ namespace Kraken.NormalModesCalculation
 {
     public class SDRDRMod
     {
+        public int Nsx { get; set; }
+        public int Nsy { get; set; }
         public int Nsd { get; set; }
         public int Nrd { get; set; }
-        public int NR { get; set; }
+        public int Nr { get; set; }
         public int Ntheta { get; set; }
-        public List<int> Isd { get; set; }
-        public List<int> Ird { get; set; }
+
+        public double Delta_r { get; set; }
+        public double Delta_theta { get; set; }
+        public List<int> isd { get; set; }
+        public List<int> ird { get; set; }
+        public List<double> sx { get; set; }
+        public List<double> sy { get; set; }
         public List<double> sd { get; set; }
         public List<double> rd { get; set; }
-        public List<double> WS { get; set; }
-        public List<double> WR { get; set; }
-        public List<double> R { get; set; }
+        public List<double> ws { get; set; }
+        public List<double> wr { get; set; }
+        public List<double> r { get; set; }
         public List<double> theta { get; set; }
 
-        public void SDRD(double ZMIN, double ZMAX, int Nsd, List<double> sd, int Nrd, List<double> rd,List<double> zsr, List<double> zrc)
-        {           
-            
-            sd = Enumerable.Repeat(0d,Math.Max(3+1,Nsd+1)).ToList();
-            WS = Enumerable.Repeat(0d, Nsd+1).ToList();
-            Isd = Enumerable.Repeat(0, Nsd+1).ToList();
+        public void SDRD(double ZMIN, double ZMAX, int Nsd, List<double> sd, int Nrd, List<double> rd, List<double> zsr, List<double> zrc)
+        {
+
+            sd = Enumerable.Repeat(0d, Math.Max(3 + 1, Nsd + 1)).ToList();
 
             sd[3] = -999.9;
             var IQ = zsr.Count;
-            for(var i=1;i<IQ;i++){
+            for (var i = 1; i < IQ; i++)
+            {
                 sd[i] = zsr[i];
             }
 
             var subTabMod = new SubTabMod();
-            subTabMod.SUBTAB(sd,Nsd);
+            subTabMod.SUBTAB(sd, Nsd);
 
-            rd = Enumerable.Repeat(0d, Math.Max(3+1,Nrd+1)).ToList();
-            WR = Enumerable.Repeat(0d, Nrd+1).ToList();
-            Ird = Enumerable.Repeat(0, Nrd+1).ToList();
+            rd = Enumerable.Repeat(0d, Math.Max(3 + 1, Nrd + 1)).ToList();
 
             rd[3] = -999.9;
             IQ = zrc.Count;
-            for(var i=1;i<IQ;i++){
+            for (var i = 1; i < IQ; i++)
+            {
                 rd[i] = zrc[i];
             }
 
-            subTabMod.SUBTAB(rd,Nrd);
+            subTabMod.SUBTAB(rd, Nrd);
 
-            for(var IS=1;IS<=Nsd;IS++){
-                if(sd[IS] < ZMIN){
+            for (var IS = 1; IS <= Nsd; IS++)
+            {
+                if (sd[IS] < ZMIN)
+                {
                     sd[IS] = ZMIN;
                 }
-                else if(sd[IS]>ZMAX){
+                else if (sd[IS] > ZMAX)
+                {
                     sd[IS] = ZMAX;
                 }
             }
 
-            for(var IR=1;IR<=Nrd;IR++){
-                if(rd[IR] < ZMIN){
+            for (var IR = 1; IR <= Nrd; IR++)
+            {
+                if (rd[IR] < ZMIN)
+                {
                     rd[IR] = ZMIN;
                 }
-                else if(rd[IR]>ZMAX){
+                else if (rd[IR] > ZMAX)
+                {
                     rd[IR] = ZMAX;
                 }
             }
@@ -73,7 +84,7 @@ namespace Kraken.NormalModesCalculation
 
         public void RANGES(int NR, List<double> R)
         {
-            R = Enumerable.Repeat(0d, Math.Max(3+1,NR+1)).ToList();
+            R = Enumerable.Repeat(0d, Math.Max(3 + 1, NR + 1)).ToList();
 
             R[3] = -999.9;
             var subTabMod = new SubTabMod();
@@ -81,7 +92,41 @@ namespace Kraken.NormalModesCalculation
 
             R.Sort();
 
-            R = R.Select(x=>x*1000.0).ToList();
+            R = R.Select(x => x * 1000.0).ToList();
+        }
+
+        public void ReadRcvrRanges(int Nr, List<double> givenR)
+        {
+            var r = Enumerable.Repeat(0d, Math.Max(3, Nr) + 1).ToList();
+            r[3] = -999.9;
+            var IQ = givenR.Count;
+            for (var i = 1; i < IQ; i++)
+            {
+                r[i] = givenR[i];
+            }
+
+            var subtabMod = new SubTabMod();
+            subtabMod.SUBTAB(r, Nr);
+            r.Sort();
+
+            for (var i = 1; i < r.Count; i++)
+            {
+                r[i] *= 1000;
+            }
+
+            Delta_r = 0;
+            if (Nr != 1)
+            {
+                Delta_r = r[Nr] - r[Nr - 1];
+            }
+
+            var isIncreasing = r.OrderBy(x => x).SequenceEqual(r);
+            if (!isIncreasing)
+            {
+                throw new ArgumentException("Receiver ranges are not monotonically increasing");
+            }
+
+            this.r = r;
         }
     }
 }
