@@ -44,7 +44,7 @@ export default class InputForm extends Component {
         rd: [],
         calculateTransmissionLoss: false,
         sourceType: '',
-        modeTheory: '',
+        modesTheory: '',
         nModesForField: 0,
         nProf: 0,
         rProf: [],
@@ -157,7 +157,7 @@ export default class InputForm extends Component {
         }
     ];
 
-    modeTheories = [
+    modesTheories = [
         {
             key: 'A',
             name: 'Adiabatic mode theory'
@@ -235,7 +235,7 @@ export default class InputForm extends Component {
         let { frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
-            calculateTransmissionLoss, sourceType, modeTheory, nModesForField,
+            calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
             nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr,rr } = this.state;
 
         if (frequency <= 0) {
@@ -375,8 +375,8 @@ export default class InputForm extends Component {
                 error.sourceType = "Source type";
             }
 
-            if (modeTheory.length !== 1 || !this.modeTheory.some(x => x.key === modeTheory)) {
-                error.modeTheory = "Mode theory";
+            if (modesTheory.length !== 1 || !this.modesTheories.some(x => x.key === modesTheory)) {
+                error.modesTheory = "Mode theory";
             }
 
             if (nsdField <= 0) {
@@ -445,7 +445,7 @@ export default class InputForm extends Component {
                 frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, addedVolumeAttenuation, zt, cpt,
                 cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
                 csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd, nModesForField, nProf, rProf,
-                nr,r,nsdField,sdField,nrdField,rdField,nrr,rr, calculateTransmissionLoss, sourceType, modeTheory
+                nr,r,nsdField,sdField,nrdField,rdField,nrr,rr, calculateTransmissionLoss, sourceType, modesTheory
             };
         }
     }
@@ -702,7 +702,7 @@ export default class InputForm extends Component {
                         </Col>
                         <Col md={6}>
                             <FormGroup>
-                                <Select label={"Mode theory"} name={"modeTheory"} onChange={this.handleTopBCTypeChange} options={this.modeTheories} />
+                                <Select label={"Mode theory"} name={"modesTheory"} onChange={this.handleTopBCTypeChange} options={this.modesTheories} />
                             </FormGroup>
                         </Col>
                         </Row>

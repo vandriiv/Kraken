@@ -44,7 +44,7 @@ export default class InitializedInputForm extends Component {
         rd: [],
         calculateTransmissionLoss: false,
         sourceType: '',
-        modeTheory: '',
+        modesTheory: '',
         nModesForField: 0,
         nProf: 0,
         rProf: [],
@@ -63,12 +63,12 @@ export default class InitializedInputForm extends Component {
         super(props);
         const { acousticProblemData } = props;
 
-        const isTopAcoustic = acousticProblemData.topBCType === 'A';
+        const isTopAcoustic = acousticProblemData.topBCType === 'A';       
         const isTopTwersky = (acousticProblemData.topBCType === 'T' || acousticProblemData.topBCType === 'S'
             || acousticProblemData.topBCType === 'I' || acousticProblemData.topBCType === 'H');
         const isBottomAcoustic = acousticProblemData.bottomBCType === 'A';       
 
-        this.state = { ...acousticProblemData, isTopAcoustic, isTopTwersky, isBottomAcoustic, error: null };       
+        this.state = { ...acousticProblemData, isTopAcoustic, isTopTwersky, isBottomAcoustic, error: null };      
     }
 
     interpolationTypes = [
@@ -169,7 +169,7 @@ export default class InitializedInputForm extends Component {
         }
     ];
 
-    modeTheories = [
+    modesTheories = [
         {
             key: 'A',
             name: 'Adiabatic mode theory'
@@ -182,7 +182,7 @@ export default class InitializedInputForm extends Component {
 
     //refactor
     handleTopBCTypeChange = (e) => {
-        const { value } = e.target;
+        const { value } = e.target;       
         if (value === 'A') {
             this.setState({
                 isTopAcoustic: true,
@@ -248,7 +248,7 @@ export default class InitializedInputForm extends Component {
         let { frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
-            calculateTransmissionLoss, sourceType, modeTheory, nModesForField,
+            calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
             nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
 
         if (frequency <= 0) {
@@ -388,8 +388,8 @@ export default class InitializedInputForm extends Component {
                 error.sourceType = "Source type";
             }
 
-            if (modeTheory.length !== 1 || !this.modeTheory.some(x => x.key === modeTheory)) {
-                error.modeTheory = "Mode theory";
+            if (modesTheory.length !== 1 || !this.modesTheories.some(x => x.key === modesTheory)) {
+                error.modesTheory = "Mode theory";
             }
 
             if (nsdField <= 0) {
@@ -457,7 +457,8 @@ export default class InitializedInputForm extends Component {
             return {
                 frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, addedVolumeAttenuation, zt, cpt,
                 cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
-                csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd
+                csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd, nModesForField, nProf, rProf,
+                nr, r, nsdField, sdField, nrdField, rdField, nrr, rr, calculateTransmissionLoss, sourceType, modesTheory
             };
         }
     }
@@ -495,9 +496,9 @@ export default class InitializedInputForm extends Component {
         const { frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
-            calculateTransmissionLoss, sourceType, modeTheory, nModesForField,
+            calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
             nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
-        console.log(this.state);
+        console.log(topBCType);
 
         return (
             <Form onSubmit={this.onSubmit} >
@@ -720,7 +721,7 @@ export default class InitializedInputForm extends Component {
                             </Col>
                             <Col md={6}>
                                 <FormGroup>
-                                    <Select label={"Mode theory"} name={"modeTheory"} onChange={this.handleTopBCTypeChange} options={this.modeTheories} initValue={modeTheory} />
+                                    <Select label={"Mode theory"} name={"modesTheory"} onChange={this.handleTopBCTypeChange} options={this.modesTheories} initValue={modesTheory} />
                                 </FormGroup>
                             </Col>
                         </Row>

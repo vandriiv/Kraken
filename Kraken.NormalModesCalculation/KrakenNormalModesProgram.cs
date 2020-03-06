@@ -114,12 +114,11 @@ Output:
 
                 var MMM = Math.Min(krakMod.M, nm);
                 modesOut.M = MMM;
-                modesOut.k = new List<Complex>(krakMod.k);            
+                modesOut.k = new List<Complex>(krakMod.k);
 
                 cp = Enumerable.Repeat(0d, MMM + 1).ToList();
                 cg = Enumerable.Repeat(0d, MMM + 1).ToList();
                 k = Enumerable.Repeat(new Complex(), MMM + 1).ToList();
-
                 for (krakMod.Mode = 1; krakMod.Mode <= MMM; krakMod.Mode++)
                 {
                     cp[krakMod.Mode] = (OMEGA / krakMod.k[krakMod.Mode]).Real;
@@ -392,6 +391,7 @@ Output:
             var F = 0.0;
             var G = 0.0;
             var IPower = 0;
+            modesOut.Phi.Add(new List<Complex>());
             for (krakMod.Mode = 1; krakMod.Mode <= krakMod.M; krakMod.Mode++)
             {
 
@@ -484,17 +484,17 @@ Output:
                 {
                     modesave[i][krakMod.Mode] = PHITAB[i].Real;
                 }
-            }            
+            }
 
-            var MMM = Math.Min(krakMod.M, nm);
 
             modes = new List<List<double>>(NZTAB + 1);
             for (var i = 0; i <= NZTAB; i++)
             {
-                modes.Add(Enumerable.Repeat(0d, MMM + 1).ToList());
+                modes.Add(Enumerable.Repeat(0d, nm + 1).ToList());
             }
             zm = Enumerable.Repeat(0d, NZTAB + 1).ToList();
 
+            var MMM = Math.Min(krakMod.M, nm);
             for (var MZ = 1; MZ <= NZTAB; MZ++)
             {
                 for (krakMod.Mode = 1; krakMod.Mode <= MMM; krakMod.Mode++)
@@ -617,12 +617,13 @@ Output:
 
                 krakMod.EVMat[krakMod.ISet][krakMod.Mode] = X;
 
-                if (krakMod.Omega2 / Math.Pow(krakMod.CHigh, 2) > X )
+                if (krakMod.Omega2 / X > Math.Pow(krakMod.CHigh, 2))
                 {
                     krakMod.M = krakMod.Mode - 1;
                     return;
                 }
             }
+
 
         }
 

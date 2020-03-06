@@ -4,6 +4,6 @@ namespace Kraken.Application.Services.Interfaces
 {
     public interface IKrakenService
     {
-        NormalModes ComputeModes(AcousticProblemData acousticProblemData);
+        KrakenComputingResult ComputeModes(AcousticProblemData acousticProblemData);
     }
 }

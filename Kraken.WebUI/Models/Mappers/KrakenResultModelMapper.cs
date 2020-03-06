@@ -1,12 +1,11 @@
 ﻿using Kraken.Application.Models;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Kraken.WebUI.Models.Mappers
 {
     public class KrakenResultModelMapper
     {
-        public KrakenResultModel MapNormalModes(NormalModes normalModes)
+        public KrakenResultModel MapNormalModes(KrakenComputingResult normalModes)
         {
             var resultModel = new KrakenResultModel
             {
@@ -19,6 +18,11 @@ namespace Kraken.WebUI.Models.Mappers
             var depthsCount = normalModes.ZM.Count;         
 
             resultModel.Modes = normalModes.ZM.Select((x, idx) => new DepthModes { Depth = x, Modes = normalModes.Modes[idx] });
+
+            resultModel.TransmissionLossCalculated = normalModes.TransmissionLossCalculated;
+            resultModel.TransmissionLoss = normalModes.TransmissionLoss;
+            resultModel.Ranges = normalModes.Ranges;
+            resultModel.SourceDepths = normalModes.SourceDepths;
 
             return resultModel;
         }

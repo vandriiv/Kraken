@@ -49,7 +49,7 @@ namespace Kraken.WebUI.Models
         public List<double> RD { get; set; }
 
         public bool CalculateTransmissionLoss { get; set; }
-        public bool NModesForField { get; set; }
+        public int NModesForField { get; set; }
         public string SourceType { get; set; }
         public string ModesTheory { get; set; }
         public int NProf { get; set; }

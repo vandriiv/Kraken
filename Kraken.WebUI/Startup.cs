@@ -1,15 +1,14 @@
 using Kraken.Application.Services.Implementation;
 using Kraken.Application.Services.Interfaces;
 using Kraken.NormalModesCalculation;
+using Kraken.NormalModesCalculation.Field;
 using Kraken.WebUI.Models.Mappers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json.Serialization;
 
 namespace Kraken.WebUI
 {
@@ -31,6 +30,7 @@ namespace Kraken.WebUI
             services.AddTransient<KrakenResultModelMapper>();
             services.AddTransient<IKrakenService, KrakenService>();
             services.AddTransient<KrakenNormalModesProgram>();
+            services.AddTransient<FieldModel>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

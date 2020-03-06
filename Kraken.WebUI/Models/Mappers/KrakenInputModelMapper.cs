@@ -49,7 +49,22 @@ namespace Kraken.WebUI.Models.Mappers
                 SD = model.SD,
 
                 NRD = model.NRD,
-                RD = model.RD
+                RD = model.RD, 
+
+                CalculateTransmissionLoss = model.CalculateTransmissionLoss,
+                NModesForField = model.NModesForField,
+                SourceType = model.SourceType,
+                ModesTheory = model.ModesTheory,
+                NProf = model.NProf,
+                RProf = model.RProf,
+                NR = model.NR,
+                R = model.R,
+                NSDField = model.NSDField,
+                SDField = model.SDField,
+                NRDField = model.NRDField,
+                RDField = model.RDField,
+                NRR = model.NRR,
+                RR = model.RR
             };
 
             return acousticProblemData;

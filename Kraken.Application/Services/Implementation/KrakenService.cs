@@ -1,8 +1,10 @@
 ﻿using Kraken.Application.Models;
 using Kraken.Application.Services.Interfaces;
 using Kraken.NormalModesCalculation;
+using Kraken.NormalModesCalculation.Field;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace Kraken.Application.Services.Implementation
@@ -10,15 +12,17 @@ namespace Kraken.Application.Services.Implementation
     public class KrakenService : IKrakenService
     {
         private readonly KrakenNormalModesProgram _krakenNormalModeProgram;
+        private readonly FieldModel _fieldModel; 
 
-        public KrakenService(KrakenNormalModesProgram krakenNormalModeProgram)
+        public KrakenService(KrakenNormalModesProgram krakenNormalModeProgram, FieldModel fieldModel)
         {
             _krakenNormalModeProgram = krakenNormalModeProgram;
+            _fieldModel = fieldModel;
         }
 
-        public NormalModes ComputeModes(AcousticProblemData acousticProblemData)
+        public KrakenComputingResult ComputeModes(AcousticProblemData acousticProblemData)
         {
-            var result = new NormalModes();
+            var result = new KrakenComputingResult();
 
             var options = acousticProblemData.InterpolationType  + acousticProblemData.TopBCType + acousticProblemData.AttenuationUnits + acousticProblemData.AddedVolumeAttenuation;
             var bottomBC = acousticProblemData.BottomBCType;
@@ -60,7 +64,7 @@ namespace Kraken.Application.Services.Implementation
             var zm = new List<double>();
             var modes = new List<List<double>>();
 
-            _krakenNormalModeProgram.OceanAcousticNormalModes(acousticProblemData.NModes,acousticProblemData.Frequency,acousticProblemData.NMedia, options,
+            var modesOut = _krakenNormalModeProgram.OceanAcousticNormalModes(acousticProblemData.NModes,acousticProblemData.Frequency,acousticProblemData.NMedia, options,
                 mediumInfo,ssp.Count,ssp,bottomBC,acousticProblemData.Sigma,cLowHight,acousticProblemData.RMax,acousticProblemData.NSD,sd, acousticProblemData.NRD,
                 rd,nz,topAHSP,twerskyParams,bottomAHSP, ref cg, ref cp, ref zm, ref modes,ref k);
 
@@ -79,6 +83,55 @@ namespace Kraken.Application.Services.Implementation
             foreach(var mode in result.Modes)
             {
                 mode.RemoveAt(0);
+            }
+
+            if (acousticProblemData.CalculateTransmissionLoss)
+            {
+                var fieldOptions = acousticProblemData.SourceType + acousticProblemData.ModesTheory;
+                
+                var rProf = new List<double>(acousticProblemData.RProf);
+                rProf.Insert(0,0);
+
+                var r = new List<double>(acousticProblemData.R);
+                r.Insert(0, 0);
+
+                var rr = new List<double>(acousticProblemData.RR);
+                rr.Insert(0, 0);
+
+                var sdField = new List<double>(acousticProblemData.SDField);
+                sdField.Insert(0, 0);
+
+                var rdField = new List<double>(acousticProblemData.RD);
+                rdField.Insert(0, 0);
+
+                var ranges = new List<double>();
+                var sourceDepths = new List<double>();
+                var fieldPressure = new List<List<List<Complex>>>();
+
+                _fieldModel.CalculateFieldPressure(modesOut, fieldOptions, acousticProblemData.NModesForField, acousticProblemData.NProf,
+                                                    rProf, acousticProblemData.NR, r, acousticProblemData.NSDField, sdField, acousticProblemData.NRD,
+                                                    rdField, acousticProblemData.NRR, rr, ref ranges, ref sourceDepths, ref fieldPressure);
+
+                var transmissionLoss = fieldPressure.GetRange(1, fieldPressure.Count - 1)
+                                       .Select(x => x.GetRange(1, x.Count - 1)
+                                       .Select(y => y.GetRange(1, y.Count - 1)
+                                       .Select(z => z.Real == 0 ? 1E-6 : z.Real)
+                                       .Select(z => -20 * Math.Log10(Math.Abs(z))).ToList()).ToList()).ToList();
+
+                result.TransmissionLossCalculated = true;
+                result.TransmissionLoss = transmissionLoss;
+                result.SourceDepths = sourceDepths;
+                result.Ranges = ranges;
+
+                result.Ranges.RemoveAt(0);
+                if(result.SourceDepths.Count>3 && result.SourceDepths[3] == -999.9)
+                {
+                    result.SourceDepths = new List<double>() { result.SourceDepths[1] };
+                }
+                else
+                {
+                    result.SourceDepths.RemoveAt(0);
+                }                            
             }
 
             return result;
