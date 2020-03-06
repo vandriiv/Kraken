@@ -47,5 +47,22 @@ namespace Kraken.Application.Models
 
         public int NRD { get; set; }
         public List<double> RD { get; set; }
+
+        public bool CalculateTransmissionLoss { get; set; }
+        public bool NModesForField { get; set; }
+        public string SourceType { get; set; }
+        public string ModesTheory { get; set; }
+        public int NProf { get; set; }
+        public List<double> RProf { get; set; }
+        public int NR { get; set; }
+        public List<double> R { get; set; }
+        public int NRR { get; set; }
+        public List<double> RR { get; set; }
+
+        public int NSDField { get; set; }
+        public List<double> SDField { get; set; }
+
+        public int NRDField { get; set; }
+        public List<double> RDField { get; set; }
     }
 }

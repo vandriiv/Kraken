@@ -42,6 +42,20 @@ export default class InputForm extends Component {
         sd: [],
         nrd: 0,
         rd: [],
+        calculateTransmissionLoss: false,
+        sourceType: '',
+        modeTheory: '',
+        nModesForField: 0,
+        nProf: 0,
+        rProf: [],
+        nr: 0,
+        r: [],
+        nsdField: 0,
+        sdField: [],
+        nrdField: 0,
+        rdField: [],
+        nrr: 0,
+        rr:[],
         error: null
     };
 
@@ -132,6 +146,27 @@ export default class InputForm extends Component {
         }
     ];
 
+    sourceTypes = [
+        {
+            key: 'R',
+            name: 'Point source'
+        },
+        {
+            key: 'X',
+            name: 'Line source'
+        }
+    ];
+
+    modeTheories = [
+        {
+            key: 'A',
+            name: 'Adiabatic mode theory'
+        },
+        {
+            key: 'C',
+            name: 'Coupled mode theory'
+        }
+    ];
     //refactor
     handleTopBCTypeChange = (e) => {
         const { value } = e.target;
@@ -199,7 +234,9 @@ export default class InputForm extends Component {
         const error = {};
         let { frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
-            csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd } = this.state;
+            csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
+            calculateTransmissionLoss, sourceType, modeTheory, nModesForField,
+            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr,rr } = this.state;
 
         if (frequency <= 0) {
             error.frequency = "Frequency ";
@@ -329,6 +366,75 @@ export default class InputForm extends Component {
             error.ssp = "SSP format";
         }
 
+        if (calculateTransmissionLoss === true) {
+            if (nModesForField <= 0) {
+                error.nModesForField = "Number of modes for field computing";
+            }
+
+            if (sourceType.length !== 1 || !this.sourceTypes.some(x => x.key === sourceType)) {
+                error.sourceType = "Source type";
+            }
+
+            if (modeTheory.length !== 1 || !this.modeTheory.some(x => x.key === modeTheory)) {
+                error.modeTheory = "Mode theory";
+            }
+
+            if (nsdField <= 0) {
+                error.nsdField = "Number of source depth (for field)";
+            }
+
+            if (nrdField <= 0) {
+                error.nrdField = "Number of receiver depth (for field)";
+            }
+
+            if (nProf <= 0) {
+                error.nProf = "The number of profiles";
+            }
+
+            if (nr <= 0) {
+                error.nr = "The number of receiver ranges";
+            }
+
+            if (nrr <= 0) {
+                error.nrr = "The number of receiver range-displacements";
+            }
+
+            try {
+                rr = this.parseOneDimensionalArray(rr);
+            }
+            catch (e) {
+                error.rr = "The receiver displacements";
+            }
+
+            try {
+                r = this.parseOneDimensionalArray(r);
+            }
+            catch (e) {
+                error.r = "The receiver ranges";
+            }
+
+            try {
+                rProf = this.parseOneDimensionalArray(rProf);
+            }
+            catch (e) {
+                error.rProf = "Ranges format";
+            }
+
+            try {
+                sdField = this.parseOneDimensionalArray(sdField);
+            }
+            catch (e) {
+                error.sdField = "Source depth format (for field)";
+            }
+
+            try {
+                rdField = this.parseOneDimensionalArray(rdField);
+            }
+            catch (e) {
+                error.rdField = "Source depth format (for field)";
+            }
+        }
+
         if (!(Object.entries(error).length === 0 && error.constructor === Object)) {
             this.setState({ error: error });
             return null;
@@ -338,7 +444,8 @@ export default class InputForm extends Component {
             return {
                 frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, addedVolumeAttenuation, zt, cpt,
                 cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
-                csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd
+                csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd, nModesForField, nProf, rProf,
+                nr,r,nsdField,sdField,nrdField,rdField,nrr,rr, calculateTransmissionLoss, sourceType, modeTheory
             };
         }
     }
@@ -372,7 +479,7 @@ export default class InputForm extends Component {
 
     render() {
 
-        const { isBottomAcoustic, isTopAcoustic, isTopTwersky, error } = this.state;        
+        const { isBottomAcoustic, isTopAcoustic, isTopTwersky, calculateTransmissionLoss, error } = this.state;        
 
         return (
             <Form onSubmit={this.onSubmit} >
@@ -579,6 +686,106 @@ export default class InputForm extends Component {
                         </FormGroup>
                     </Col>
                 </Row>
+                <FormGroup check>
+                    <Label check>
+                        <Input type="checkbox" name="calculateTransmissionLoss" id="calculateTransmissionLoss" onChange={this.handleCheckboxChange} />{' '}
+                        Calculate transmission loss
+                    </Label>
+                </FormGroup>
+                {calculateTransmissionLoss ?
+                    <>
+                    <Row form>
+                        <Col md={6}>
+                            <FormGroup>
+                                <Select label={"Source type"} name={"sourceType"} onChange={this.handleChange} options={this.sourceTypes} />
+                            </FormGroup>
+                        </Col>
+                        <Col md={6}>
+                            <FormGroup>
+                                <Select label={"Mode theory"} name={"modeTheory"} onChange={this.handleTopBCTypeChange} options={this.modeTheories} />
+                            </FormGroup>
+                        </Col>
+                        </Row>
+                        <FormGroup>
+                            <Label for="nModesForField">Number of modes in field computation</Label>
+                            <Input type="number" name="nModesForField" id="nModesForField" onChange={this.handleChange} placeholder="Number of modes to use in field computation" required />
+                        </FormGroup> 
+                        <Row form>
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Label for="nProf">The number of profiles</Label>
+                                    <Input type="number" name="nProf" id="nProf" onChange={this.handleChange} required />
+                                </FormGroup>
+                            </Col>
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Label for="rProf">Ranges (km) of each of these profiles.</Label>
+                                    <Input type="textarea" name="rProf" id="rProf" onChange={this.handleChange} required />
+                                </FormGroup>
+                            </Col>
+                        </Row>
+
+                        <Row form>
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Label for="nr">The number of receiver ranges</Label>
+                                    <Input type="number" name="nr" id="nr" onChange={this.handleChange} required />
+                                </FormGroup>
+                            </Col>
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Label for="r">The receiver ranges (km)</Label>
+                                    <Input type="textarea" name="r" id="r" onChange={this.handleChange} required />
+                                </FormGroup>
+                            </Col>
+                        </Row>
+
+                        <Row form>
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Label for="nsdField">The number of soure depths</Label>
+                                    <Input type="number" name="nsdField" id="nsdField" onChange={this.handleChange} required />
+                                </FormGroup>
+                            </Col>
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Label for="sdField">The source depths (m)</Label>
+                                    <Input type="textarea" name="sdField" id="sdField" onChange={this.handleChange} required />
+                                </FormGroup>
+                            </Col>
+                        </Row>
+                        <Row form>
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Label for="nrdField">The number of receiver depths</Label>
+                                    <Input type="number" name="nrdField" id="nrdField" onChange={this.handleChange} required />
+                                </FormGroup>
+                            </Col>
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Label for="rdField">The receiver depths (m)</Label>
+                                    <Input type="textarea" name="rdField" id="rdField" onChange={this.handleChange} required />
+                                </FormGroup>
+                            </Col>
+                        </Row>
+
+                        <Row form>
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Label for="nrr">The number of receiver range-displacements</Label>
+                                    <Input type="number" name="nrr" id="nrr" onChange={this.handleChange} required />
+                                </FormGroup>
+                            </Col>
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Label for="rr">The receiver displacements (m)</Label>
+                                    <Input type="textarea" name="rr" id="rr" onChange={this.handleChange} required />
+                                </FormGroup>
+                            </Col>
+                        </Row>
+                     </>
+                 : null
+                }
                 <Button outline color="secondary">Submit</Button>
                 <div className="validation-errors-list">
                 {error !== null ?

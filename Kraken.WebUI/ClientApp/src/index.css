@@ -36,3 +36,7 @@ table ol {
     left: 0;
     right: 0;
 }
+
+form button{
+    margin-top:14px;
+}
