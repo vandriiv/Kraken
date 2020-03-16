@@ -3,10 +3,9 @@ import { Table } from 'reactstrap';
 
 export default class ModesTable extends Component {
 
-    mapModes = (modes) => {
-        const modesCount = modes[0].modes.length;
+    mapModes = (modes,modesCount) => {       
         return [...Array(modesCount).keys()].map(idx => {
-            return (<tr>
+            return (<tr key={idx}>
                 <td>{idx + 1}</td>
                 {this.makeSingleRow(modes, idx)}
             </tr>);          
@@ -14,33 +13,19 @@ export default class ModesTable extends Component {
     };
 
     makeSingleRow = (modes, idx) => {
-        return modes.map(m => {
-            return (<td>{m.modes[idx]}</td>)
+        return modes.map((m,i) => {
+            return (<td key={i}>{m.modes[idx]}</td>)
         });
     }
 
     mapDepths = (modes) => {
-        return modes.map(x => {
-            return <th>{x.depth.toFixed(3)}</th>;
+        return modes.map((x, idx) => {
+            return <th key={idx}>{x.depth.toFixed(3)}</th>;
         });
     }
 
     render() {
-        const { modes } = this.props;
-        console.log(modes);
-
-       /* return (<Table>
-            <thead>                
-                <tr>
-                    <th>#</th>
-                    <th>Depth</th>
-                    <th>Modes</th>
-                </tr>
-            </thead>
-            <tbody>
-                {this.mapModes(modes)}
-            </tbody>
-        </Table>);*/
+        const { modes, modesCount } = this.props.data;       
 
         return (
             <Table responsive bordered hover>
@@ -55,7 +40,7 @@ export default class ModesTable extends Component {
                  </tr>
                 </thead>
                 <tbody>
-                    {this.mapModes(modes)}
+                    {this.mapModes(modes, modesCount)}
                 </tbody>
         </Table>);
     }

@@ -1,10 +1,36 @@
 ﻿import React, { Component } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { distinctColors } from '../../utilites/color-generator';
+import { Multiselect } from 'multiselect-react-dropdown';
 
 export default class ModesChart extends Component{
 
+    state = {
+        modesToDisplay: ["1"]       
+    };
+    
     colors = [];
+    modesOptions = [];   
+
+    componentDidMount() {
+        const { modesCount } = this.props.data;
+        this.modesOptions = [...Array(modesCount).keys()].map(x => (x + 1).toString());
+        const maxModes = Math.min(10, modesCount);
+        this.setState({
+            modesToDisplay:[...Array(maxModes).keys()].map(x => (x + 1).toString())
+        });
+    }
+
+    componentDidUpdate(prevProps) {
+        const { modesCount } = this.props.data;
+        if (prevProps.data.modesCount != modesCount) {
+            this.modesOptions = [...Array(modesCount).keys()].map(x => (x + 1).toString());
+            const maxModes = Math.min(10, modesCount);
+            this.setState({
+                modesToDisplay:[...Array(maxModes).keys()].map(x => (x + 1).toString())
+            });
+        }
+    }
 
     mapLines = (data) => {           
         return data.map((s, idx) => {
@@ -13,11 +39,11 @@ export default class ModesChart extends Component{
       );
     };
 
-    mapData = (data) => {
+    mapData = (data, modesCount, toDisplay) => {      
         const result = [];
-        for (let i = 0; i < data[0].modes.length; i++) {
+        for (let i = 0; i < modesCount; i++) {
             result.push([]);
-        }
+        }      
 
         data.forEach(d => {
             d.modes.forEach((m, idx) => {
@@ -25,18 +51,45 @@ export default class ModesChart extends Component{
             });
         }); 
 
-        return result.map((val, idx) => {
-            return { name: "Mode " + (idx+1), data: val }
+        return result.filter((x, idx) => toDisplay.includes((idx + 1).toString())).map((val, idx) => {           
+              return { name: "Mode " + (idx+1), data: val }
         });     
     };
 
+    onSelect = (selectedList) => {        
+        this.setState({
+            modesToDisplay: selectedList
+        });
+    }
+
+    onRemove=(selectedList)=> {       
+        this.setState({
+            modesToDisplay: selectedList
+        })
+    }
+
 
     render() {
-        const { data } = this.props;
-        const chartData = this.mapData(data);
-        this.colors = distinctColors(data[0].modes.length).map(x => `rgb(${x[0]}, ${x[1]},${x[2]})`);      
+        const { modes, modesCount } = this.props.data;
+        const { modesToDisplay } = this.state;       
+
+        const chartData = this.mapData(modes, modesCount, modesToDisplay);    
+
+        this.colors = distinctColors(modesCount).map(x => `rgb(${x[0]}, ${x[1]},${x[2]})`);             
 
         return (
+            <>
+                <div className="modes-select">
+                    <p>Select modes to display on chart</p>
+                    <Multiselect
+                        placeHolder = "Select modes to display on chart"
+                        options={this.modesOptions}           
+                        onSelect={this.onSelect} 
+                        onRemove={this.onRemove}
+                        selectedValues={modesToDisplay}                       
+                        isObject={false}
+                />
+            </div>
             <div className="lg-chart-wrapper">
                 <ResponsiveContainer height={700} width="100%">
                     <LineChart margin={{ left: 10, top: 35 }}> 
@@ -48,6 +101,7 @@ export default class ModesChart extends Component{
                     {this.mapLines(chartData)}
                     </LineChart>
                 </ResponsiveContainer>
-            </div>);
+                </div>
+                </>);
     }
 }

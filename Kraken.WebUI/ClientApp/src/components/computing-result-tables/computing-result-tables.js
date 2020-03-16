@@ -50,7 +50,7 @@ export default class ComputingResultTables extends Component {
                 </div>
             </div>
             {showModes ?
-                <ModesTable modes={computingResult.modes} />
+                <ModesTable data={computingResult, computingResult} />
                 : null}
         </div>)
     }

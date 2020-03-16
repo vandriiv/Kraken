@@ -10,6 +10,8 @@ namespace Kraken.Application.Models
         public List<double> GroupSpeed { get; set; }
         public List<List<double>> Modes { get; set; }
         public List<double> ZM { get; set; }
+        public int ModesCount { get; set; }
+
         
         public bool TransmissionLossCalculated { get; set; }
         public List<double> Ranges { get; set; }

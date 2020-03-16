@@ -16,7 +16,7 @@ export default class Charts extends Component {
     };
 
     render() {
-        const { modesData, ssp } = this.props;
+        const { modesData, ssp } = this.props;       
         const { showCharts } = this.state;
 
         return (
@@ -33,7 +33,7 @@ export default class Charts extends Component {
                 </div>
                 {showCharts &&
                     <>
-                        <ModesChart data={modesData.modes} />
+                        <ModesChart data={modesData} />
                         <SoundSpeedChart data={ssp} />
                         <ModeCharacteristicChart data={modesData.k} chartName="Wavenumber (1/m)" yAxisLabelValue="k (1/m)" />
                         <ModeCharacteristicChart data={modesData.alpha} chartName="Scatter loss (1/m)" yAxisLabelValue="alpha (1/m)" />

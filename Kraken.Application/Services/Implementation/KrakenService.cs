@@ -73,6 +73,7 @@ namespace Kraken.Application.Services.Implementation
             result.K = k;
             result.Modes = modes;
             result.ZM = zm;
+            result.ModesCount = modesOut.M;
 
             result.PhaseSpeed.RemoveAt(0);
             result.GroupSpeed.RemoveAt(0);

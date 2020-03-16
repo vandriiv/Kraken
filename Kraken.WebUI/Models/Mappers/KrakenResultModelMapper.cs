@@ -15,7 +15,9 @@ namespace Kraken.WebUI.Models.Mappers
                 K = normalModes.K.Select(x=>x.Real)
             };
 
-            var depthsCount = normalModes.ZM.Count;         
+            var depthsCount = normalModes.ZM.Count;
+
+            resultModel.ModesCount = normalModes.ModesCount;
 
             resultModel.Modes = normalModes.ZM.Select((x, idx) => new DepthModes { Depth = x, Modes = normalModes.Modes[idx] });
 

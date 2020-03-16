@@ -452,14 +452,25 @@ export default class InitializedInputForm extends Component {
             this.setState({ error: error });
             return null;
         }
+
         else {
             const addedVolumeAttenuation = isVolumeAttenuatonAdded === true ? 'T' : '';
-            return {
-                frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, addedVolumeAttenuation, zt, cpt,
-                cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
-                csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd, nModesForField, nProf, rProf,
-                nr, r, nsdField, sdField, nrdField, rdField, nrr, rr, calculateTransmissionLoss, sourceType, modesTheory
-            };
+
+            if (calculateTransmissionLoss === true) {
+                return {
+                    frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, addedVolumeAttenuation, zt, cpt,
+                    cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
+                    csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd, nModesForField, nProf, rProf,
+                    nr, r, nsdField, sdField, nrdField, rdField, nrr, rr, calculateTransmissionLoss, sourceType, modesTheory
+                };
+            }
+            else {
+                return {
+                    frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, addedVolumeAttenuation, zt, cpt,
+                    cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
+                    csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd
+                };
+            }
         }
     }
 
@@ -497,8 +508,7 @@ export default class InitializedInputForm extends Component {
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
             calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
-            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
-        console.log(topBCType);
+            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;       
 
         return (
             <Form onSubmit={this.onSubmit} >

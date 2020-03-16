@@ -40,3 +40,10 @@ table ol {
 form button{
     margin-top:14px;
 }
+
+.modes-select{
+    margin-top:16px;
+}
+.modes-select p {
+    margin-bottom:8px;
+}
