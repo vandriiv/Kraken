@@ -10,7 +10,8 @@ namespace Kraken.NormalModesCalculation.Field
     {
         public void CalculateFieldPressure(ModesOut modesOut, string Opt, int MLimit, int NProf, List<double> rProf,
                                            int NR, List<double> R, int NSD, List<double> SD, int NRD, List<double> RD,
-                                           int Nrr, List<double> rr, ref List<double> ranges, ref List<double> sources, ref List<List<List<Complex>>> res)
+                                           int Nrr, List<double> rr, ref List<double> ranges, ref List<double> sources, ref List<double> receivers,
+                                           ref List<List<List<Complex>>> res)
         {
             var MaxM = Math.Min(MLimit, modesOut.M);
 
@@ -37,7 +38,7 @@ namespace Kraken.NormalModesCalculation.Field
             sdrdMod.Nr = NR;
             sdrdMod.Nsd = NSD;
             sdrdMod.Nrd = NRD;
-
+          
             sdrdMod.ReadRcvrRanges(sdrdMod.Nr, R);
 
             var zMin = -3.40282347E+38;
@@ -48,6 +49,7 @@ namespace Kraken.NormalModesCalculation.Field
 
             ranges = new List<double>(sdrdMod.r);
             sources = new List<double>(sdrdMod.sd);
+            receivers = new List<double>(sdrdMod.rd);
 
             var C = Enumerable.Repeat(new Complex(), MaxM + 1).ToList();
 

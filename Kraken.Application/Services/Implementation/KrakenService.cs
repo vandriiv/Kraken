@@ -107,11 +107,13 @@ namespace Kraken.Application.Services.Implementation
 
                 var ranges = new List<double>();
                 var sourceDepths = new List<double>();
+                var receiverDepths = new List<double>();
                 var fieldPressure = new List<List<List<Complex>>>();
 
                 _fieldModel.CalculateFieldPressure(modesOut, fieldOptions, acousticProblemData.NModesForField, acousticProblemData.NProf,
                                                     rProf, acousticProblemData.NR, r, acousticProblemData.NSDField, sdField, acousticProblemData.NRD,
-                                                    rdField, acousticProblemData.NRR, rr, ref ranges, ref sourceDepths, ref fieldPressure);
+                                                    rdField, acousticProblemData.NRR, rr, ref ranges, ref sourceDepths, ref receiverDepths,
+                                                    ref fieldPressure);
 
                 var transmissionLoss = fieldPressure.GetRange(1, fieldPressure.Count - 1)
                                        .Select(x => x.GetRange(1, x.Count - 1)
@@ -122,6 +124,7 @@ namespace Kraken.Application.Services.Implementation
                 result.TransmissionLossCalculated = true;
                 result.TransmissionLoss = transmissionLoss;
                 result.SourceDepths = sourceDepths;
+                result.ReceiverDepths = receiverDepths;
                 result.Ranges = ranges;
 
                 result.Ranges.RemoveAt(0);
@@ -132,7 +135,16 @@ namespace Kraken.Application.Services.Implementation
                 else
                 {
                     result.SourceDepths.RemoveAt(0);
-                }                            
+                }
+
+                if (result.ReceiverDepths.Count > 3 && result.ReceiverDepths[3] == -999.9)
+                {
+                    result.ReceiverDepths = new List<double>() { result.ReceiverDepths[1] };
+                }
+                else
+                {
+                    result.ReceiverDepths.RemoveAt(0);
+                }
             }
 
             return result;

@@ -16,6 +16,7 @@ namespace Kraken.Application.Models
         public bool TransmissionLossCalculated { get; set; }
         public List<double> Ranges { get; set; }
         public List<double> SourceDepths { get; set; }
+        public List<double> ReceiverDepths { get; set; }
         public List<List<List<double>>> TransmissionLoss { get; set; }
     }
 }

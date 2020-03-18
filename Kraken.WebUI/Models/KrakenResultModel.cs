@@ -14,6 +14,7 @@ namespace Kraken.WebUI.Models
         public bool TransmissionLossCalculated { get; set; }
         public IEnumerable<double> Ranges { get; set; }
         public IEnumerable<double> SourceDepths { get; set; }
-        public IEnumerable<IEnumerable<IEnumerable<double>>> TransmissionLoss { get; set; }
+        public IEnumerable<double> ReceiverDepths { get; set; }    
+        public List<TLAtSourceDepth> TransmissionLoss { get; set; }
     }
 }
