@@ -28,7 +28,7 @@ export default class Normal extends Component {
         sigma: 0,
         zb: 5000,
         cpb: 4000,
-        csb: 0,
+        csb: 2000,
         rhob: 3,
         apb: 0,
         asb: 0,
