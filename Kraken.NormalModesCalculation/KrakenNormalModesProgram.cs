@@ -119,6 +119,7 @@ Output:
                 cp = Enumerable.Repeat(0d, MMM + 1).ToList();
                 cg = Enumerable.Repeat(0d, MMM + 1).ToList();
                 k = Enumerable.Repeat(new Complex(), MMM + 1).ToList();
+
                 for (krakMod.Mode = 1; krakMod.Mode <= MMM; krakMod.Mode++)
                 {
                     cp[krakMod.Mode] = (OMEGA / krakMod.k[krakMod.Mode]).Real;
@@ -394,7 +395,8 @@ Output:
             modesOut.Phi.Add(new List<Complex>());
             for (krakMod.Mode = 1; krakMod.Mode <= krakMod.M; krakMod.Mode++)
             {
-
+                //0.00175424256740146
+                //0.0017542507355324
                 var X = krakMod.EVMat[1][krakMod.Mode];
                 var bcimpMod = new BCIMPMod();
                 bcimpMod.BCIMP(krakMod, X, BCTop, "TOP", krakMod.CPT, krakMod.CST, krakMod.rhoT, ref F, ref G, ref IPower);
@@ -430,7 +432,7 @@ Output:
                     }
 
                     for (var ii = 1; ii <= krakMod.N[Medium]; ii++)
-                    {
+                    {                        
                         J += 1;
                         L += 1;
                         D[J] = (krakMod.B1[L] - XH2) / Hrho;
@@ -441,7 +443,7 @@ Output:
                         }
                     }
                 }
-
+                
                 bcimpMod.BCIMP(krakMod, X, BCBot, "BOT", krakMod.CPB, krakMod.CSB, krakMod.rhoB, ref F, ref G, ref IPower);
                 if (G == 0.0)
                 {
@@ -540,7 +542,11 @@ Output:
             krakMod.M = Math.Min(krakMod.M, nm + 1);
 
             var NTot = krakMod.N.GetRange(krakMod.FirstAcoustic, krakMod.LastAcoustic - krakMod.FirstAcoustic + 1).Sum();
+            //0.00098697030971334134
+            //0.00098697030971334134
 
+            //0.0017545963379714496
+            //0.0020142049798141637
             BISECT(krakMod, XMin, XMax, ref XL, ref XR);
 
             krakMod.M = Math.Min(krakMod.M, nm);
@@ -791,29 +797,29 @@ Output:
                 L = L + krakMod.N[Medium] - 1;
                 var J1 = J + 1;
                 J = J + krakMod.N[Medium] - 1;
-                var PHIPow = Enumerable.Repeat(0d, PHI.Count).ToList();
-                for (var i = J1; i < J; i++)
-                {
-                    PHIPow[i] = PHI[i] * PHI[i];
-                }
-                PHIPow.Insert(0, 0);
-                PHIPow.Insert(0, 0);
-                SQNRM += krakMod.H[Medium] * PHIPow.Sum() / rhoM;
-                var tempList = new List<double>();
 
-                for (var i = J1; i < J; i++)//changed
-                {
-                    tempList.Add(krakMod.B1C[i + L1 - J1] * PHIPow[i]);
-                }
-                PERK += krakMod.H[Medium] * krakMod.i * tempList.Sum() / rhoM;
+                var phiPowRange = PHI.GetRange(J1, J - J1 + 1).Select(x => x * x).ToList();
+                phiPowRange.Insert(0, 0);
 
-                tempList.Clear();
-                for (var i = J1; i < J; i++)//changed
+                var b1Range = krakMod.B1.GetRange(L1, L - L1 + 1).Select(x => x + 2).ToList();
+                b1Range.Insert(0, 0);
+
+                var b1CRange = krakMod.B1C.GetRange(L1, L - L1 + 1).ToList();
+                b1CRange.Insert(0, 0);
+
+                var phiPowSum = 0.0;
+                var b1PhiSum = 0.0;
+                var b1CPhiSum = 0.0;
+                for (var i = 1; i < phiPowRange.Count; i++)
                 {
-                    tempList.Add((krakMod.B1[i + L1 - J1] + 2) * PHIPow[i]);
+                    phiPowSum += phiPowRange[i];
+                    b1PhiSum += b1Range[i] * phiPowRange[i];
+                    b1CPhiSum += b1CRange[i] * phiPowRange[i];
                 }
 
-                SLOW += krakMod.H[Medium] * tempList.Sum() / rhoOMH2;
+                SQNRM += krakMod.H[Medium] * phiPowSum / rhoM;
+                PERK += krakMod.H[Medium] * krakMod.i * b1CPhiSum / rhoM;
+                SLOW += krakMod.H[Medium] * b1PhiSum / rhoOMH2;
 
                 L += 1;
                 J += 1;
@@ -1223,7 +1229,8 @@ Output:
         private void TWERSK(char OPT, double OMEGA, double BUMDEN, double XI, double ETA,
                                  double KX, double RHO0, double C0, ref double C1, ref double C2)
         {
-            //FortranDllWrap.TWERSK(ref OPT, ref OMEGA, ref BUMDEN, ref XI, ref ETA, ref KX, ref RHO0, ref C0, ref C1, ref C2);
+            C1 = 0;
+            C2 = 0;
         }
     }
 }

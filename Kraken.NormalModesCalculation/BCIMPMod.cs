@@ -11,7 +11,7 @@ namespace Kraken.NormalModesCalculation
                           double rhoHS, ref double F, ref double G, ref int IPow)
         {
             IPow = 0;
-            var yV = Enumerable.Repeat(0d, 5+1).ToList();
+            var yV = Enumerable.Repeat(0d, 5 + 1).ToList();
 
             if (BCType[0] == 'V' || BCType[0] == 'S'
               || BCType[0] == 'H' || BCType[0] == 'T'
@@ -82,17 +82,20 @@ namespace Kraken.NormalModesCalculation
                 {
                     for (var Medium = 1; Medium <= krakMod.FirstAcoustic - 1; Medium++)
                     {
-                        ELASDN(krakMod, x, yV,ref IPow, Medium);
-                    } 
+                        ELASDN(krakMod, x, yV, ref IPow, Medium);
+                    }
                     F = krakMod.Omega2 * yV[4];
                     G = yV[2];
                 }
-               
+
             }
-            else{
-                if(krakMod.LastAcoustic < krakMod.NMedia){
-                    for(var Medium = krakMod.NMedia; Medium>=krakMod.LastAcoustic+1;Medium--){
-                        ELASUP(krakMod,x,yV,ref IPow,Medium);
+            else
+            {
+                if (krakMod.LastAcoustic < krakMod.NMedia)
+                {
+                    for (var Medium = krakMod.NMedia; Medium >= krakMod.LastAcoustic + 1; Medium--)
+                    {
+                        ELASUP(krakMod, x, yV, ref IPow, Medium);
                     }
                     F = krakMod.Omega2 * yV[4];
                     G = yV[2];
@@ -102,11 +105,11 @@ namespace Kraken.NormalModesCalculation
 
         private void ELASUP(KrakMod krakMod, double x, List<double> yV, ref int IPow, int Medium)
         {
-            var xV = Enumerable.Repeat(0d, 5+1).ToList();
-            var zV = Enumerable.Repeat(0d, 5+1).ToList();
+            var xV = Enumerable.Repeat(0d, 5 + 1).ToList();
+            var zV = Enumerable.Repeat(0d, 5 + 1).ToList();
 
-            double Roof = Math.Pow(10,4);
-            double Floor = Math.Pow(0.1,4);
+            double Roof = Math.Pow(10, 4);
+            double Floor = Math.Pow(0.1, 4);
             int IPowR = 5;
             int IPowF = -5;
 
@@ -128,8 +131,8 @@ namespace Kraken.NormalModesCalculation
             for (var II = krakMod.N[Medium]; II >= 1; II--)
             {
                 J -= 1;
-               
-                for(var i = 0; i < yV.Count; i++)
+
+                for (var i = 0; i < yV.Count; i++)
                 {
                     xV[i] = yV[i];
                 }
@@ -146,7 +149,8 @@ namespace Kraken.NormalModesCalculation
                 zV[4] = xV[4] - (xB3 * yV[1] + krakMod.B2[J] * yV[2] - TWOx * krakMod.B4[J] * yV[3]);
                 zV[5] = xV[5] - (krakMod.RHO[J] * yV[1] - krakMod.B1[J] * yV[2] - FOURHx * yV[3]);
 
-                if(II!=1){
+                if (II != 1)
+                {
                     if (Math.Abs(zV[2]) < Floor)
                     {
                         for (var i = 0; i < zV.Count; i++)
@@ -169,15 +173,16 @@ namespace Kraken.NormalModesCalculation
                 }
             }
 
-            for(var i =1;i<yV.Count;i++){
-                yV[i] = (xV[i] +2*yV[i] + zV[i]) / 4.0;
+            for (var i = 1; i < yV.Count; i++)
+            {
+                yV[i] = (xV[i] + 2 * yV[i] + zV[i]) / 4.0;
             }
         }
 
         private void ELASDN(KrakMod krakMod, double x, List<double> yV, ref int IPow, int Medium)
         {
-            var xV = Enumerable.Repeat(0d, 5+1).ToList();
-            var zV = Enumerable.Repeat(0d, 5+1).ToList();
+            var xV = Enumerable.Repeat(0d, 5 + 1).ToList();
+            var zV = Enumerable.Repeat(0d, 5 + 1).ToList();
 
             double Roof = 100000;
             double Floor = 0.00001;
@@ -220,8 +225,10 @@ namespace Kraken.NormalModesCalculation
                 zV[4] = xV[4] + (xB3 * yV[1] + krakMod.B2[J] * yV[2] - TWOx * krakMod.B4[J] * yV[3]);
                 zV[5] = xV[5] + (krakMod.RHO[J] * yV[1] - krakMod.B1[J] * yV[2] - FOURHx * yV[3]);
 
-                if(II!=krakMod.N[Medium]){
-                    if(Math.Abs(zV[2])<Floor){
+                if (II != krakMod.N[Medium])
+                {
+                    if (Math.Abs(zV[2]) < Floor)
+                    {
                         for (var i = 0; i < zV.Count; i++)
                         {
                             yV[i] *= Roof;
@@ -230,7 +237,8 @@ namespace Kraken.NormalModesCalculation
                         IPow -= IPowR;
                     }
 
-                    if(Math.Abs(zV[2])>Roof){
+                    if (Math.Abs(zV[2]) > Roof)
+                    {
                         for (var i = 0; i < zV.Count; i++)
                         {
                             yV[i] *= Floor;
@@ -241,8 +249,9 @@ namespace Kraken.NormalModesCalculation
                 }
             }
 
-            for(var i =1;i<yV.Count;i++){
-                yV[i] = (xV[i] +2*yV[i] + zV[i]) / 4.0;
+            for (var i = 1; i < yV.Count; i++)
+            {
+                yV[i] = (xV[i] + 2 * yV[i] + zV[i]) / 4.0;
             }
         }
     }
