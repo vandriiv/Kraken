@@ -37,7 +37,7 @@ export default class TransmissionLossChart extends Component {
 
     mapOptions = (arr) => {
         return arr.map((x, idx) => {
-            return { idx: idx, depth: x };
+            return { idx: idx, depth: x.toFixed(8) };
         })
     }
 
@@ -58,7 +58,7 @@ export default class TransmissionLossChart extends Component {
         return transmissionLoss[sourceIdx]
             .tlAtReceiverDepths[receiverIdx]
             .transmissionLoss.map((val, idx) => {
-            return { x: ranges[idx], y: val };
+                return { x: ranges[idx], y: val };
         });
     }
 
@@ -95,7 +95,7 @@ export default class TransmissionLossChart extends Component {
                     singleSelect
                     displayValue="depth"
                     onSelect={this.onReceiverSelectChange}
-                    selectedValues={[selectedReceiverDepth]}
+                    selectedValues={[selectedReceiverDepth]}                   
                 />
             </div>
 
