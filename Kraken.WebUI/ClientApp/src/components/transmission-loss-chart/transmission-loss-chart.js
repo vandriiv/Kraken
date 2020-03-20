@@ -88,14 +88,16 @@ export default class TransmissionLossChart extends Component {
                     singleSelect
                     displayValue="depth"
                     onSelect={this.onSourceSelectChange}
-                    selectedValues={[selectedSourceDepth]}                   
+                    selectedValues={[selectedSourceDepth]}
+                    avoidHighlightFirstOption={true}
                 />
                 <Multiselect className="single-select"
                     options={this.receiverDepthOptions}
                     singleSelect
                     displayValue="depth"
                     onSelect={this.onReceiverSelectChange}
-                    selectedValues={[selectedReceiverDepth]}                   
+                    selectedValues={[selectedReceiverDepth]}
+                    avoidHighlightFirstOption={true}
                 />
             </div>
 
