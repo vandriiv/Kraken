@@ -105,20 +105,16 @@ namespace Kraken.NormalModesCalculation.Field
                 }
 
                 if (Option[0] == 'R')
-                {
-                    var temp = rr.Select(x => Math.Abs(x + r[ir])).ToList();
-                    for (var t = 1; t <= Nz; t++)
+                {//check
+                    
+                    for(var i = 1; i <= Nz; i++)
                     {
-                        if (temp[t] > 1.17549435E-38)
+                        if(Math.Abs(r[ir]+rr[i])> 1.17549435E-38)
                         {
-                            for (var i = 1; i <= Nz; i++)
-                            {
-                                P[i][ir] = P[i][ir] / Complex.Sqrt(r[ir] + rr[i]);
-                            }
+                            P[i][ir] = P[i][ir] / Complex.Sqrt(r[ir] + rr[i]);
                         }
-                    }
+                    }                    
                 }
-
             }
 
             return P;

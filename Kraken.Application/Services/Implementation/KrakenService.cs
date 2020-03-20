@@ -102,7 +102,7 @@ namespace Kraken.Application.Services.Implementation
                 var sdField = new List<double>(acousticProblemData.SDField);
                 sdField.Insert(0, 0);
 
-                var rdField = new List<double>(acousticProblemData.RD);
+                var rdField = new List<double>(acousticProblemData.RDField);
                 rdField.Insert(0, 0);
 
                 var ranges = new List<double>();
@@ -111,7 +111,7 @@ namespace Kraken.Application.Services.Implementation
                 var fieldPressure = new List<List<List<Complex>>>();
 
                 _fieldModel.CalculateFieldPressure(modesOut, fieldOptions, acousticProblemData.NModesForField, acousticProblemData.NProf,
-                                                    rProf, acousticProblemData.NR, r, acousticProblemData.NSDField, sdField, acousticProblemData.NRD,
+                                                    rProf, acousticProblemData.NR, r, acousticProblemData.NSDField, sdField, acousticProblemData.NRDField,
                                                     rdField, acousticProblemData.NRR, rr, ref ranges, ref sourceDepths, ref receiverDepths,
                                                     ref fieldPressure);
 

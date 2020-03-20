@@ -78,13 +78,13 @@ namespace Kraken.NormalModesCalculation.Field
 
             for (var Mode = 1; Mode <= modesOut.M; Mode++)
             {
-                PhiR[Mode] = ReadOneMode(modesOut, sDRDRMod, W, ird, Mode, Comp);
+                PhiR[Mode] = ReadOneMode(modesOut, W, ird, rd, Nrd, Mode, Comp);
             }
 
             return PhiR;
         }
 
-        private List<Complex> ReadOneMode(ModesOut modesOut, SDRDRMod sDRDRMod, List<double> W, List<int> ird, int Mode, string Comp)
+        private List<Complex> ReadOneMode(ModesOut modesOut, List<double> W, List<int> ird, List<double> rd, int Nrd, int Mode, string Comp)
         {
             /* todo
               TufLuk = .FALSE. 
@@ -118,17 +118,17 @@ namespace Kraken.NormalModesCalculation.Field
                 var gamma2 = Math.Pow(modesOut.k[Mode].Real, 2) - kBot2;
                 gammaB = PekerisRoot(gamma2);
             }
-
-            var PhiR = Enumerable.Repeat(new Complex(0, 0), sDRDRMod.Nrd + 1).ToList();
-            for (var ir = 1; ir <= sDRDRMod.Nrd; ir++)
+            //NRD CHECK
+            var PhiR = Enumerable.Repeat(new Complex(0, 0), Nrd + 1).ToList();
+            for (var ir = 1; ir <= Nrd; ir++)
             {
-                if (sDRDRMod.rd[ir] < modesOut.DepthT)
+                if (rd[ir] < modesOut.DepthT)
                 {
-                    PhiR[ir] = modesOut.Phi[Mode][1] * Complex.Exp(-gammaT * (modesOut.DepthT - sDRDRMod.rd[ir]));
+                    PhiR[ir] = modesOut.Phi[Mode][1] * Complex.Exp(-gammaT * (modesOut.DepthT - rd[ir]));
                 }
-                else if (sDRDRMod.rd[ir] > modesOut.DepthB)
+                else if (rd[ir] > modesOut.DepthB)
                 {
-                    PhiR[ir] = modesOut.Phi[Mode][modesOut.NTot] * Complex.Exp(-gammaB * (sDRDRMod.rd[ir] - modesOut.DepthB));
+                    PhiR[ir] = modesOut.Phi[Mode][modesOut.NTot] * Complex.Exp(-gammaB * (rd[ir] - modesOut.DepthB));
                 }
                 else if (modesOut.NTot > 1)
                 {

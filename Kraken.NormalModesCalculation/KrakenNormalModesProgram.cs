@@ -377,7 +377,7 @@ Output:
             modesOut.freqVec = new List<double> { 0, krakMod.Freq };
             modesOut.Z = new List<double>(ZTAB);
 
-            modesOut.BCTop = krakMod.TopOpt[0].ToString();
+            modesOut.BCTop = krakMod.TopOpt[1].ToString();//changed
             modesOut.cPT = krakMod.CPT;
             modesOut.cST = krakMod.CST;
             modesOut.rhoT = krakMod.rhoT;
@@ -395,8 +395,6 @@ Output:
             modesOut.Phi.Add(new List<Complex>());
             for (krakMod.Mode = 1; krakMod.Mode <= krakMod.M; krakMod.Mode++)
             {
-                //0.00175424256740146
-                //0.0017542507355324
                 var X = krakMod.EVMat[1][krakMod.Mode];
                 var bcimpMod = new BCIMPMod();
                 bcimpMod.BCIMP(krakMod, X, BCTop, "TOP", krakMod.CPT, krakMod.CST, krakMod.rhoT, ref F, ref G, ref IPower);
@@ -900,10 +898,7 @@ Output:
                 var Itop = krakMod.LOC[krakMod.FirstAcoustic] + krakMod.N[krakMod.FirstAcoustic] + 1;
                 rhoINS = krakMod.RHO[Itop];
                 var CINS = Math.Sqrt(krakMod.Omega2 * Math.Pow(krakMod.H[krakMod.FirstAcoustic], 2) / (2.0 + krakMod.B1[krakMod.FirstAcoustic]));
-                var CImpedReal = 0.0;
-                var CImpedImaginary = 0.0;
-                TWERSK(BCType[0], OMEGA, krakMod.BumDen, krakMod.xi, krakMod.eta, KX, rhoINS, CINS, ref CImpedReal, ref CImpedImaginary);
-                var CImped = new Complex(CImpedReal, CImpedImaginary);
+                var CImped = TWERSK(BCType[0], OMEGA, krakMod.BumDen, krakMod.xi, krakMod.eta, KX, rhoINS, CINS);
                 CImped /= (-krakMod.i * OMEGA * rhoINS);
                 var DPHIDZ = PHI[2] / krakMod.H[krakMod.FirstAcoustic];
                 PERK -= CImped * Math.Pow(DPHIDZ, 2);
@@ -912,13 +907,10 @@ Output:
             BCType = krakMod.BotOpt;
             if (BCType == "S" || BCType == "H" || BCType == "T" || BCType == "I")
             {
-                var Itop = krakMod.LOC[krakMod.FirstAcoustic] + krakMod.N[krakMod.FirstAcoustic] + 1;
-                rhoINS = krakMod.RHO[Itop];
-                var CINS = Math.Sqrt(krakMod.Omega2 * Math.Pow(krakMod.H[krakMod.FirstAcoustic], 2) / (2.0 + krakMod.B1[krakMod.FirstAcoustic]));
-                var CImpedReal = 0.0;
-                var CImpedImaginary = 0.0;
-                TWERSK(BCType[0], OMEGA, krakMod.BumDen, krakMod.xi, krakMod.eta, KX, rhoINS, CINS, ref CImpedReal, ref CImpedImaginary);
-                var CImped = new Complex(CImpedReal, CImpedImaginary);
+                var Ibot = krakMod.LOC[krakMod.FirstAcoustic] + krakMod.N[krakMod.FirstAcoustic] + 1;
+                rhoINS = krakMod.RHO[Ibot];
+                var CINS = Math.Sqrt(krakMod.Omega2 * Math.Pow(krakMod.H[krakMod.LastAcoustic], 2) / (2.0 + krakMod.B1[krakMod.LastAcoustic]));
+                var CImped = TWERSK(BCType[0], OMEGA, krakMod.BumDen, krakMod.xi, krakMod.eta, KX, rhoINS, CINS);
                 CImped /= (-krakMod.i * OMEGA * rhoINS);
                 var DPHIDZ = PHI[2] / krakMod.H[krakMod.FirstAcoustic];
                 PERK -= CImped * Math.Pow(DPHIDZ, 2);
@@ -1226,11 +1218,10 @@ Output:
             X = B;
         }
 
-        private void TWERSK(char OPT, double OMEGA, double BUMDEN, double XI, double ETA,
-                                 double KX, double RHO0, double C0, ref double C1, ref double C2)
+        private Complex TWERSK(char OPT, double OMEGA, double BUMDEN, double XI, double ETA,
+                                 double KX, double RHO0, double C0)
         {
-            C1 = 0;
-            C2 = 0;
+            return new Complex();
         }
     }
 }

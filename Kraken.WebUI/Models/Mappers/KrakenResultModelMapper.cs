@@ -22,37 +22,40 @@ namespace Kraken.WebUI.Models.Mappers
 
             resultModel.Modes = normalModes.ZM.Select((x, idx) => new DepthModes { Depth = x, Modes = normalModes.Modes[idx] });
 
-            resultModel.TransmissionLossCalculated = normalModes.TransmissionLossCalculated;            
-            resultModel.Ranges = normalModes.Ranges;
-            resultModel.SourceDepths = normalModes.SourceDepths;
-            resultModel.ReceiverDepths = normalModes.ReceiverDepths;
-
-            var sourceDepthsCount = normalModes.SourceDepths.Count;
-            var receiverDepthsCount = normalModes.ReceiverDepths.Count;
-            var rangesCount = normalModes.Ranges.Count;
-
-            resultModel.TransmissionLoss = new List<TLAtSourceDepth>(sourceDepthsCount);
-            for (var i = 0; i < sourceDepthsCount; i++)
+            resultModel.TransmissionLossCalculated = normalModes.TransmissionLossCalculated;
+            if (normalModes.TransmissionLossCalculated)
             {
-                var tlAtSource = new TLAtSourceDepth();
-                tlAtSource.SourceDepth = normalModes.SourceDepths[i];
-                tlAtSource.TLAtReceiverDepths = new List<TLAtReceiverDepth>(receiverDepthsCount);
+                resultModel.Ranges = normalModes.Ranges;
+                resultModel.SourceDepths = normalModes.SourceDepths;
+                resultModel.ReceiverDepths = normalModes.ReceiverDepths;
 
-                for(var j = 0; j < receiverDepthsCount; j++)
+                var sourceDepthsCount = normalModes.SourceDepths.Count;
+                var receiverDepthsCount = normalModes.ReceiverDepths.Count;
+                var rangesCount = normalModes.Ranges.Count;
+
+                resultModel.TransmissionLoss = new List<TLAtSourceDepth>(sourceDepthsCount);
+                for (var i = 0; i < sourceDepthsCount; i++)
                 {
-                    var tlAtReceiver = new TLAtReceiverDepth();
-                    tlAtReceiver.ReceiverDepth = normalModes.ReceiverDepths[j];
-                    tlAtReceiver.TransmissionLoss = new List<double>(rangesCount);
+                    var tlAtSource = new TLAtSourceDepth();
+                    tlAtSource.SourceDepth = normalModes.SourceDepths[i];
+                    tlAtSource.TLAtReceiverDepths = new List<TLAtReceiverDepth>(receiverDepthsCount);
 
-                    for(var k = 0; k < rangesCount; k++)
+                    for (var j = 0; j < receiverDepthsCount; j++)
                     {
-                        tlAtReceiver.TransmissionLoss.Add(normalModes.TransmissionLoss[i][j][k]);
+                        var tlAtReceiver = new TLAtReceiverDepth();
+                        tlAtReceiver.ReceiverDepth = normalModes.ReceiverDepths[j];
+                        tlAtReceiver.TransmissionLoss = new List<double>(rangesCount);
+
+                        for (var k = 0; k < rangesCount; k++)
+                        {
+                            tlAtReceiver.TransmissionLoss.Add(normalModes.TransmissionLoss[i][j][k]);
+                        }
+
+                        tlAtSource.TLAtReceiverDepths.Add(tlAtReceiver);
                     }
 
-                    tlAtSource.TLAtReceiverDepths.Add(tlAtReceiver);
+                    resultModel.TransmissionLoss.Add(tlAtSource);
                 }
-
-                resultModel.TransmissionLoss.Add(tlAtSource);
             }
 
             return resultModel;
