@@ -6,7 +6,7 @@ import { Multiselect } from 'multiselect-react-dropdown';
 export default class ModesChart extends Component{
 
     state = {
-        modesToDisplay: ["1"]       
+        modesToDisplay: []       
     };
     
     colors = [];
@@ -14,22 +14,24 @@ export default class ModesChart extends Component{
 
     componentDidMount() {
         const { modesCount } = this.props.data;
-        this.modesOptions = [...Array(modesCount).keys()].map(x => (x + 1).toString());
-        const maxModes = Math.min(10, modesCount);
-        this.setState({
-            modesToDisplay:[...Array(maxModes).keys()].map(x => (x + 1).toString())
-        });
+        this.updateModesDependentData(modesCount);
     }
 
     componentDidUpdate(prevProps) {
         const { modesCount } = this.props.data;
         if (prevProps.data.modesCount != modesCount) {
-            this.modesOptions = [...Array(modesCount).keys()].map(x => (x + 1).toString());
-            const maxModes = Math.min(10, modesCount);
-            this.setState({
-                modesToDisplay:[...Array(maxModes).keys()].map(x => (x + 1).toString())
-            });
+            this.updateModesDependentData(modesCount);
         }
+    }
+
+    updateModesDependentData = (modesCount) => {
+        this.modesOptions = [...Array(modesCount).keys()].map(x => (x + 1).toString());
+        const maxModes = Math.min(10, modesCount);
+        this.setState({
+            modesToDisplay: [...Array(maxModes).keys()].map(x => (x + 1).toString())
+        });
+
+        this.colors = distinctColors(modesCount).map(x => `rgb(${x[0]}, ${x[1]},${x[2]})`); 
     }
 
     mapLines = (data) => {           
@@ -73,9 +75,7 @@ export default class ModesChart extends Component{
         const { modes, modesCount } = this.props.data;
         const { modesToDisplay } = this.state;       
 
-        const chartData = this.mapData(modes, modesCount, modesToDisplay);    
-
-        this.colors = distinctColors(modesCount).map(x => `rgb(${x[0]}, ${x[1]},${x[2]})`);             
+        const chartData = this.mapData(modes, modesCount, modesToDisplay);          
 
         return (
             <>

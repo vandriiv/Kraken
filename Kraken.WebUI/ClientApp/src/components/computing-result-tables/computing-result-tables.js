@@ -27,7 +27,7 @@ export default class ComputingResultTables extends Component {
 
         return (<div className='tables-wrapper'>
             <div>
-                <div className="table-descr">
+                <div className="result-view-descr">
                     <BootstrapSwitchButton checked={showKrakenResult} onstyle="outline-primary" offstyle="outline-secondary"
                 onlabel='Collapse'
                 offlabel='Expand'
@@ -40,7 +40,7 @@ export default class ComputingResultTables extends Component {
                 <KrakenResultTable data={computingResult} />
                 : null}
             <div>
-                <div className="table-descr">
+                <div className="result-view-descr">
                     <BootstrapSwitchButton checked={showModes} onstyle="outline-primary" offstyle="outline-secondary"
                     onlabel='Collapse'
                     offlabel='Expand'

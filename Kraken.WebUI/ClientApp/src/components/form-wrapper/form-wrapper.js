@@ -44,13 +44,13 @@ export default class FormWrapper extends Component {
     render() {
         const { form } = this.props;
         const { computingResult, error, isSuccess, formData } = this.state;
-       
+        
         const formWithProps = React.cloneElement(form, { onSubmit: this.onSubmit, onError: this.onError });
 
         return (<Fragment>
             {formWithProps}
             {isSuccess && <ComputingResultTables computingResult={computingResult} />}
-            {isSuccess && <Charts modesData={computingResult} ssp={formData.ssp}/>}
+            {isSuccess && <Charts data={computingResult} ssp={formData.ssp} />}           
         </Fragment>);
     }
 }

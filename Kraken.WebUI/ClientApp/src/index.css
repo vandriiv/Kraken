@@ -6,11 +6,7 @@ table ol {
     padding-left: 0;
 }
 
-.tables-wrapper, .charts-wrapper {
-    margin-top: 16px;
-}
-
-.table-descr {
+.result-view-descr {
     margin-bottom: 16px;
     margin-top: 16px;
 }
@@ -46,4 +42,22 @@ form button{
 }
 .modes-select p {
     margin-bottom:8px;
+}
+
+.tl-selects-wrapper {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.tl-selects-wrapper div:first-child {
+    width: 150px;
+    margin-right: 16px;    
+}
+
+.tl-selects-wrapper .searchBox{
+    display:none;
+}
+.tl-selects-wrapper [class^="optionListContainer"]{
+    width: 150px;
 }

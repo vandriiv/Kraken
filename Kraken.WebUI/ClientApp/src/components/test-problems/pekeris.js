@@ -176,8 +176,8 @@ export default class Pekeris extends Component {
         r: '200,220',
         nsdField: 1,
         sdField: '500',
-        nrdField: 1,
-        rdField: '2500',
+        nrdField: 500,
+        rdField: '0,5300',
         nrr: 1,
         rr: '0'
     };

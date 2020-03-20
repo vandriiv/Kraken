@@ -3,43 +3,66 @@ import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 import ModesChart from '../modes-chart';
 import SoundSpeedChart from '../sound-speed-chart';
 import ModeCharacteristicChart from '../mode-characteristic-chart';
+import TransmissionLossChart from '../transmission-loss-chart';
 
 export default class Charts extends Component {
     state = {
-        showCharts:false
+        showModesCharts: false,
+        showTransmissionLossChart:false,
     };
 
-    toggleChartsVisibility = () => {
+    toggleModesChartsVisibility = () => {
         this.setState({
-            showCharts: !this.state.showCharts
+            showModesCharts: !this.state.showModesCharts
+        });
+    };
+
+    toggleTransmissionLossChartsVisibility = () => {
+        this.setState({
+            showTransmissionLossChart: !this.state.showTransmissionLossChart
         });
     };
 
     render() {
-        const { modesData, ssp } = this.props;       
-        const { showCharts } = this.state;
+        const { data, ssp } = this.props;
+        const { showModesCharts, showTransmissionLossChart } = this.state;
 
         return (
             <div className="charts-wrapper">
                 <div>
-                    <div className="chart-button">
-                        <BootstrapSwitchButton checked={showCharts} onstyle="outline-primary" offstyle="outline-secondary"
+                    <div className="result-view-descr">
+                        <BootstrapSwitchButton checked={showModesCharts} onstyle="outline-primary" offstyle="outline-secondary"
                             onlabel='Collapse'
                             offlabel='Expand'
-                            onChange={this.toggleChartsVisibility}
+                            onChange={this.toggleModesChartsVisibility}
                             size="sm" />
                         <span className="switch-button-descr">Modes amplitude, sound speed, wavenumbers, scatter losses, group and phase speed charts</span>
                     </div>
                 </div>
-                {showCharts &&
+                {showModesCharts &&
                     <>
-                        <ModesChart data={modesData} />
+                        <ModesChart data={data} />
                         <SoundSpeedChart data={ssp} />
-                        <ModeCharacteristicChart data={modesData.k} chartName="Wavenumber (1/m)" yAxisLabelValue="k (1/m)" />
-                        <ModeCharacteristicChart data={modesData.alpha} chartName="Scatter loss (1/m)" yAxisLabelValue="alpha (1/m)" />
-                        <ModeCharacteristicChart data={modesData.groupSpeed} chartName="Group speed (m/s)" yAxisLabelValue="Group speed (m/s)" />
-                        <ModeCharacteristicChart data={modesData.phaseSpeed} chartName="Phase speed (m/s)" yAxisLabelValue="Phase speed (m/s)" />
-                </>   
+                        <ModeCharacteristicChart data={data.k} chartName="Wavenumber (1/m)" yAxisLabelValue="k (1/m)" />
+                        <ModeCharacteristicChart data={data.alpha} chartName="Scatter loss (1/m)" yAxisLabelValue="alpha (1/m)" />
+                        <ModeCharacteristicChart data={data.groupSpeed} chartName="Group speed (m/s)" yAxisLabelValue="Group speed (m/s)" />
+                    <ModeCharacteristicChart data={data.phaseSpeed} chartName="Phase speed (m/s)" yAxisLabelValue="Phase speed (m/s)" />
+                    </>   
+                }
+
+                <div>
+                    <div className="result-view-descr">
+                        <BootstrapSwitchButton checked={showTransmissionLossChart} onstyle="outline-primary" offstyle="outline-secondary"
+                            onlabel='Collapse'
+                            offlabel='Expand'
+                            onChange={this.toggleTransmissionLossChartsVisibility}
+                            size="sm" />
+                        <span className="switch-button-descr">Transmission loss</span>
+                    </div>
+                </div>
+                {showTransmissionLossChart &&
+                    <TransmissionLossChart transmissionLoss={data.transmissionLoss} sourceDepths={data.sourceDepths}
+                        receiverDepths={data.receiverDepths} ranges={data.ranges}/> 
                 }
             </div>
         );
