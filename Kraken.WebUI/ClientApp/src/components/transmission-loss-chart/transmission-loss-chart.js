@@ -15,7 +15,7 @@ export default class TransmissionLossChart extends Component {
     }
 
     render() {
-        const { data, receiverDepth,sourceDepth } = this.props;       
+        const { data, receiverDepth, sourceDepth } = this.props;
 
         const chartExportName = `transmission-loss-sd-${parseFloat(sourceDepth).toFixed(5)}-rd-${parseFloat(receiverDepth).toFixed(5)}`;
 

@@ -17,7 +17,7 @@ export default class InputErrorsList extends Component {
     }
 
     displayErrorMessages(error) {
-        return this.mapValidationMessages(error);        
+        return this.mapValidationMessages(error);
     }
 
     render() {

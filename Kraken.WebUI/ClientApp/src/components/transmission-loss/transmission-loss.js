@@ -10,7 +10,7 @@ export default class TransmissionLoss extends Component {
     };
 
     sourceDepthOptions = [];
-    receiverDepthOptions = [];   
+    receiverDepthOptions = [];
 
     componentDidMount() {
         const { sourceDepths, receiverDepths } = this.props;
@@ -69,7 +69,7 @@ export default class TransmissionLoss extends Component {
 
         if (selectedReceiverDepth === null || selectedReceiverDepth === null) {
             return null;
-        }      
+        }
 
         const data = this.mapData(transmissionLoss, ranges, selectedSourceDepth.idx, selectedReceiverDepth.idx);
 
@@ -78,30 +78,30 @@ export default class TransmissionLoss extends Component {
                 <div className='tl-selects-wrapper'>
                     <div>
                         <p>Source depth (m)</p>
-                    <Multiselect className="single-select"
-                        options={this.sourceDepthOptions}
-                        singleSelect
-                        displayValue="depth"
-                        onSelect={this.onSourceSelectChange}
-                        selectedValues={[selectedSourceDepth]}
-                        avoidHighlightFirstOption={true}
+                        <Multiselect className="single-select"
+                            options={this.sourceDepthOptions}
+                            singleSelect
+                            displayValue="depth"
+                            onSelect={this.onSourceSelectChange}
+                            selectedValues={[selectedSourceDepth]}
+                            avoidHighlightFirstOption={true}
                         />
                     </div>
                     <div>
                         <p>Receiver depth (m)</p>
-                    <Multiselect className="single-select"
-                        options={this.receiverDepthOptions}
-                        singleSelect
-                        displayValue="depth"
-                        onSelect={this.onReceiverSelectChange}
-                        selectedValues={[selectedReceiverDepth]}
-                        avoidHighlightFirstOption={true}
+                        <Multiselect className="single-select"
+                            options={this.receiverDepthOptions}
+                            singleSelect
+                            displayValue="depth"
+                            onSelect={this.onReceiverSelectChange}
+                            selectedValues={[selectedReceiverDepth]}
+                            avoidHighlightFirstOption={true}
                         />
                     </div>
-                </div>                
-            </div>         
-            <TransmissionLossTable data={data} sourceDepth={selectedSourceDepth.depth} receiverDepth={selectedReceiverDepth.depth}/>       
-            <TransmissionLossChart data={data} sourceDepth={selectedSourceDepth.depth} receiverDepth={selectedReceiverDepth.depth}/>
-            </>);
+                </div>
+            </div>
+            <TransmissionLossTable data={data} sourceDepth={selectedSourceDepth.depth} receiverDepth={selectedReceiverDepth.depth} />
+            <TransmissionLossChart data={data} sourceDepth={selectedSourceDepth.depth} receiverDepth={selectedReceiverDepth.depth} />
+        </>);
     }
 }

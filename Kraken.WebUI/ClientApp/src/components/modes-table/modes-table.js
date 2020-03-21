@@ -7,17 +7,17 @@ export default class ModesTable extends Component {
     tableId = "modes-table";
     tableName = "mode-amplidutes";
 
-    mapModes = (modes,modesCount) => {       
+    mapModes = (modes, modesCount) => {
         return [...Array(modesCount).keys()].map(idx => {
             return (<tr key={idx}>
                 <td>{idx + 1}</td>
                 {this.makeSingleRow(modes, idx)}
-            </tr>);          
-        });       
+            </tr>);
+        });
     };
 
     makeSingleRow = (modes, idx) => {
-        return modes.map((m,i) => {
+        return modes.map((m, i) => {
             return (<td key={i}>{m.modes[idx]}</td>)
         });
     }
@@ -26,10 +26,10 @@ export default class ModesTable extends Component {
         return modes.map((x, idx) => {
             return <th key={idx}>{x.depth.toFixed(3)}</th>;
         });
-    }   
-    
+    }
+
     render() {
-        const { modes, modesCount } = this.props;      
+        const { modes, modesCount } = this.props;
 
         return (
             <div>
@@ -42,23 +42,23 @@ export default class ModesTable extends Component {
                     </div>
                 </div>
                 <div className="overflow-table">
-            <Table responsive bordered hover id={this.tableId} >
-            <thead>
-                    <tr>
-                        <th></th>
-                        <th colSpan={modes.length}>Depth (m)</th>
-                </tr>
-                <tr>
-                        <th colSpan="1">N mode</th>
-                        {this.mapDepths(modes)}
-                 </tr>
-                </thead>
-                <tbody>
-                    {this.mapModes(modes, modesCount)}
-                </tbody>
+                    <Table responsive bordered hover id={this.tableId} >
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th colSpan={modes.length}>Depth (m)</th>
+                            </tr>
+                            <tr>
+                                <th colSpan="1">N mode</th>
+                                {this.mapDepths(modes)}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {this.mapModes(modes, modesCount)}
+                        </tbody>
                     </Table>
                 </div>
             </div>
-           );
+        );
     }
 }

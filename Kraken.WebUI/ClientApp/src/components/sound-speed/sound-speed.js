@@ -3,7 +3,7 @@ import SoundSpeedChart from '../sound-speed-chart';
 import SoundSpeedTable from '../sound-speed-table';
 
 export default class SoundSpeed extends Component {
-    
+
     mapSSP = (data) => {
         return data.map(d => {
             return { depth: d[0], speed: d[1] };
@@ -19,7 +19,7 @@ export default class SoundSpeed extends Component {
             <div className="overflow-table">
                 <SoundSpeedTable data={mappedData} />
             </div>
-            <SoundSpeedChart data={mappedData}/>
+            <SoundSpeedChart data={mappedData} />
         </>);
     }
 }

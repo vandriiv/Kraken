@@ -6,25 +6,19 @@
     return colors;
 };
 
-const hsvToRgb = (h, s, v) =>{
+const hsvToRgb = (h, s, v) => {
     var r, g, b;
     var i;
     var f, p, q, t;
-
-    // Make sure our arguments stay in-range
+    
     h = Math.max(0, Math.min(360, h));
     s = Math.max(0, Math.min(100, s));
     v = Math.max(0, Math.min(100, v));
 
-    // We accept saturation and value arguments from 0 to 100 because that's
-    // how Photoshop represents those values. Internally, however, the
-    // saturation and value are calculated from a range of 0 to 1. We make
-    // That conversion here.
     s /= 100;
     v /= 100;
 
-    if (s == 0) {
-        // Achromatic (grey)
+    if (s == 0) {       
         r = g = b = v;
         return [
             Math.round(r * 255),
@@ -33,9 +27,9 @@ const hsvToRgb = (h, s, v) =>{
         ];
     }
 
-    h /= 60; // sector 0 to 5
+    h /= 60; 
     i = Math.floor(h);
-    f = h - i; // factorial part of h
+    f = h - i; 
     p = v * (1 - s);
     q = v * (1 - s * f);
     t = v * (1 - s * (1 - f));
@@ -71,7 +65,7 @@ const hsvToRgb = (h, s, v) =>{
             b = v;
             break;
 
-        default: // case 5:
+        default: 
             r = v;
             g = p;
             b = q;

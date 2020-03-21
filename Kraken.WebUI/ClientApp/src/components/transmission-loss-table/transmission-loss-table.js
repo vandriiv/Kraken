@@ -7,8 +7,7 @@ export default class TransmissionLossTable extends Component {
     tableId = "transmission-loss-table";
 
     render() {
-        const { data, receiverDepth, sourceDepth } = this.props;
-        console.log(this.props);
+        const { data, receiverDepth, sourceDepth } = this.props;      
 
         const tableExportName = `transmission-loss-sd-${parseFloat(sourceDepth).toFixed(5)}-rd-${parseFloat(receiverDepth).toFixed(5)}`;
 
@@ -22,22 +21,22 @@ export default class TransmissionLossTable extends Component {
                         </ButtonGroup>
                     </div>
                 </div>
-             <div className="overflow-table">
-            <Table responsive bordered hover id={this.tableId}>
-            <thead>
-                <tr>
-                    <th>Range (m)</th>
-                    <th>Transmission loss (dB)</th>
-                </tr>
-            </thead>
-            <tbody>
-                {data.map((d, idx) => {
-                    return (<tr key={idx}>
-                        <td>{d.range}</td>
-                        <td>{d.tl}</td>
-                    </tr>);
-                })}
-            </tbody>
+                <div className="overflow-table">
+                    <Table responsive bordered hover id={this.tableId}>
+                        <thead>
+                            <tr>
+                                <th>Range (m)</th>
+                                <th>Transmission loss (dB)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data.map((d, idx) => {
+                                return (<tr key={idx}>
+                                    <td>{d.range}</td>
+                                    <td>{d.tl}</td>
+                                </tr>);
+                            })}
+                        </tbody>
                     </Table>
                 </div>
             </div>);

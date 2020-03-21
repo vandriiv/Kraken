@@ -8,7 +8,7 @@ export default class FormWrapper extends Component {
         formData: null,
         isSuccess: false,
         computingResult: null,
-        error:null
+        error: null
     }
 
     _krakenService = new KrakenService();
@@ -20,12 +20,12 @@ export default class FormWrapper extends Component {
         });
 
         this._krakenService.computeNormalModes(data)
-            .then(res => {            
+            .then(res => {
                 this.setState({
                     isSuccess: true,
                     computingResult: res
+                })
             })
-        })
             .catch(err => {
                 this.setState({
                     error: err
@@ -40,12 +40,12 @@ export default class FormWrapper extends Component {
     render() {
         const { form } = this.props;
         const { computingResult, error, isSuccess, formData } = this.state;
-        
+
         const formWithProps = React.cloneElement(form, { onSubmit: this.onSubmit, onError: this.onError });
 
         return (<Fragment>
             {formWithProps}
-            {isSuccess && <ComputingResult computingResult={computingResult} ssp={formData.ssp} />}       
+            {isSuccess && <ComputingResult computingResult={computingResult} ssp={formData.ssp} />}
         </Fragment>);
     }
 }

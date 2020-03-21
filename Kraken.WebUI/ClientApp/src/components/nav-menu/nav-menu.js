@@ -21,7 +21,7 @@ export default class NavMenu extends Component {
         this.setState({
             collapsed: !this.state.collapsed
         });
-    }   
+    }
 
     render() {
 
@@ -31,10 +31,10 @@ export default class NavMenu extends Component {
                     <Container>
                         <NavbarBrand tag={Link} to="/"><img src="/images/squid.png" className="brand-img d-inline-block align-top" />
                             <span className="brand-title">Kraken normal modes</span>
-                            </NavbarBrand>                       
-                                <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
-                                <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
-                                    <Nav className="mr-auto" navbar>                                        
+                        </NavbarBrand>
+                        <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
+                        <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
+                            <Nav className="mr-auto" navbar>
                                 <NavItem>
                                     <NavLink tag={Link} className="text-dark" to="/docs">Documentation</NavLink>
                                 </NavItem>
@@ -43,9 +43,9 @@ export default class NavMenu extends Component {
                                 </NavItem>
                                 <NavItem>
                                     <NavLink tag={Link} className="text-dark" to="/contacts">Contacts</NavLink>
-                                </NavItem>                                
-                                    </Nav>
-                                </Collapse>                            
+                                </NavItem>
+                            </Nav>
+                        </Collapse>
                     </Container>
                 </Navbar>
             </header>

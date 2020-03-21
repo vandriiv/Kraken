@@ -33,7 +33,7 @@ export default class App extends Component {
                         <Route path={"/normal"} exact component={Normal} />
                         <Route path={"/pekeris"} exact component={Pekeris} />
                         <Route path={"/scholte"} exact component={Scholte} />
-                        <Route path={"/twersky"} exact component={Twersky}/>
+                        <Route path={"/twersky"} exact component={Twersky} />
                     </Switch>
                 </Layout>
             </Router>);

@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { Form, FormGroup, Label, Input, Button,Row,Col } from 'reactstrap';
+import { Form, FormGroup, Label, Input, Button, Row, Col } from 'reactstrap';
 import Select from '../select';
 import InputErrorsList from '../input-errors-list';
 import './initialized-input-form.css';
@@ -12,11 +12,11 @@ export default class InitializedInputForm extends Component {
         nMedia: 0,
         topBCType: '',
         interpolationType: '',
-        attenuationUnits:'',
+        attenuationUnits: '',
         isTopAcoustic: false,
         isTopTwersky: false,
         isBottomAcoustic: false,
-        isVolumeAttenuatonAdded:false,
+        isVolumeAttenuatonAdded: false,
         zt: 0,
         cpt: 0,
         cst: 0,
@@ -25,7 +25,7 @@ export default class InitializedInputForm extends Component {
         ast: 0,
         bumDen: 0,
         eta: 0,
-        xi:0,
+        xi: 0,
         mediumInfo: [],
         ssp: [],
         bottomBCType: '',
@@ -63,12 +63,12 @@ export default class InitializedInputForm extends Component {
         super(props);
         const { acousticProblemData } = props;
 
-        const isTopAcoustic = acousticProblemData.topBCType === 'A';       
+        const isTopAcoustic = acousticProblemData.topBCType === 'A';
         const isTopTwersky = (acousticProblemData.topBCType === 'T' || acousticProblemData.topBCType === 'S'
             || acousticProblemData.topBCType === 'I' || acousticProblemData.topBCType === 'H');
-        const isBottomAcoustic = acousticProblemData.bottomBCType === 'A';       
+        const isBottomAcoustic = acousticProblemData.bottomBCType === 'A';
 
-        this.state = { ...acousticProblemData, isTopAcoustic, isTopTwersky, isBottomAcoustic, error: null };      
+        this.state = { ...acousticProblemData, isTopAcoustic, isTopTwersky, isBottomAcoustic, error: null };
     }
 
     interpolationTypes = [
@@ -138,23 +138,23 @@ export default class InitializedInputForm extends Component {
         },
         {
             key: 'F',
-            name:'dB/(kmHz)'
+            name: 'dB/(kmHz)'
         },
         {
             key: 'M',
-            name:'dB/m'
+            name: 'dB/m'
         },
         {
             key: 'W',
-            name:'dB/wavelength'
-        },        
+            name: 'dB/wavelength'
+        },
         {
             key: 'Q',
-            name:'Quality factor'
+            name: 'Quality factor'
         },
         {
             key: 'T',
-            name:'Thorp attenuation formula'
+            name: 'Thorp attenuation formula'
         }
     ];
 
@@ -182,7 +182,7 @@ export default class InitializedInputForm extends Component {
 
     //refactor
     handleTopBCTypeChange = (e) => {
-        const { value } = e.target;       
+        const { value } = e.target;
         if (value === 'A') {
             this.setState({
                 isTopAcoustic: true,
@@ -203,7 +203,7 @@ export default class InitializedInputForm extends Component {
                 isTopTwersky: false,
                 topBCType: value
             });
-        }        
+        }
     };
 
     handleBottomBCTypeChange = (e) => {
@@ -234,7 +234,7 @@ export default class InitializedInputForm extends Component {
         this.setState({ [name]: checked });
     }
 
-    onSubmit = (e)=> {
+    onSubmit = (e) => {
         e.preventDefault();
         this.setState({ error: null });
         const data = this.validateAndFormatData();
@@ -297,7 +297,7 @@ export default class InitializedInputForm extends Component {
             error.bumDen = "Bump density ";
         }
 
-        if ((topBCType === 'S' || topBCType === 'H' || topBCType === 'T' || topBCType === 'I') && eta <0) {
+        if ((topBCType === 'S' || topBCType === 'H' || topBCType === 'T' || topBCType === 'I') && eta < 0) {
             error.eta = "Principal radius 1";
         }
 
@@ -354,7 +354,7 @@ export default class InitializedInputForm extends Component {
         try {
             sd = this.parseOneDimensionalArray(sd);
         }
-        catch (e) {            
+        catch (e) {
             error.sd = "Source depth format";
         }
 
@@ -377,7 +377,7 @@ export default class InitializedInputForm extends Component {
         }
         catch (e) {
             error.ssp = "SSP format";
-        }       
+        }
 
         if (calculateTransmissionLoss === true) {
             if (nModesForField <= 0) {
@@ -508,7 +508,7 @@ export default class InitializedInputForm extends Component {
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
             calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
-            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;       
+            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
 
         return (
             <Form onSubmit={this.onSubmit} >
@@ -519,13 +519,13 @@ export default class InitializedInputForm extends Component {
                 <FormGroup>
                     <Label for="nModes">Number of modes</Label>
                     <Input type="number" name="nModes" id="nModes" onChange={this.handleChange} placeholder="Number of modes" defaultValue={nModes} required />
-                </FormGroup>                
+                </FormGroup>
                 <FormGroup>
                     <Label for="nMedia">Number of media</Label>
                     <Input type="number" name="nMedia" id="nMedia" onChange={this.handleChange} placeholder="Number of media" defaultValue={nMedia} required />
-                 </FormGroup>
+                </FormGroup>
 
-                <Row form>                    
+                <Row form>
                     <Col md={6}>
                         <FormGroup>
                             <Select label={"Type of interpolation"} name={"interpolationType"} onChange={this.handleChange} options={this.interpolationTypes} initValue={interpolationType} />
@@ -610,7 +610,7 @@ export default class InitializedInputForm extends Component {
                 </FormGroup>
                 <FormGroup>
                     <Label for="mediumInfo">Medium info </Label>
-                    <Input type="textarea" name="mediumInfo" id="mediumInfo" onChange={this.handleChange} required placeholder={"e.g. [300,0,3000], [200,0,500]"} defaultValue={mediumInfo} />                  
+                    <Input type="textarea" name="mediumInfo" id="mediumInfo" onChange={this.handleChange} required placeholder={"e.g. [300,0,3000], [200,0,500]"} defaultValue={mediumInfo} />
                 </FormGroup>
                 <FormGroup>
                     <Label for="ssp">Sound speed profile</Label>
@@ -817,11 +817,11 @@ export default class InitializedInputForm extends Component {
                 }
                 <Button outline color="secondary">Submit</Button>
                 <div className="validation-errors-list">
-                {error !== null ?
-                    <InputErrorsList error={error} />
+                    {error !== null ?
+                        <InputErrorsList error={error} />
                         : null}
                 </div>
             </Form>
-            );
+        );
     }
 }

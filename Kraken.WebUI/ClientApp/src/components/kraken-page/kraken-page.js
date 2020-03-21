@@ -8,7 +8,7 @@ export default class KrakenPage extends Component {
     render() {
         return (<Row>
             <Col xs={12}>
-                <FormWrapper form={<InputForm/>} />
+                <FormWrapper form={<InputForm />} />
             </Col>
         </Row>)
     }

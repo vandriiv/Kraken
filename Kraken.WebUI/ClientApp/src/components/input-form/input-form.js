@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { Form, FormGroup, Label, Input, Button,Row,Col } from 'reactstrap';
+import { Form, FormGroup, Label, Input, Button, Row, Col } from 'reactstrap';
 import Select from '../select';
 import InputErrorsList from '../input-errors-list';
 import './input-form.css';
@@ -55,7 +55,7 @@ export default class InputForm extends Component {
         nrdField: 0,
         rdField: [],
         nrr: 0,
-        rr:[],
+        rr: [],
         error: null
     };
 
@@ -126,23 +126,23 @@ export default class InputForm extends Component {
         },
         {
             key: 'F',
-            name:'dB/(kmHz)'
+            name: 'dB/(kmHz)'
         },
         {
             key: 'M',
-            name:'dB/m'
+            name: 'dB/m'
         },
         {
             key: 'W',
-            name:'dB/wavelength'
-        },        
+            name: 'dB/wavelength'
+        },
         {
             key: 'Q',
-            name:'Quality factor'
+            name: 'Quality factor'
         },
         {
             key: 'T',
-            name:'Thorp attenuation formula'
+            name: 'Thorp attenuation formula'
         }
     ];
 
@@ -190,7 +190,7 @@ export default class InputForm extends Component {
                 isTopTwersky: false,
                 topBCType: value
             });
-        }        
+        }
     };
 
     handleBottomBCTypeChange = (e) => {
@@ -236,7 +236,7 @@ export default class InputForm extends Component {
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
             calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
-            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr,rr } = this.state;
+            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
 
         if (frequency <= 0) {
             error.frequency = "Frequency ";
@@ -445,7 +445,7 @@ export default class InputForm extends Component {
                 frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, addedVolumeAttenuation, zt, cpt,
                 cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
                 csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd, nModesForField, nProf, rProf,
-                nr,r,nsdField,sdField,nrdField,rdField,nrr,rr, calculateTransmissionLoss, sourceType, modesTheory
+                nr, r, nsdField, sdField, nrdField, rdField, nrr, rr, calculateTransmissionLoss, sourceType, modesTheory
             };
         }
     }
@@ -479,24 +479,24 @@ export default class InputForm extends Component {
 
     render() {
 
-        const { isBottomAcoustic, isTopAcoustic, isTopTwersky, calculateTransmissionLoss, error } = this.state;        
+        const { isBottomAcoustic, isTopAcoustic, isTopTwersky, calculateTransmissionLoss, error } = this.state;
 
         return (
             <Form onSubmit={this.onSubmit} >
                 <FormGroup>
                     <Label for="frequency">Frequency (Hz)</Label>
-                    <Input type="number" name="frequency" id="frequency" onChange={this.handleChange} placeholder="Frequency" required/>
+                    <Input type="number" name="frequency" id="frequency" onChange={this.handleChange} placeholder="Frequency" required />
                 </FormGroup>
                 <FormGroup>
                     <Label for="nModes">Number of modes</Label>
-                    <Input type="number" name="nModes" id="nModes" onChange={this.handleChange} placeholder="Number of modes" required/>
-                </FormGroup>                
+                    <Input type="number" name="nModes" id="nModes" onChange={this.handleChange} placeholder="Number of modes" required />
+                </FormGroup>
                 <FormGroup>
                     <Label for="nMedia">Number of media</Label>
-                    <Input type="number" name="nMedia" id="nMedia" onChange={this.handleChange} placeholder="Number of media" required/>
-                 </FormGroup>
+                    <Input type="number" name="nMedia" id="nMedia" onChange={this.handleChange} placeholder="Number of media" required />
+                </FormGroup>
 
-                <Row form>                    
+                <Row form>
                     <Col md={6}>
                         <FormGroup>
                             <Select label={"Type of interpolation"} name={"interpolationType"} onChange={this.handleChange} options={this.interpolationTypes} />
@@ -513,13 +513,13 @@ export default class InputForm extends Component {
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="zt">Depth (m)</Label>
-                                <Input type="number" name="zt" id="zt" onChange={this.handleChange} required/>
+                                <Input type="number" name="zt" id="zt" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="cpt">Top P-wave speed (m/s)</Label>
-                                <Input type="number" name="cpt" id="cpt" onChange={this.handleChange} required/>
+                                <Input type="number" name="cpt" id="cpt" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
@@ -531,19 +531,19 @@ export default class InputForm extends Component {
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="rhot">Top density (g/cm3)</Label>
-                                <Input type="number" name="rhot" id="rhot" onChange={this.handleChange} required/>
+                                <Input type="number" name="rhot" id="rhot" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="apt">Top P-wave attenuation</Label>
-                                <Input type="number" name="apt" id="apt" onChange={this.handleChange} required/>
+                                <Input type="number" name="apt" id="apt" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="ast">Top S-wave attenuation</Label>
-                                <Input type="number" name="ast" id="ast" onChange={this.handleChange} required/>
+                                <Input type="number" name="ast" id="ast" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                     </Row>
@@ -553,19 +553,19 @@ export default class InputForm extends Component {
                         <Col md={4}>
                             <FormGroup>
                                 <Label for="bumDen">Bump density (ridges/km)</Label>
-                                <Input type="number" name="bumDen" id="bumDen" onChange={this.handleChange} required/>
+                                <Input type="number" name="bumDen" id="bumDen" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                         <Col md={4}>
                             <FormGroup>
                                 <Label for="eta">Principal radius 1 (m)</Label>
-                                <Input type="number" name="eta" id="eta" onChange={this.handleChange} required/>
+                                <Input type="number" name="eta" id="eta" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                         <Col md={4}>
                             <FormGroup>
                                 <Label for="xi">Principal radius 2 (m)</Label>
-                                <Input type="number" name="xi" id="xi" onChange={this.handleChange} required/>
+                                <Input type="number" name="xi" id="xi" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                     </Row>
@@ -581,11 +581,11 @@ export default class InputForm extends Component {
                 </FormGroup>
                 <FormGroup>
                     <Label for="mediumInfo">Medium info </Label>
-                    <Input type="textarea" name="mediumInfo" id="mediumInfo" onChange={this.handleChange} required placeholder={"e.g. [300,0,3000], [200,0,500]"} />                  
+                    <Input type="textarea" name="mediumInfo" id="mediumInfo" onChange={this.handleChange} required placeholder={"e.g. [300,0,3000], [200,0,500]"} />
                 </FormGroup>
                 <FormGroup>
                     <Label for="ssp">Sound speed profile</Label>
-                    <Input type="textarea" name="ssp" id="ssp" onChange={this.handleChange} required placeholder={"e.g. [0,1500, 0, 1.0, 0, 0],[3000, 1500, 0, 1.0, 0, 0.00000],[3000, 1500, 0, 2.0000, 0, 0.00000],[5000, 1500, 0, 2.0000, 0, 0]"}/>
+                    <Input type="textarea" name="ssp" id="ssp" onChange={this.handleChange} required placeholder={"e.g. [0,1500, 0, 1.0, 0, 0],[3000, 1500, 0, 1.0, 0, 0.00000],[3000, 1500, 0, 2.0000, 0, 0.00000],[5000, 1500, 0, 2.0000, 0, 0]"} />
                 </FormGroup>
                 <Row form>
                     <Col md={6}>
@@ -596,7 +596,7 @@ export default class InputForm extends Component {
                     <Col md={6}>
                         <FormGroup>
                             <Label for="sigma">Interfacial roughness (m)</Label>
-                            <Input type="number" name="sigma" id="sigma" onChange={this.handleChange} required/>
+                            <Input type="number" name="sigma" id="sigma" onChange={this.handleChange} required />
                         </FormGroup>
                     </Col>
                 </Row>
@@ -605,37 +605,37 @@ export default class InputForm extends Component {
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="zb">Depth (m)</Label>
-                                <Input type="number" name="zb" id="zb" onChange={this.handleChange} required/>
+                                <Input type="number" name="zb" id="zb" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="cpb">Bottom P-wave speed (m/s)</Label>
-                                <Input type="text" name="cpb" id="cpb" onChange={this.handleChange} required/>
+                                <Input type="text" name="cpb" id="cpb" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="csb">Bottom S-wave speed (m/s)</Label>
-                                <Input type="text" name="csb" id="csb" onChange={this.handleChange} required/>
+                                <Input type="text" name="csb" id="csb" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="rhob">Bottom density (g/cm3)</Label>
-                                <Input type="text" name="rhob" id="rhob" onChange={this.handleChange} required/>
+                                <Input type="text" name="rhob" id="rhob" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="apb">Bottom P-wave atten.</Label>
-                                <Input type="text" name="apb" id="apb" onChange={this.handleChange} required/>
+                                <Input type="text" name="apb" id="apb" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
                             <FormGroup>
                                 <Label for="asb">Bottom S-wave atten.</Label>
-                                <Input type="text" name="asb" id="asb" onChange={this.handleChange} required/>
+                                <Input type="text" name="asb" id="asb" onChange={this.handleChange} required />
                             </FormGroup>
                         </Col>
                     </Row>
@@ -644,31 +644,31 @@ export default class InputForm extends Component {
                     <Col md={6}>
                         <FormGroup>
                             <Label for="cLow">Lower phase speed limit (m/s)</Label>
-                            <Input type="number" name="cLow" id="cLow" onChange={this.handleChange} required/>
+                            <Input type="number" name="cLow" id="cLow" onChange={this.handleChange} required />
                         </FormGroup>
                     </Col>
                     <Col md={6}>
                         <FormGroup>
                             <Label for="cHigh">Upper phase speed limit (m/s)</Label>
-                            <Input type="number" name="cHigh" id="cHigh" onChange={this.handleChange} required/>
+                            <Input type="number" name="cHigh" id="cHigh" onChange={this.handleChange} required />
                         </FormGroup>
                     </Col>
                 </Row>
                 <FormGroup>
                     <Label for="rMax">Maximum range (km)</Label>
-                    <Input type="number" name="rMax" id="rMax" onChange={this.handleChange} required/>
+                    <Input type="number" name="rMax" id="rMax" onChange={this.handleChange} required />
                 </FormGroup>
                 <Row form>
                     <Col md={6}>
                         <FormGroup>
                             <Label for="nsd">The number of soure depths</Label>
-                            <Input type="number" name="nsd" id="nsd" onChange={this.handleChange} required/>
+                            <Input type="number" name="nsd" id="nsd" onChange={this.handleChange} required />
                         </FormGroup>
                     </Col>
                     <Col md={6}>
                         <FormGroup>
                             <Label for="sd">The source depths (m)</Label>
-                            <Input type="textarea" name="sd" id="sd" onChange={this.handleChange} required/>
+                            <Input type="textarea" name="sd" id="sd" onChange={this.handleChange} required />
                         </FormGroup>
                     </Col>
                 </Row>
@@ -676,13 +676,13 @@ export default class InputForm extends Component {
                     <Col md={6}>
                         <FormGroup>
                             <Label for="nrd">The number of receiver depths</Label>
-                            <Input type="number" name="nrd" id="nrd" onChange={this.handleChange} required/>
+                            <Input type="number" name="nrd" id="nrd" onChange={this.handleChange} required />
                         </FormGroup>
                     </Col>
                     <Col md={6}>
                         <FormGroup>
                             <Label for="rd">The receiver depths (m)</Label>
-                            <Input type="textarea" name="rd" id="rd" onChange={this.handleChange} required/>
+                            <Input type="textarea" name="rd" id="rd" onChange={this.handleChange} required />
                         </FormGroup>
                     </Col>
                 </Row>
@@ -694,22 +694,22 @@ export default class InputForm extends Component {
                 </FormGroup>
                 {calculateTransmissionLoss ?
                     <>
-                    <Row form>
-                        <Col md={6}>
-                            <FormGroup>
-                                <Select label={"Source type"} name={"sourceType"} onChange={this.handleChange} options={this.sourceTypes} />
-                            </FormGroup>
-                        </Col>
-                        <Col md={6}>
-                            <FormGroup>
-                                <Select label={"Mode theory"} name={"modesTheory"} onChange={this.handleTopBCTypeChange} options={this.modesTheories} />
-                            </FormGroup>
-                        </Col>
+                        <Row form>
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Select label={"Source type"} name={"sourceType"} onChange={this.handleChange} options={this.sourceTypes} />
+                                </FormGroup>
+                            </Col>
+                            <Col md={6}>
+                                <FormGroup>
+                                    <Select label={"Mode theory"} name={"modesTheory"} onChange={this.handleTopBCTypeChange} options={this.modesTheories} />
+                                </FormGroup>
+                            </Col>
                         </Row>
                         <FormGroup>
                             <Label for="nModesForField">Number of modes in field computation</Label>
                             <Input type="number" name="nModesForField" id="nModesForField" onChange={this.handleChange} placeholder="Number of modes to use in field computation" required />
-                        </FormGroup> 
+                        </FormGroup>
                         <Row form>
                             <Col md={6}>
                                 <FormGroup>
@@ -783,16 +783,16 @@ export default class InputForm extends Component {
                                 </FormGroup>
                             </Col>
                         </Row>
-                     </>
-                 : null
+                    </>
+                    : null
                 }
                 <Button outline color="secondary">Submit</Button>
                 <div className="validation-errors-list">
-                {error !== null ?
-                    <InputErrorsList error={error} />
+                    {error !== null ?
+                        <InputErrorsList error={error} />
                         : null}
                 </div>
             </Form>
-            );
+        );
     }
 }

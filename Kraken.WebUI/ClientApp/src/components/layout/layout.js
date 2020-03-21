@@ -2,12 +2,12 @@
 import { Container } from 'reactstrap';
 import NavMenu from '../nav-menu/';
 
-export default class Layout extends Component {   
+export default class Layout extends Component {
 
     render() {
         return (
             <div>
-                <NavMenu/>
+                <NavMenu />
                 <Container>
                     {this.props.children}
                 </Container>
