@@ -1,70 +1,10 @@
 ﻿import React, { Component } from 'react';
-import { Multiselect } from 'multiselect-react-dropdown';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { exportChart } from '../../utilites/export-chart';
 import { Button } from 'reactstrap';
 
 export default class TransmissionLossChart extends Component {
-
-    state = {
-        selectedReceiverDepth: null,
-        selectedSourceDepth: null,
-    };
-
-    sourceDepthOptions = [];
-    receiverDepthOptions = [];
-
     chartId = "transmission-loss-chart";
-
-    componentDidMount() {
-        const { sourceDepths, receiverDepths } = this.props;
-        this.sourceDepthOptions = this.mapOptions(sourceDepths);
-        this.receiverDepthOptions = this.mapOptions(receiverDepths);
-        this.setState({
-            selectedReceiverDepth: this.receiverDepthOptions[0],
-            selectedSourceDepth: this.sourceDepthOptions[0]
-        });
-    }
-
-    componentDidUpdate(prevProps) {
-        const { sourceDepths, receiverDepths } = this.props;
-
-        if (sourceDepths !== prevProps.sourceDepths || receiverDepths !== prevProps.receiverDepths) {
-            this.sourceDepthOptions = this.mapOptions(sourceDepths);
-            this.receiverDepthOptions = this.mapOptions(receiverDepths);
-            this.setState({
-                selectedReceiverDepth: this.receiverDepthOptions[0],
-                selectedSourceDepth: this.sourceDepthOptions[0]
-            });
-        }
-    }
-
-    mapOptions = (arr) => {
-        return arr.map((x, idx) => {
-            return { idx: idx, depth: x.toFixed(8) };
-        })
-    }
-
-    onReceiverSelectChange = (selectedList, selectedItem) => {
-        this.setState({
-            selectedReceiverDepth: selectedItem
-        });
-    }
-
-    onSourceSelectChange = (selectedList, selectedItem) => {
-        this.setState({
-            selectedSourceDepth: selectedItem
-        });
-    }
-
-    mapData = (transmissionLoss, ranges, sourceIdx, receiverIdx) => {      
-
-        return transmissionLoss[sourceIdx]
-            .tlAtReceiverDepths[receiverIdx]
-            .transmissionLoss.map((val, idx) => {
-                return { x: ranges[idx], y: val };
-        });
-    }
 
     tLDataFormater = (number) => {
         return number.toFixed(3).toString();
@@ -75,52 +15,25 @@ export default class TransmissionLossChart extends Component {
     }
 
     render() {
-        const { transmissionLoss, ranges } = this.props;
-        const { selectedSourceDepth, selectedReceiverDepth } = this.state;      
+        const { data, receiverDepth,sourceDepth } = this.props;       
 
-        if (selectedReceiverDepth === null || selectedReceiverDepth === null) {
-            return null;
-        }      
-
-        console.log(this.state);
-        const chartData = this.mapData(transmissionLoss, ranges, selectedSourceDepth.idx, selectedReceiverDepth.idx);
-
-        const chartExportName = `transmission-loss-sd-${parseFloat(selectedSourceDepth.depth).toFixed(5)}-rd-${parseFloat(selectedReceiverDepth.depth).toFixed(5)}`;
+        const chartExportName = `transmission-loss-sd-${parseFloat(sourceDepth).toFixed(5)}-rd-${parseFloat(receiverDepth).toFixed(5)}`;
 
         return (<>
-            <div className='d-flex justify-content-between'>
-            <div className='tl-selects-wrapper'>
-                <Multiselect className="single-select"
-                    options={this.sourceDepthOptions}
-                    singleSelect
-                    displayValue="depth"
-                    onSelect={this.onSourceSelectChange}
-                    selectedValues={[selectedSourceDepth]}
-                    avoidHighlightFirstOption={true}
-                />
-                <Multiselect className="single-select"
-                    options={this.receiverDepthOptions}
-                    singleSelect
-                    displayValue="depth"
-                    onSelect={this.onReceiverSelectChange}
-                    selectedValues={[selectedReceiverDepth]}
-                    avoidHighlightFirstOption={true}
-                />
-                </div>
-                <div className="align-self-end">
-                    <Button outline color="success" onClick={() => exportChart(this.chartId, chartExportName)}>Save as image</Button>
-                </div>
-            </div>
-
             <div className="lg-chart-wrapper">
+                <div className='d-flex justify-content-end'>
+                    <div>
+                        <Button outline color="success" onClick={() => exportChart(this.chartId, chartExportName)}>Save as image</Button>
+                    </div>
+                </div>
                 <ResponsiveContainer height={700} width="100%" id={this.chartId}>
                     <LineChart margin={{ left: 10, top: 35 }}>
                         <CartesianGrid strokeDasharray="10 10" />
-                        <XAxis dataKey="x" type="number" tickFormatter={this.rangeDataFormatter} domain={['dataMin', 'dataMax']} label={{ value: 'Range (km)', position: 'insideBottomRight', offset: 0, dy: 10 }} />
-                        <YAxis dataKey="y" type="number" tickFormatter={this.tLDataFormater} domain={['dataMin', 'dataMax']} tickCount={20} label={{ value: 'TL (dB)', position: 'insideTopLeft', dx: -10, dy: -35 }} />
+                        <XAxis dataKey="range" type="number" tickFormatter={this.rangeDataFormatter} domain={['dataMin', 'dataMax']} label={{ value: 'Range (km)', position: 'insideBottomRight', offset: 0, dy: 10 }} />
+                        <YAxis dataKey="tl" type="number" tickFormatter={this.tLDataFormater} domain={['dataMin', 'dataMax']} tickCount={20} label={{ value: 'TL (dB)', position: 'insideTopLeft', dx: -10, dy: -35 }} />
                         <Tooltip />
                         <Legend />
-                        <Line dataKey="y" data={chartData} name="Transmission loss" dot={false} stroke="#8884d8" />
+                        <Line dataKey="tl" data={data} name="Transmission loss" dot={false} stroke="#8884d8" />
                     </LineChart>
                 </ResponsiveContainer>
             </div>

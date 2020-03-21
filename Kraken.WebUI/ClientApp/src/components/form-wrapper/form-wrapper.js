@@ -1,10 +1,6 @@
 ﻿import React, { Component, Fragment } from 'react';
 import KrakenService from '../../services/kraken-service';
-import ComputingResultTables from '../computing-result-tables';
-import ModesChart from '../modes-chart';
-import SoundSpeedChart from '../sound-speed-chart';
-import ModeCharacteristicChart from '../mode-characteristic-chart';
-import Charts from '../charts';
+import ComputingResult from '../computing-result';
 
 export default class FormWrapper extends Component {
 
@@ -49,8 +45,7 @@ export default class FormWrapper extends Component {
 
         return (<Fragment>
             {formWithProps}
-            {isSuccess && <ComputingResultTables computingResult={computingResult} />}
-            {isSuccess && <Charts data={computingResult} ssp={formData.ssp} />}           
+            {isSuccess && <ComputingResult computingResult={computingResult} ssp={formData.ssp} />}       
         </Fragment>);
     }
 }

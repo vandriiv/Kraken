@@ -6,7 +6,7 @@ table ol {
     padding-left: 0;
 }
 
-.result-view-descr {
+.switch-with-descr {
     margin-bottom: 16px;
     margin-top: 16px;
 }
@@ -37,17 +37,21 @@ form button{
     margin-top:14px;
 }
 
-.modes-select{
+.select-wrapper{
     margin-top:16px;
 }
-.modes-select p {
-    margin-bottom:8px;
+.select-wrapper p {
+    margin-bottom: 8px;
 }
 
-.tl-selects-wrapper {
-    margin-top: 16px;
+.tl-selects-wrapper {  
+  
     display: flex;
     align-items: center;
+}
+
+.tl-selects-wrapper div p{
+    margin-bottom:8px;
 }
 
 .tl-selects-wrapper div:first-child {
@@ -61,3 +65,10 @@ form button{
 .tl-selects-wrapper [class^="optionListContainer"]{
     width: 150px;
 }
+
+.overflow-table{
+    max-height:600px;
+    overflow-y:auto;
+    margin-top:16px;
+}
+

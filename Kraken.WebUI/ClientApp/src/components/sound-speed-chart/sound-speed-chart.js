@@ -7,20 +7,8 @@ export default class SoundSpeedChart extends Component {
     chartId = "sound-speed-chart";
     chartName = "Sound speed";
 
-    mapData = (data) => {
-        const result = {};
-        result.name = this.chartName;
-
-        result.data = data.map(d => {
-            return { y: d[0], x: d[1] };
-        });
-
-        return result;
-    };
-
     render() {
-        const { data } = this.props;       
-        const chartData = this.mapData(data);      
+        const { data } = this.props;                  
 
         return (
             <div className="lg-chart-wrapper">
@@ -32,11 +20,11 @@ export default class SoundSpeedChart extends Component {
                 <ResponsiveContainer height={700} width="100%" id={this.chartId}>
                     <LineChart margin={{ left: 10, top: 35 }} layout="vertical">
                         <CartesianGrid strokeDasharray="10 10" />
-                        <XAxis dataKey="x" type="number" domain={['dataMin', 'dataMax']} label={{ value: 'Sound speed (m/s)', position: 'insideBottomRight', offset: 0, dy: 10 }} />
-                        <YAxis dataKey="y" type="number" domain={['dataMin', 'dataMax']} tickCount={20} label={{ value: 'Depth (m)', position: 'insideTopLeft', dx: -10, dy: -35}} />
+                        <XAxis dataKey="speed" type="number" domain={['dataMin', 'dataMax']} label={{ value: 'Sound speed (m/s)', position: 'insideBottomRight', offset: 0, dy: 10 }} />
+                        <YAxis dataKey="depth" type="number" domain={['dataMin', 'dataMax']} tickCount={20} label={{ value: 'Depth (m)', position: 'insideTopLeft', dx: -10, dy: -35}} />
                         <Tooltip />
                         <Legend />
-                        <Line dataKey="x" data={chartData.data} name={chartData.name} key={chartData.name} dot={false} stroke="#3030f0" />
+                        <Line dataKey="speed" data={data} name={this.chartName} key={this.chartName} dot={false} stroke="#3030f0" />
                     </LineChart>
                 </ResponsiveContainer>
             </div>);

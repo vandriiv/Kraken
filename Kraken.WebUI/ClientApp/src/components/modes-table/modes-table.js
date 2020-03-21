@@ -1,7 +1,11 @@
 ﻿import React, { Component } from 'react';
-import { Table } from 'reactstrap';
+import { Table, Button, ButtonGroup } from 'reactstrap';
+import { exportTableToCsv } from '../../utilites/export-table-to-csv';
+import { exportTableToExcel } from '../../utilites/export-table-to-excel';
 
 export default class ModesTable extends Component {
+    tableId = "modes-table";
+    tableName = "mode-amplidutes";
 
     mapModes = (modes,modesCount) => {       
         return [...Array(modesCount).keys()].map(idx => {
@@ -22,26 +26,39 @@ export default class ModesTable extends Component {
         return modes.map((x, idx) => {
             return <th key={idx}>{x.depth.toFixed(3)}</th>;
         });
-    }
-
+    }   
+    
     render() {
-        const { modes, modesCount } = this.props.data;       
+        const { modes, modesCount } = this.props;      
 
         return (
-            <Table responsive bordered hover>
+            <div>
+                <div className='d-flex justify-content-end'>
+                    <div>
+                        <ButtonGroup>
+                            <Button outline color="success" onClick={() => exportTableToCsv(this.tableId, this.tableName)}>Save as .csv</Button>
+                            <Button outline color="success" onClick={() => exportTableToExcel(this.tableId, this.tableName)}>Save as .xls</Button>
+                        </ButtonGroup>
+                    </div>
+                </div>
+                <div className="overflow-table">
+            <Table responsive bordered hover id={this.tableId} >
             <thead>
                     <tr>
                         <th></th>
                         <th colSpan={modes.length}>Depth (m)</th>
                 </tr>
                 <tr>
-                        <th colSpan="1">№ mode</th>
+                        <th colSpan="1">N mode</th>
                         {this.mapDepths(modes)}
                  </tr>
                 </thead>
                 <tbody>
                     {this.mapModes(modes, modesCount)}
                 </tbody>
-        </Table>);
+                    </Table>
+                </div>
+            </div>
+           );
     }
 }

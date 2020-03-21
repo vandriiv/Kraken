@@ -16,13 +16,13 @@ export default class ModesChart extends Component{
     chartId = "modes-chart";
 
     componentDidMount() {
-        const { modesCount } = this.props.data;
+        const { modesCount } = this.props;
         this.updateModesDependentData(modesCount);
     }
 
     componentDidUpdate(prevProps) {
-        const { modesCount } = this.props.data;
-        if (prevProps.data.modesCount != modesCount) {
+        const { modesCount } = this.props;
+        if (prevProps.modesCount != modesCount) {
             this.updateModesDependentData(modesCount);
         }
     }
@@ -75,7 +75,7 @@ export default class ModesChart extends Component{
 
 
     render() {
-        const { modes, modesCount } = this.props.data;
+        const { modes, modesCount } = this.props;
         const { modesToDisplay } = this.state;       
 
         const chartData = this.mapData(modes, modesCount, modesToDisplay);          
@@ -83,7 +83,7 @@ export default class ModesChart extends Component{
         return (
             <>
                 <div className='d-flex justify-content-between'>
-                <div className="modes-select">
+                <div className="select-wrapper">
                     <p>Select modes to display on chart</p>
                     <Multiselect
                         placeHolder = "Select modes to display on chart"
