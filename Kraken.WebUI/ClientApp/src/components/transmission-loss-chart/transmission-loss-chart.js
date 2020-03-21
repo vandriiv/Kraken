@@ -1,6 +1,8 @@
 ﻿import React, { Component } from 'react';
 import { Multiselect } from 'multiselect-react-dropdown';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { exportChart } from '../../utilites/export-chart';
+import { Button } from 'reactstrap';
 
 export default class TransmissionLossChart extends Component {
 
@@ -11,6 +13,8 @@ export default class TransmissionLossChart extends Component {
 
     sourceDepthOptions = [];
     receiverDepthOptions = [];
+
+    chartId = "transmission-loss-chart";
 
     componentDidMount() {
         const { sourceDepths, receiverDepths } = this.props;
@@ -80,8 +84,11 @@ export default class TransmissionLossChart extends Component {
 
         console.log(this.state);
         const chartData = this.mapData(transmissionLoss, ranges, selectedSourceDepth.idx, selectedReceiverDepth.idx);
-       
+
+        const chartExportName = `transmission-loss-sd-${parseFloat(selectedSourceDepth.depth).toFixed(5)}-rd-${parseFloat(selectedReceiverDepth.depth).toFixed(5)}`;
+
         return (<>
+            <div className='d-flex justify-content-between'>
             <div className='tl-selects-wrapper'>
                 <Multiselect className="single-select"
                     options={this.sourceDepthOptions}
@@ -99,10 +106,14 @@ export default class TransmissionLossChart extends Component {
                     selectedValues={[selectedReceiverDepth]}
                     avoidHighlightFirstOption={true}
                 />
+                </div>
+                <div className="align-self-end">
+                    <Button outline color="success" onClick={() => exportChart(this.chartId, chartExportName)}>Save as image</Button>
+                </div>
             </div>
 
             <div className="lg-chart-wrapper">
-                <ResponsiveContainer height={700} width="100%">
+                <ResponsiveContainer height={700} width="100%" id={this.chartId}>
                     <LineChart margin={{ left: 10, top: 35 }}>
                         <CartesianGrid strokeDasharray="10 10" />
                         <XAxis dataKey="x" type="number" tickFormatter={this.rangeDataFormatter} domain={['dataMin', 'dataMax']} label={{ value: 'Range (km)', position: 'insideBottomRight', offset: 0, dy: 10 }} />

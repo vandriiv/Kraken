@@ -43,10 +43,10 @@ export default class Charts extends Component {
                     <>
                         <ModesChart data={data} />
                         <SoundSpeedChart data={ssp} />
-                        <ModeCharacteristicChart data={data.k} chartName="Wavenumber (1/m)" yAxisLabelValue="k (1/m)" />
-                        <ModeCharacteristicChart data={data.alpha} chartName="Scatter loss (1/m)" yAxisLabelValue="alpha (1/m)" />
-                        <ModeCharacteristicChart data={data.groupSpeed} chartName="Group speed (m/s)" yAxisLabelValue="Group speed (m/s)" />
-                    <ModeCharacteristicChart data={data.phaseSpeed} chartName="Phase speed (m/s)" yAxisLabelValue="Phase speed (m/s)" />
+                        <ModeCharacteristicChart data={data.k} chartName="Wavenumber (1/m)" chartId="wavenumber" yAxisLabelValue="k (1/m)" />
+                    <ModeCharacteristicChart data={data.alpha} chartName="Scatter loss (1/m)" chartId="scatter-loss" yAxisLabelValue="alpha (1/m)" />
+                    <ModeCharacteristicChart data={data.groupSpeed} chartName="Group speed (m/s)" chartId="group-speed" yAxisLabelValue="Group speed (m/s)" />
+                    <ModeCharacteristicChart data={data.phaseSpeed} chartName="Phase speed (m/s)" chartId="phase-speed" yAxisLabelValue="Phase speed (m/s)" />
                     </>   
                 }
 

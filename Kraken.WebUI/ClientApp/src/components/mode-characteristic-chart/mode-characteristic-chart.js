@@ -1,5 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { exportChart } from '../../utilites/export-chart';
+import { Button } from 'reactstrap';
 
 export default class ModeCharacteristicChart extends Component{
 
@@ -16,15 +18,21 @@ export default class ModeCharacteristicChart extends Component{
     dataFormater = (number) => {
         return number.toFixed(3).toString();
     }
+    
 
     render() {
-        const { data, yAxisLabelValue, chartName } = this.props;
+        const { data, yAxisLabelValue, chartName, chartId } = this.props;
 
         const chartData = this.mapData(data, chartName);       
 
         return (
-            <div className="lg-chart-wrapper">
-                <ResponsiveContainer height={700} width="100%">
+            <div className="lg-chart-wrapper">    
+                <div className='d-flex justify-content-end'>                  
+                    <div className="align-self-end">
+                        <Button outline color="success" onClick={() => exportChart(chartId)}>Save as image</Button>
+                    </div>
+                </div>
+                <ResponsiveContainer height={700} width="100%" id={chartId}>
                     <LineChart margin={{ left:10, top:35}}>
                         <CartesianGrid strokeDasharray="10 10" />
                         <XAxis dataKey="x" type="number" domain={['dataMin', 'dataMax']} label={{ value: '№ of mode', position: 'insideBottomRight', offset: 0, dy: 10 }} />

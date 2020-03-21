@@ -2,6 +2,8 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { distinctColors } from '../../utilites/color-generator';
 import { Multiselect } from 'multiselect-react-dropdown';
+import { exportChart } from '../../utilites/export-chart';
+import { Button } from 'reactstrap';
 
 export default class ModesChart extends Component{
 
@@ -10,7 +12,8 @@ export default class ModesChart extends Component{
     };
     
     colors = [];
-    modesOptions = [];   
+    modesOptions = []; 
+    chartId = "modes-chart";
 
     componentDidMount() {
         const { modesCount } = this.props.data;
@@ -79,6 +82,7 @@ export default class ModesChart extends Component{
 
         return (
             <>
+                <div className='d-flex justify-content-between'>
                 <div className="modes-select">
                     <p>Select modes to display on chart</p>
                     <Multiselect
@@ -89,9 +93,13 @@ export default class ModesChart extends Component{
                         selectedValues={modesToDisplay}                       
                         isObject={false}
                 />
-            </div>
-            <div className="lg-chart-wrapper">
-                <ResponsiveContainer height={700} width="100%">
+                    </div>
+                    <div className="align-self-end">
+                        <Button outline color="success" onClick={()=>exportChart(this.chartId)}>Save as image</Button>
+                    </div>
+                </div>
+                <div className="lg-chart-wrapper">
+                    <ResponsiveContainer height={700} width="100%" id={this.chartId} >
                     <LineChart margin={{ left: 10, top: 35 }}> 
                     <CartesianGrid strokeDasharray="10 10" />
                         <XAxis dataKey="x" type="number" domain={['dataMin', 'dataMax']} label={{ value: 'Depth (m)', position: 'insideBottomRight', offset: 0, dy: 10 }}/>

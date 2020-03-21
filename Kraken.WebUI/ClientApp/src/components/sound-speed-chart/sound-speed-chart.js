@@ -1,11 +1,15 @@
 ﻿import React, { Component } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { exportChart } from '../../utilites/export-chart';
+import { Button } from 'reactstrap';
 
 export default class SoundSpeedChart extends Component {
+    chartId = "sound-speed-chart";
+    chartName = "Sound speed";
 
     mapData = (data) => {
         const result = {};
-        result.name = "Sound speed";
+        result.name = this.chartName;
 
         result.data = data.map(d => {
             return { y: d[0], x: d[1] };
@@ -20,7 +24,12 @@ export default class SoundSpeedChart extends Component {
 
         return (
             <div className="lg-chart-wrapper">
-                <ResponsiveContainer height={700} width="100%">
+                <div className='d-flex justify-content-end'>
+                    <div className="align-self-end">
+                        <Button outline color="success" onClick={() => exportChart(this.chartId, this.chartName)}>Save as image</Button>
+                    </div>
+                </div>
+                <ResponsiveContainer height={700} width="100%" id={this.chartId}>
                     <LineChart margin={{ left: 10, top: 35 }} layout="vertical">
                         <CartesianGrid strokeDasharray="10 10" />
                         <XAxis dataKey="x" type="number" domain={['dataMin', 'dataMax']} label={{ value: 'Sound speed (m/s)', position: 'insideBottomRight', offset: 0, dy: 10 }} />
