@@ -2,6 +2,9 @@
 import { Table, Button, ButtonGroup } from 'reactstrap';
 import { exportTableToCsv } from '../../utilites/export-table-to-csv';
 import { exportTableToExcel } from '../../utilites/export-table-to-excel';
+import { exportAsJson } from '../../utilites/export-as-json';
+import { exportAsXml } from '../../utilites/export-as-xml';
+import { jsonToXml } from '../../utilites/json-to-xml-convert';
 
 export default class KrakenResultTable extends Component {
     tableId = "kraken-result-table";
@@ -19,13 +22,29 @@ export default class KrakenResultTable extends Component {
         });
     };
 
+    mapDataForExport = (data) => {
+        return data.k.map((kVal, idx) => {
+            return {
+                mode: idx + 1,
+                k: kVal,
+                alpha: data.alpha[idx],
+                groupSpeed: data.groupSpeed[idx],
+                phaseSpeed: data.phaseSpeed[idx]
+            };
+        });
+    };
+
     render() {
         const { data } = this.props;
+        const jsonText = JSON.stringify(this.mapDataForExport(data));
+
         return (
             <div>
                 <div className='d-flex justify-content-end'>
                     <div>
                         <ButtonGroup>
+                            <Button outline color="warning" onClick={() => exportAsJson(jsonText, this.tableName)}>Save as JSON</Button>
+                            <Button outline color="primary" onClick={() => exportAsXml(jsonToXml(jsonText), this.tableName)}>Save as XML</Button>
                             <Button outline color="success" onClick={() => exportTableToCsv(this.tableId, this.tableName)}>Save as .csv</Button>
                             <Button outline color="success" onClick={() => exportTableToExcel(this.tableId, this.tableName)}>Save as .xls</Button>
                         </ButtonGroup>

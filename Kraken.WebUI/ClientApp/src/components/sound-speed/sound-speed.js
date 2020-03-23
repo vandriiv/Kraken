@@ -15,10 +15,8 @@ export default class SoundSpeed extends Component {
 
         const mappedData = this.mapSSP(data);
 
-        return (<>
-            <div className="overflow-table">
-                <SoundSpeedTable data={mappedData} />
-            </div>
+        return (<>       
+            <SoundSpeedTable data={mappedData} />         
             <SoundSpeedChart data={mappedData} />
         </>);
     }
