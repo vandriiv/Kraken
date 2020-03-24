@@ -87,6 +87,11 @@ namespace Kraken.NormalModesCalculation
                 alphaI = tahsp[5];
                 betaI = tahsp[6];
 
+                if (alphaR == 0 || rhoR == 0)
+                {
+                    throw new Exception("Sound speed or density vanishes in halfspace");
+                }
+
                 krakMod.CPT = CRCI(alphaR, alphaI, krakMod.Freq, AttenUnit);
                 krakMod.CST = CRCI(betaR, betaI, krakMod.Freq, AttenUnit);
                 krakMod.rhoT = rhoR;
@@ -104,6 +109,11 @@ namespace Kraken.NormalModesCalculation
 
             for (var Medium = 1; Medium <= krakMod.NMedia; Medium++)
             {
+                if ((25 * krakMod.Freq / 1500) * Math.Pow(krakMod.SIGMA[Medium], 2) > 1)
+                {
+                    krakMod.Warnings.Add("The Rayleigh roughness parameter might exceed the region of validity for the scatter approximation");
+                }
+
                 var Task = "INIT";
                 PROFIL(krakMod, krakMod.Depth, CP, CS, rho, Medium, ref NElts, 0, krakMod.Freq, SSPType,
                 AttenUnit, Task, nc, ssp);
@@ -122,7 +132,7 @@ namespace Kraken.NormalModesCalculation
                 }
                 else if (krakMod.NG[Medium] < Nneeded / 2)
                 {
-
+                    throw new KrakenException("Mesh is too coarse");
                 }
             }
 
@@ -134,6 +144,11 @@ namespace Kraken.NormalModesCalculation
                 rhoR = bahsp[4];
                 alphaI = bahsp[5];
                 betaI = bahsp[6];
+
+                if (alphaR == 0 || rhoR == 0)
+                {
+                    throw new Exception("Sound speed or density vanishes in halfspace");
+                }
 
                 krakMod.CPB = CRCI(alphaR, alphaI, krakMod.Freq, AttenUnit);
                 krakMod.CSB = CRCI(betaR, betaI, krakMod.Freq, AttenUnit);
@@ -262,6 +277,8 @@ namespace Kraken.NormalModesCalculation
 
                     N1++;
                 }
+
+                throw new KrakenException("Number of SSP points exceeds limit");
             }
             else
             {
@@ -353,6 +370,8 @@ namespace Kraken.NormalModesCalculation
 
                     N1++;
                 }
+
+                throw new KrakenException("Number of SSP points exceeds limit");
             }
             else
             {
@@ -423,7 +442,7 @@ namespace Kraken.NormalModesCalculation
                         if (Medium == 1)
                         {
                             Depth[1] = Z[1];
-                        }
+                        }                       
 
                         var IBCBEG = 0;
                         var IBCEND = 0;
@@ -438,6 +457,7 @@ namespace Kraken.NormalModesCalculation
                     N1++;
                 }
 
+                throw new KrakenException("Number of SSP points exceeds limit");
             }
             else
             {

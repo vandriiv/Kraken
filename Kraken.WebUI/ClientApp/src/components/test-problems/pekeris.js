@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import InitializedInputForm from '../initialized-input-form';
+
 import { Row, Col } from 'reactstrap';
 import { Helmet } from "react-helmet";
 import FormWrapper from '../form-wrapper';
@@ -196,7 +196,7 @@ export default class Pekeris extends Component {
                     </figure>
                     <p>This problem involves a homogeneous fluid layer with a sound speed of 1500 m/s overlying a faster bottom with sound speed 2000 m/s  and density of 20 g/cm<sup>3</sup>.</p>
                 </div>
-                <FormWrapper form={<InitializedInputForm acousticProblemData={this.acousticProblemData} />} />
+                <FormWrapper acousticProblemData={this.acousticProblemData} />
             </Col>
         </Row>)
     }

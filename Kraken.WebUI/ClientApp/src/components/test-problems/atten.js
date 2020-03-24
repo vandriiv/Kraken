@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import InitializedInputForm from '../initialized-input-form';
+
 import { Row, Col } from 'reactstrap';
 import { Helmet } from "react-helmet";
 import FormWrapper from '../form-wrapper';
@@ -70,7 +70,7 @@ export default class Atten extends Component {
                     </figure>
                     <p>Volume attenuation is included in both ocean and half-space.</p>
                 </div>
-                <FormWrapper form={<InitializedInputForm acousticProblemData={this.acousticProblemData} />} />
+                <FormWrapper acousticProblemData={this.acousticProblemData} />
             </Col>
         </Row>)
     }

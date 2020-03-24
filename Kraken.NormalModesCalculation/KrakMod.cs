@@ -63,6 +63,7 @@ namespace Kraken.NormalModesCalculation
         public List<double> B3 { get; set; }
         public List<double> B4 { get; set; }
         public List<double> RHO { get; set; }
+        public List<string> Warnings { get; set; }
 
         public void Init(){
             Mater = Enumerable.Repeat("", MaxMedium+1).ToList();
@@ -75,6 +76,7 @@ namespace Kraken.NormalModesCalculation
             NV = Enumerable.Repeat(0, NSets+1).ToList();
             ET = Enumerable.Repeat(0d, NSets+1).ToList();
             HV = Enumerable.Repeat(0d, NSets+1).ToList();
+            Warnings = new List<string>();
         }
 
     }

@@ -7,7 +7,7 @@ namespace Kraken.NormalModesCalculation
 {
     class SinvitdMod
     {
-        public void SINVIT(int N, List<double> D, List<double> E,int IERR, List<double> EigenVector)
+        public void SINVIT(int N, List<double> D, List<double> E,ref int IERR, List<double> EigenVector)
         {
             IERR = 0;
             double NORM = D.Sum(x => Math.Abs(x)) + E.GetRange(2, N - 1).Sum(x => Math.Abs(x));

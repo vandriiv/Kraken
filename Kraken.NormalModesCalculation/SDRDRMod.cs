@@ -28,6 +28,15 @@ namespace Kraken.NormalModesCalculation
 
         public void SDRD(double ZMIN, double ZMAX, int Nsd, List<double> sd, int Nrd, List<double> rd, List<double> zsr, List<double> zrc)
         {
+            if (Nsd <= 0)
+            {
+                throw new KrakenException("Number of sources must be positive");
+            }
+
+            if (Nrd <= 0)
+            {
+                throw new KrakenException("Number of receivers must be positive");
+            }
 
             sd = Enumerable.Repeat(0d, Math.Max(3 + 1, Nsd + 1)).ToList();
 
@@ -56,7 +65,7 @@ namespace Kraken.NormalModesCalculation
             {
                 if (sd[IS] < ZMIN)
                 {
-                    sd[IS] = ZMIN;
+                    sd[IS] = ZMIN;                    
                 }
                 else if (sd[IS] > ZMAX)
                 {
@@ -123,7 +132,7 @@ namespace Kraken.NormalModesCalculation
             var isIncreasing = r.OrderBy(x => x).SequenceEqual(r);
             if (!isIncreasing)
             {
-                throw new ArgumentException("Receiver ranges are not monotonically increasing");
+                throw new KrakenException("Receiver ranges are not monotonically increasing");
             }
 
             this.r = r;

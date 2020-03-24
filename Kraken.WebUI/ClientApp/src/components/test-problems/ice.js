@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import InitializedInputForm from '../initialized-input-form';
+
 import { Row, Col } from 'reactstrap';
 import { Helmet } from "react-helmet";
 import FormWrapper from '../form-wrapper';
@@ -69,7 +69,7 @@ export default class Ice extends Component {
                     </figure>
                     <p>This problem is loosely based on an Arctic scenario with an elastic ice-canopy. Here the elastic medium lies above the acoustic media.</p>
                 </div>
-                <FormWrapper form={<InitializedInputForm acousticProblemData={this.acousticProblemData} />} />
+                <FormWrapper acousticProblemData={this.acousticProblemData} />
             </Col>
         </Row>)
     }

@@ -29,7 +29,7 @@ export default class NavMenu extends Component {
             <header>
                 <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" light>
                     <Container>
-                        <NavbarBrand tag={Link} to="/"><img src="/images/squid.png" className="brand-img d-inline-block align-top" />
+                        <NavbarBrand tag={Link} to="/"><img src="/images/squid.png" className="brand-img d-inline-block align-top" alt="Kraken" />
                             <span className="brand-title">Kraken normal modes</span>
                         </NavbarBrand>
                         <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />

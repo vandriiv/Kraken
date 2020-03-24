@@ -1,6 +1,10 @@
 ﻿import React, { Component, Fragment } from 'react';
 import KrakenService from '../../services/kraken-service';
 import ComputingResult from '../computing-result';
+import AcousticProblemForm from '../acoustic-problem-form';
+import { Alert } from 'reactstrap';
+import InputErrorsList from '../input-errors-list';
+import ErrorMessage from '../error-message';
 
 export default class FormWrapper extends Component {
 
@@ -13,39 +17,71 @@ export default class FormWrapper extends Component {
 
     _krakenService = new KrakenService();
 
-    onSubmit = (data) => {
-        console.log(data);
+    onSubmit = (data) => {        
         this.setState({
-            formData: data
+            formData: data,
+            isSuccess: false,
+            error:null
         });
 
         this._krakenService.computeNormalModes(data)
-            .then(res => {
-                this.setState({
-                    isSuccess: true,
-                    computingResult: res
-                })
+            .then(res => {             
+                    this.setState({
+                        isSuccess: true,
+                        computingResult: res
+                    });              
             })
-            .catch(err => {
-                this.setState({
-                    error: err
-                });
+            .catch(err => {              
+                const statusCode = err.error.response.status;
+                const data = err.error.response.data;
+
+                const error = { status: statusCode, data:null}
+
+                if (statusCode === 500) {
+                    if (data.expectedError) {
+                        error.data = data.error;
+                        this.setState({
+                            error: error
+                        });
+                    }
+                    else {
+                        error.data = "Unexpected server error has occured";
+                        this.setState({
+                            error: error                            
+                        });
+                    }
+                }
+                else if (statusCode === 400) {
+                    if (data.validationErrors) {
+                        error.validationErrors = data.validationErrors;
+                    }
+                    else {
+                        error.data = data;
+                    }
+                    this.setState({
+                        error: error
+                    });
+                }
             });
     };
 
     onError = (err) => {
-
+        this.setState({
+            isSuccess:false
+        });
     };
 
     render() {
-        const { form } = this.props;
+        const { acousticProblemData } = this.props;
         const { computingResult, error, isSuccess, formData } = this.state;
-
-        const formWithProps = React.cloneElement(form, { onSubmit: this.onSubmit, onError: this.onError });
+        const hasError = error !== null;
+        const hasValidationError = hasError && error.validationErrors !== null && error.validationErrors !== undefined;
 
         return (<Fragment>
-            {formWithProps}
-            {isSuccess && <ComputingResult computingResult={computingResult} ssp={formData.ssp} />}
+            <AcousticProblemForm acousticProblemData={acousticProblemData} onSubmit={this.onSubmit} onError={this.onError} />
+            {isSuccess ? <ComputingResult computingResult={computingResult} ssp={formData.ssp} /> : null}
+            {hasValidationError ? <InputErrorsList error={error.validationErrors} /> : null}
+            {hasError && !hasValidationError ? <ErrorMessage errorMessage={error.data} /> : null}
         </Fragment>);
     }
 }

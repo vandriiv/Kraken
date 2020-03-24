@@ -39,7 +39,7 @@ Output:
         public ModesOut OceanAcousticNormalModes(int nm, double frq, int nl, string note1, List<List<double>> bb, int nc,
                                              List<List<double>> ssp, string note2, double bsig, List<double> clh, double rng, int nsr, List<double> zsr,
                                              int nrc, List<double> zrc, int nz, List<double> tahsp, List<double> tsp, List<double> bahsp, ref List<double> cg, ref List<double> cp,
-                                             ref List<double> zm, ref List<List<double>> modes, ref List<Complex> k)
+                                             ref List<double> zm, ref List<List<double>> modes, ref List<Complex> k, List<string> warnings)
         {
             var krakMod = new KrakMod();
             krakMod.Init();
@@ -128,6 +128,8 @@ Output:
                 }
             }
 
+            warnings.AddRange(krakMod.Warnings);
+
             return modesOut;
         }
 
@@ -191,7 +193,7 @@ Output:
                 {
                     if (krakMod.SIGMA[Medium] != 0)
                     {
-                        throw new Exception("Rough elastic interfaces are not allowed");
+                        throw new KrakenException("Rough elastic interfaces are not allowed");
                     }
 
                     krakMod.Mater[Medium] = "ELASTIC";
@@ -453,25 +455,19 @@ Output:
                     D[NTot1] = D[NTot1] / 2.0 - F / G;
                 }
 
+                var IERR = 0;
                 var sinvitMod = new SinvitdMod();
-                sinvitMod.SINVIT(NTot1, D, E, 0, PHI);
+                sinvitMod.SINVIT(NTot1, D, E, ref IERR, PHI);
 
-                /* D.RemoveAt(0);
-                 E.RemoveAt(0);
-                 PHI.RemoveAt(0);
-                 int IERR = 0;
-
-                 var DArr = D.ToArray();
-                 var EArr = E.ToArray();
-                 var PHIArr = PHI.ToArray();
-                 FortranDllWrap.INVITER( ref NTot1, DArr, EArr, ref IERR, PHIArr);
-
-                 PHI = new List<double>(PHIArr);
-                 PHI.Insert(0, 0);
-                 D.Insert(0, 0);
-                 E.Insert(0, 0);*/
-
-                NORMIZ(krakMod, PHI, ITP, NTot1, X);
+                if (IERR != 0)
+                {
+                    krakMod.Warnings.Add("Inverse iteration failed to converge");
+                    PHI = PHI.Select(x => 0d).ToList();
+                }
+                else
+                {
+                    NORMIZ(krakMod, PHI, ITP, NTot1, X);
+                }
 
                 for (var i = 1; i <= NZTAB; i++)
                 {
@@ -540,11 +536,11 @@ Output:
             krakMod.M = Math.Min(krakMod.M, nm + 1);
 
             var NTot = krakMod.N.GetRange(krakMod.FirstAcoustic, krakMod.LastAcoustic - krakMod.FirstAcoustic + 1).Sum();
-            //0.00098697030971334134
-            //0.00098697030971334134
+            if (krakMod.M > NTot / 5)
+            {
+                krakMod.Warnings.Add("Mesh too coarse to sample the modes adequately");
+            }
 
-            //0.0017545963379714496
-            //0.0020142049798141637
             BISECT(krakMod, XMin, XMax, ref XL, ref XR);
 
             krakMod.M = Math.Min(krakMod.M, nm);
@@ -554,7 +550,13 @@ Output:
                 var X1 = XL[krakMod.Mode];
                 var X2 = XR[krakMod.Mode];
                 var EPS = Math.Abs(X2) * 10 * Math.Pow(0.1, 14);
-                ZBRENTX(krakMod, ref X, ref X1, ref X2, EPS);
+
+                var errorMsg = "";
+                ZBRENTX(krakMod, ref X, ref X1, ref X2, EPS,errorMsg);
+                if (errorMsg != "")
+                {
+                    krakMod.Warnings.Add(errorMsg);
+                }
 
                 //error
 
@@ -864,6 +866,7 @@ Output:
             if (RN <= 0.0)
             {
                 RN = -RN;
+                krakMod.Warnings.Add($"Mode = {krakMod.Mode}. Normalization constant non-positive; suggests grid too coarse");
             }
 
             var SCALEF = 1.0 / Math.Sqrt(RN);
@@ -1083,7 +1086,7 @@ Output:
             }
         }
 
-        private void ZBRENTX(KrakMod krakMod, ref double X, ref double A, ref double B, double T)
+        private void ZBRENTX(KrakMod krakMod, ref double X, ref double A, ref double B, double T, string errorMessage)
         {
             double MACHEP = 1 / Math.Pow(10, 15);
             double TEN = 10.0;
@@ -1095,6 +1098,7 @@ Output:
 
             if ((FA > 0.0 && FB > 0.0) || (FA < 0.0 && FB < 0.0))
             {
+                errorMessage = "Function sign is the same at the interval endpoints";
                 return;
             }
         Mark2000:

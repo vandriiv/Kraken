@@ -3,6 +3,7 @@ using Kraken.Application.Services.Interfaces;
 using Kraken.NormalModesCalculation;
 using Kraken.NormalModesCalculation.Field;
 using Kraken.WebUI.Models.Mappers;
+using Kraken.WebUI.Models.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -26,8 +27,11 @@ namespace Kraken.WebUI
         {
 
             services.AddControllersWithViews().AddNewtonsoftJson();
+
             services.AddTransient<KrakenInputModelMapper>();
             services.AddTransient<KrakenResultModelMapper>();
+            services.AddTransient<KrakenInputModelValidator>();
+
             services.AddTransient<IKrakenService, KrakenService>();
             services.AddTransient<KrakenNormalModesProgram>();
             services.AddTransient<FieldModel>();

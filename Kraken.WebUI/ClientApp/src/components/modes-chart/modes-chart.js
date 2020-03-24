@@ -22,7 +22,7 @@ export default class ModesChart extends Component {
 
     componentDidUpdate(prevProps) {
         const { modesCount } = this.props;
-        if (prevProps.modesCount != modesCount) {
+        if (prevProps.modesCount !== modesCount) {
             this.updateModesDependentData(modesCount);
         }
     }

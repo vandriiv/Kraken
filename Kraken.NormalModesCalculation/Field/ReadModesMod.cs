@@ -12,7 +12,7 @@ namespace Kraken.NormalModesCalculation.Field
         private Complex kBot2;
         private double pi = 3.141592;
 
-        public List<List<Complex>> GetModes(ModesOut modesOut, SDRDRMod sDRDRMod, int MaxM, List<double> rd, int Nrd, string Comp)
+        public List<List<Complex>> GetModes(ModesOut modesOut, int MaxM, List<double> rd, int Nrd, string Comp, List<string> warnings)
         {
             var PhiR = new List<List<Complex>>(MaxM + 1);
             for (var i = 0; i <= MaxM; i++)
@@ -50,28 +50,28 @@ namespace Kraken.NormalModesCalculation.Field
                 {
                     if (modesOut.cST != 0 || modesOut.BCTop != "A")
                     {
-                        //todo :warning
+                        warnings.Add($"Receiver depth: {rd[ir]}. Highest valid depth: {modesOut.DepthT}. Rcvr above depth of top.");
                     }
                 }
                 else if (rd[ir] > modesOut.DepthB)
                 {
                     if (modesOut.cSB != 0 || modesOut.BCBot != "A")
                     {
-                        //todo :warning
+                        warnings.Add($"Receiver depth: {rd[ir]}. Lowest valid depth: {modesOut.DepthB}. Rcvr below depth of top.");
                     }
                 }
                 else if (modesOut.NTot > 1)
                 {
                     if (WT * (modesOut.Z[iz + 1] - modesOut.Z[iz]) > Tolerance)
                     {
-                        //todo: warning
+                        warnings.Add($"Receiver depth: {rd[ir]}. Nearest depths: {modesOut.Z[iz]}, {modesOut.Z[iz+1]}. Modes not tabulated near requested pt.");
                     }
                 }
                 else
                 {
                     if (Math.Abs(rd[iz] - modesOut.Z[iz]) > Tolerance)
                     {
-                        //todo: warning
+                        warnings.Add($"Rd, Tabulation depth {rd[ir]}, {modesOut.Z[iz]}. Tolerance: {Tolerance}. Modes not tabulated near requested pt.");
                     }
                 }
             }

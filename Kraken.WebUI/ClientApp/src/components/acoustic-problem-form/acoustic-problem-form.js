@@ -2,10 +2,9 @@
 import { Form, FormGroup, Label, Input, Button, Row, Col } from 'reactstrap';
 import Select from '../select';
 import InputErrorsList from '../input-errors-list';
-import './initialized-input-form.css';
+import './acoustic-problem-form.css';
 
-export default class InitializedInputForm extends Component {
-
+export default class AcousticProblemForm extends Component {
     state = {
         frequency: 0,
         nModes: 0,
@@ -59,16 +58,21 @@ export default class InitializedInputForm extends Component {
         error: null
     };
 
+    hasInitValue = false;
+
     constructor(props) {
         super(props);
         const { acousticProblemData } = props;
 
-        const isTopAcoustic = acousticProblemData.topBCType === 'A';
-        const isTopTwersky = (acousticProblemData.topBCType === 'T' || acousticProblemData.topBCType === 'S'
-            || acousticProblemData.topBCType === 'I' || acousticProblemData.topBCType === 'H');
-        const isBottomAcoustic = acousticProblemData.bottomBCType === 'A';
+        if (acousticProblemData) {
+            this.hasInitValue = true;
+            const isTopAcoustic = acousticProblemData.topBCType === 'A';
+            const isTopTwersky = (acousticProblemData.topBCType === 'T' || acousticProblemData.topBCType === 'S'
+                || acousticProblemData.topBCType === 'I' || acousticProblemData.topBCType === 'H');
+            const isBottomAcoustic = acousticProblemData.bottomBCType === 'A';
 
-        this.state = { ...acousticProblemData, isTopAcoustic, isTopTwersky, isBottomAcoustic, error: null };
+            this.state = { ...acousticProblemData, isTopAcoustic, isTopTwersky, isBottomAcoustic, error: null };
+        }
     }
 
     interpolationTypes = [
@@ -252,204 +256,205 @@ export default class InitializedInputForm extends Component {
             nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
 
         if (frequency <= 0) {
-            error.frequency = "Frequency ";
+            error.frequency = "Frequency must be greater than 0";
         }
 
         if (nModes <= 0) {
-            error.nModes = "Number of modes ";
+            error.nModes = "Number of modes must be greater than 0";
         }
 
         if (nMedia <= 0) {
-            error.nModes = "Number of media ";
+            error.nModes = "Number of media must be greater than 0";
         }
 
         if (topBCType.length !== 1 || !this.topBoundaryConditions.some(x => x.key === topBCType)) {
-            error.topBCType = "Top boundary conditions ";
+            error.topBCType = "Top boundary condition is required";
         }
 
         if (interpolationType.length !== 1 || !this.interpolationTypes.some(x => x.key === interpolationType)) {
-            error.interpolationType = "Interpolation type ";
+            error.interpolationType = "Interpolation type is required";
         }
 
         if (topBCType === 'A' && zt < 0) {
-            error.zt = "Z Top";
+            error.zt = "Z Top must be greater than or equal 0";
         }
         if (topBCType === 'A' && cpt < 0) {
-            error.cpt = "CP Top";
+            error.cpt = "CP Top must be greater than or equal 0";
         }
         if (topBCType === 'A' && cst < 0) {
-            error.cst = "CP Top";
+            error.cst = "CP Top must be greater than or equal 0";
         }
 
         if (topBCType === 'A' && rhot < 0) {
-            error.rhot = "RHO Top";
+            error.rhot = "RHO Top must be greater than or equal 0";
         }
 
         if (topBCType === 'A' && apt < 0) {
-            error.apt = "AP Top";
+            error.apt = "AP Top must be greater than or equal 0";
         }
 
         if (topBCType === 'A' && ast < 0) {
-            error.ast = "AS Top";
+            error.ast = "AS Top must be greater than or equal 0";
         }
 
         if ((topBCType === 'S' || topBCType === 'H' || topBCType === 'T' || topBCType === 'I') && bumDen < 0) {
-            error.bumDen = "Bump density ";
+            error.bumDen = "Bump density must be greater than or equal 0";
         }
 
         if ((topBCType === 'S' || topBCType === 'H' || topBCType === 'T' || topBCType === 'I') && eta < 0) {
-            error.eta = "Principal radius 1";
+            error.eta = "Principal radius 1 must be greater than or equal 0";
         }
 
         if ((topBCType === 'S' || topBCType === 'H' || topBCType === 'T' || topBCType === 'I') && xi < 0) {
-            error.eta = "Principal radius 2";
+            error.eta = "Principal radius 2 must be greater than or equal 0";
         }
 
         if (bottomBCType.length !== 1 || !this.bottomBoundaryConditions.some(x => x.key === bottomBCType)) {
-            error.bottomBCType = "Bottom boundary conditions";
+            error.bottomBCType = "Bottom boundary conditions are required";
         }
 
         if (bottomBCType === 'A' && zb < 0) {
-            error.zb = "Z Bottom";
+            error.zb = "Z Bottom must be greater than or equal 0";
         }
         if (bottomBCType === 'A' && cpb < 0) {
-            error.cpb = "CP Bottom";
+            error.cpb = "CP Bottom must be greater than or equal 0";
         }
         if (bottomBCType === 'A' && csb < 0) {
-            error.csb = "CP Bottom";
+            error.csb = "CP Bottom must be greater than or equal 0";
         }
 
         if (bottomBCType === 'A' && rhob < 0) {
-            error.rhob = "RHO Bottom";
+            error.rhob = "RHO Bottom must be greater than or equal 0";
         }
 
         if (bottomBCType === 'A' && apb < 0) {
-            error.apb = "AP Bottom";
+            error.apb = "AP Bottom must be greater than or equal 0";
         }
 
         if (bottomBCType === 'A' && asb < 0) {
-            error.asb = "AS Bottom";
+            error.asb = "AS Bottom must be greater than or equal 0";
         }
 
         if (cLow <= 0) {
-            error.cLow = "Lower phase speed limit";
+            error.cLow = "Lower phase speed limit must be greater than 0";
         }
 
         if (cHigh <= 0) {
-            error.cHigh = "Upper phase speed limit";
+            error.cHigh = "Upper phase speed limit must be greater than 0";
         }
 
         if (rMax <= 0) {
-            error.rMax = "Maximum range";
+            error.rMax = "Maximum range must be greater than 0";
         }
 
         if (nsd <= 0) {
-            error.nsd = "Number of source depth";
+            error.nsd = "Number of source depth must be greater than 0";
         }
 
         if (nrd <= 0) {
-            error.nrd = "Number of receiver depth";
+            error.nrd = "Number of receiver depth must be greater than 0";
         }
 
         try {
             sd = this.parseOneDimensionalArray(sd);
         }
         catch (e) {
-            error.sd = "Source depth format";
+            error.sd = "Source depth format is not valid";
         }
 
         try {
             rd = this.parseOneDimensionalArray(rd);
         }
         catch (e) {
-            error.rd = "Source depth format";
+            error.rd = "Source depth format is not valid";
         }
 
         try {
             mediumInfo = this.parseTwoDimensionalArray(mediumInfo);
         }
         catch (e) {
-            error.mediumInfo = "Medium info format";
+            error.mediumInfo = "Medium info format is not valid";
         }
 
         try {
             ssp = this.parseTwoDimensionalArray(ssp);
         }
         catch (e) {
-            error.ssp = "SSP format";
+            error.ssp = "SSP format is not valid";
         }
 
         if (calculateTransmissionLoss === true) {
             if (nModesForField <= 0) {
-                error.nModesForField = "Number of modes for field computing";
+                error.nModesForField = "Number of modes for field computing must be greater than 0";
             }
 
             if (sourceType.length !== 1 || !this.sourceTypes.some(x => x.key === sourceType)) {
-                error.sourceType = "Source type";
+                error.sourceType = "Source type is required";
             }
 
             if (modesTheory.length !== 1 || !this.modesTheories.some(x => x.key === modesTheory)) {
-                error.modesTheory = "Mode theory";
+                error.modesTheory = "Mode theory is required";
             }
 
             if (nsdField <= 0) {
-                error.nsdField = "Number of source depth (for field)";
+                error.nsdField = "Number of source depth (for field) must be greater than 0";
             }
 
             if (nrdField <= 0) {
-                error.nrdField = "Number of receiver depth (for field)";
+                error.nrdField = "Number of receiver depth (for field) must be greater than 0";
             }
 
             if (nProf <= 0) {
-                error.nProf = "The number of profiles";
+                error.nProf = "The number of profiles must be greater than 0";
             }
 
             if (nr <= 0) {
-                error.nr = "The number of receiver ranges";
+                error.nr = "The number of receiver ranges must be greater than 0";
             }
 
             if (nrr <= 0) {
-                error.nrr = "The number of receiver range-displacements";
+                error.nrr = "The number of receiver range-displacements must be greater than 0";
             }
 
             try {
                 rr = this.parseOneDimensionalArray(rr);
             }
             catch (e) {
-                error.rr = "The receiver displacements";
+                error.rr = "The receiver displacements format is invalid";
             }
 
             try {
                 r = this.parseOneDimensionalArray(r);
             }
             catch (e) {
-                error.r = "The receiver ranges";
+                error.r = "The receiver ranges format is invalid";
             }
 
             try {
                 rProf = this.parseOneDimensionalArray(rProf);
             }
             catch (e) {
-                error.rProf = "Ranges format";
+                error.rProf = "Ranges format is invalid";
             }
 
             try {
                 sdField = this.parseOneDimensionalArray(sdField);
             }
             catch (e) {
-                error.sdField = "Source depth format (for field)";
+                error.sdField = "Source depth format (for field) is invalid";
             }
 
             try {
                 rdField = this.parseOneDimensionalArray(rdField);
             }
             catch (e) {
-                error.rdField = "Source depth format (for field)";
+                error.rdField = "Receiver depth format (for field) is invalid";
             }
         }
 
         if (!(Object.entries(error).length === 0 && error.constructor === Object)) {
             this.setState({ error: error });
+            this.props.onError(error);
             return null;
         }
 
@@ -511,7 +516,9 @@ export default class InitializedInputForm extends Component {
             nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
 
         return (
-            <Form onSubmit={this.onSubmit} >
+           <>
+           <Form onSubmit={this.onSubmit}>
+               {this.hasInitValue ? <>
                 <FormGroup>
                     <Label for="frequency">Frequency (Hz)</Label>
                     <Input type="number" name="frequency" id="frequency" onChange={this.handleChange} placeholder="Frequency" defaultValue={frequency} required />
@@ -814,14 +821,323 @@ export default class InitializedInputForm extends Component {
                         </Row>
                     </>
                     : null
-                }
-                <Button outline color="secondary">Submit</Button>
-                <div className="validation-errors-list">
-                    {error !== null ?
-                        <InputErrorsList error={error} />
-                        : null}
-                </div>
-            </Form>
+                   }
+               </>
+                :
+                   <>
+                       <FormGroup>
+                           <Label for="frequency">Frequency (Hz)</Label>
+                           <Input type="number" name="frequency" id="frequency" onChange={this.handleChange} placeholder="Frequency" required />
+                       </FormGroup>
+                       <FormGroup>
+                           <Label for="nModes">Number of modes</Label>
+                           <Input type="number" name="nModes" id="nModes" onChange={this.handleChange} placeholder="Number of modes" required />
+                       </FormGroup>
+                       <FormGroup>
+                           <Label for="nMedia">Number of media</Label>
+                           <Input type="number" name="nMedia" id="nMedia" onChange={this.handleChange} placeholder="Number of media" required />
+                       </FormGroup>
+
+                       <Row form>
+                           <Col md={6}>
+                               <FormGroup>
+                                   <Select label={"Type of interpolation"} name={"interpolationType"} onChange={this.handleChange} options={this.interpolationTypes} />
+                               </FormGroup>
+                           </Col>
+                           <Col md={6}>
+                               <FormGroup>
+                                   <Select label={"Type of top boundary condition"} name={"topBCType"} onChange={this.handleTopBCTypeChange} options={this.topBoundaryConditions} />
+                               </FormGroup>
+                           </Col>
+                       </Row>
+                       {isTopAcoustic ?
+                           <Row form>
+                               <Col md={2}>
+                                   <FormGroup>
+                                       <Label for="zt">Depth (m)</Label>
+                                       <Input type="number" name="zt" id="zt" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                               <Col md={2}>
+                                   <FormGroup>
+                                       <Label for="cpt">Top P-wave speed (m/s)</Label>
+                                       <Input type="number" name="cpt" id="cpt" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                               <Col md={2}>
+                                   <FormGroup>
+                                       <Label for="cst">Top S-wave speed (m/s)</Label>
+                                       <Input type="number" name="cst" id="cst" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                               <Col md={2}>
+                                   <FormGroup>
+                                       <Label for="rhot">Top density (g/cm3)</Label>
+                                       <Input type="number" name="rhot" id="rhot" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                               <Col md={2}>
+                                   <FormGroup>
+                                       <Label for="apt">Top P-wave attenuation</Label>
+                                       <Input type="number" name="apt" id="apt" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                               <Col md={2}>
+                                   <FormGroup>
+                                       <Label for="ast">Top S-wave attenuation</Label>
+                                       <Input type="number" name="ast" id="ast" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                           </Row>
+                           : null}
+                       {isTopTwersky ?
+                           <Row form>
+                               <Col md={4}>
+                                   <FormGroup>
+                                       <Label for="bumDen">Bump density (ridges/km)</Label>
+                                       <Input type="number" name="bumDen" id="bumDen" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                               <Col md={4}>
+                                   <FormGroup>
+                                       <Label for="eta">Principal radius 1 (m)</Label>
+                                       <Input type="number" name="eta" id="eta" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                               <Col md={4}>
+                                   <FormGroup>
+                                       <Label for="xi">Principal radius 2 (m)</Label>
+                                       <Input type="number" name="xi" id="xi" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                           </Row>
+                           : null}
+                       <FormGroup>
+                           <Select label={"Attenuation units"} name={"attenuationUnits"} onChange={this.handleChange} options={this.attenuationUnits} required />
+                       </FormGroup>
+                       <FormGroup check>
+                           <Label check>
+                               <Input type="checkbox" name="isVolumeAttenuatonAdded" id="isVolumeAttenuatonAdded" onChange={this.handleCheckboxChange} />{' '}
+                               Add volume attenuation
+                    </Label>
+                       </FormGroup>
+                       <FormGroup>
+                           <Label for="mediumInfo">Medium info </Label>
+                           <Input type="textarea" name="mediumInfo" id="mediumInfo" onChange={this.handleChange} required placeholder={"e.g. [300,0,3000], [200,0,500]"} />
+                       </FormGroup>
+                       <FormGroup>
+                           <Label for="ssp">Sound speed profile</Label>
+                           <Input type="textarea" name="ssp" id="ssp" onChange={this.handleChange} required placeholder={"e.g. [0,1500, 0, 1.0, 0, 0],[3000, 1500, 0, 1.0, 0, 0.00000],[3000, 1500, 0, 2.0000, 0, 0.00000],[5000, 1500, 0, 2.0000, 0, 0]"} />
+                       </FormGroup>
+                       <Row form>
+                           <Col md={6}>
+                               <FormGroup>
+                                   <Select label={"Type of bottom boundary condition"} name={"bottomBCType"} onChange={this.handleBottomBCTypeChange} options={this.bottomBoundaryConditions} />
+                               </FormGroup>
+                           </Col>
+                           <Col md={6}>
+                               <FormGroup>
+                                   <Label for="sigma">Interfacial roughness (m)</Label>
+                                   <Input type="number" name="sigma" id="sigma" onChange={this.handleChange} required />
+                               </FormGroup>
+                           </Col>
+                       </Row>
+                       {isBottomAcoustic ?
+                           <Row form>
+                               <Col md={2}>
+                                   <FormGroup>
+                                       <Label for="zb">Depth (m)</Label>
+                                       <Input type="number" name="zb" id="zb" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                               <Col md={2}>
+                                   <FormGroup>
+                                       <Label for="cpb">Bottom P-wave speed (m/s)</Label>
+                                       <Input type="text" name="cpb" id="cpb" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                               <Col md={2}>
+                                   <FormGroup>
+                                       <Label for="csb">Bottom S-wave speed (m/s)</Label>
+                                       <Input type="text" name="csb" id="csb" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                               <Col md={2}>
+                                   <FormGroup>
+                                       <Label for="rhob">Bottom density (g/cm3)</Label>
+                                       <Input type="text" name="rhob" id="rhob" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                               <Col md={2}>
+                                   <FormGroup>
+                                       <Label for="apb">Bottom P-wave atten.</Label>
+                                       <Input type="text" name="apb" id="apb" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                               <Col md={2}>
+                                   <FormGroup>
+                                       <Label for="asb">Bottom S-wave atten.</Label>
+                                       <Input type="text" name="asb" id="asb" onChange={this.handleChange} required />
+                                   </FormGroup>
+                               </Col>
+                           </Row>
+                           : null}
+                       <Row form>
+                           <Col md={6}>
+                               <FormGroup>
+                                   <Label for="cLow">Lower phase speed limit (m/s)</Label>
+                                   <Input type="number" name="cLow" id="cLow" onChange={this.handleChange} required />
+                               </FormGroup>
+                           </Col>
+                           <Col md={6}>
+                               <FormGroup>
+                                   <Label for="cHigh">Upper phase speed limit (m/s)</Label>
+                                   <Input type="number" name="cHigh" id="cHigh" onChange={this.handleChange} required />
+                               </FormGroup>
+                           </Col>
+                       </Row>
+                       <FormGroup>
+                           <Label for="rMax">Maximum range (km)</Label>
+                           <Input type="number" name="rMax" id="rMax" onChange={this.handleChange} required />
+                       </FormGroup>
+                       <Row form>
+                           <Col md={6}>
+                               <FormGroup>
+                                   <Label for="nsd">The number of soure depths</Label>
+                                   <Input type="number" name="nsd" id="nsd" onChange={this.handleChange} required />
+                               </FormGroup>
+                           </Col>
+                           <Col md={6}>
+                               <FormGroup>
+                                   <Label for="sd">The source depths (m)</Label>
+                                   <Input type="textarea" name="sd" id="sd" onChange={this.handleChange} required />
+                               </FormGroup>
+                           </Col>
+                       </Row>
+                       <Row form>
+                           <Col md={6}>
+                               <FormGroup>
+                                   <Label for="nrd">The number of receiver depths</Label>
+                                   <Input type="number" name="nrd" id="nrd" onChange={this.handleChange} required />
+                               </FormGroup>
+                           </Col>
+                           <Col md={6}>
+                               <FormGroup>
+                                   <Label for="rd">The receiver depths (m)</Label>
+                                   <Input type="textarea" name="rd" id="rd" onChange={this.handleChange} required />
+                               </FormGroup>
+                           </Col>
+                       </Row>
+                       <FormGroup check>
+                           <Label check>
+                               <Input type="checkbox" name="calculateTransmissionLoss" id="calculateTransmissionLoss" onChange={this.handleCheckboxChange} />{' '}
+                               Calculate transmission loss
+                    </Label>
+                       </FormGroup>
+                       {calculateTransmissionLoss ?
+                           <>
+                               <Row form>
+                                   <Col md={6}>
+                                       <FormGroup>
+                                           <Select label={"Source type"} name={"sourceType"} onChange={this.handleChange} options={this.sourceTypes} />
+                                       </FormGroup>
+                                   </Col>
+                                   <Col md={6}>
+                                       <FormGroup>
+                                           <Select label={"Mode theory"} name={"modesTheory"} onChange={this.handleTopBCTypeChange} options={this.modesTheories} />
+                                       </FormGroup>
+                                   </Col>
+                               </Row>
+                               <FormGroup>
+                                   <Label for="nModesForField">Number of modes in field computation</Label>
+                                   <Input type="number" name="nModesForField" id="nModesForField" onChange={this.handleChange} placeholder="Number of modes to use in field computation" required />
+                               </FormGroup>
+                               <Row form>
+                                   <Col md={6}>
+                                       <FormGroup>
+                                           <Label for="nProf">The number of profiles</Label>
+                                           <Input type="number" name="nProf" id="nProf" onChange={this.handleChange} required />
+                                       </FormGroup>
+                                   </Col>
+                                   <Col md={6}>
+                                       <FormGroup>
+                                           <Label for="rProf">Ranges (km) of each of these profiles.</Label>
+                                           <Input type="textarea" name="rProf" id="rProf" onChange={this.handleChange} required />
+                                       </FormGroup>
+                                   </Col>
+                               </Row>
+
+                               <Row form>
+                                   <Col md={6}>
+                                       <FormGroup>
+                                           <Label for="nr">The number of receiver ranges</Label>
+                                           <Input type="number" name="nr" id="nr" onChange={this.handleChange} required />
+                                       </FormGroup>
+                                   </Col>
+                                   <Col md={6}>
+                                       <FormGroup>
+                                           <Label for="r">The receiver ranges (km)</Label>
+                                           <Input type="textarea" name="r" id="r" onChange={this.handleChange} required />
+                                       </FormGroup>
+                                   </Col>
+                               </Row>
+
+                               <Row form>
+                                   <Col md={6}>
+                                       <FormGroup>
+                                           <Label for="nsdField">The number of soure depths</Label>
+                                           <Input type="number" name="nsdField" id="nsdField" onChange={this.handleChange} required />
+                                       </FormGroup>
+                                   </Col>
+                                   <Col md={6}>
+                                       <FormGroup>
+                                           <Label for="sdField">The source depths (m)</Label>
+                                           <Input type="textarea" name="sdField" id="sdField" onChange={this.handleChange} required />
+                                       </FormGroup>
+                                   </Col>
+                               </Row>
+                               <Row form>
+                                   <Col md={6}>
+                                       <FormGroup>
+                                           <Label for="nrdField">The number of receiver depths</Label>
+                                           <Input type="number" name="nrdField" id="nrdField" onChange={this.handleChange} required />
+                                       </FormGroup>
+                                   </Col>
+                                   <Col md={6}>
+                                       <FormGroup>
+                                           <Label for="rdField">The receiver depths (m)</Label>
+                                           <Input type="textarea" name="rdField" id="rdField" onChange={this.handleChange} required />
+                                       </FormGroup>
+                                   </Col>
+                               </Row>
+
+                               <Row form>
+                                   <Col md={6}>
+                                       <FormGroup>
+                                           <Label for="nrr">The number of receiver range-displacements</Label>
+                                           <Input type="number" name="nrr" id="nrr" onChange={this.handleChange} required />
+                                       </FormGroup>
+                                   </Col>
+                                   <Col md={6}>
+                                       <FormGroup>
+                                           <Label for="rr">The receiver displacements (m)</Label>
+                                           <Input type="textarea" name="rr" id="rr" onChange={this.handleChange} required />
+                                       </FormGroup>
+                                   </Col>
+                               </Row>
+                           </>
+                           : null
+                       } </>}
+                <Button outline color="secondary">Submit</Button>                
+           </Form>
+           {
+            error !== null ?
+            <div className="validation-errors-list">
+                <InputErrorsList error={error} />
+            </div>
+            : null
+        }
+        </>
         );
     }
 }

@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import InitializedInputForm from '../initialized-input-form';
+
 import { Row, Col } from 'reactstrap';
 import { Helmet } from "react-helmet";
 import FormWrapper from '../form-wrapper';
@@ -69,7 +69,7 @@ export default class Normal extends Component {
                     </figure>
                     <p>Mode normalization is checked using several density changes. Due to the shear in the lower halfspace, there is a Scholte wave with a phase velocity of about 1393 m/s. It has been excluded from the calculation.</p>
                 </div>
-                <FormWrapper form={<InitializedInputForm acousticProblemData={this.acousticProblemData} />} />
+                <FormWrapper acousticProblemData={this.acousticProblemData} />
             </Col>
         </Row>)
     }

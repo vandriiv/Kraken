@@ -16,5 +16,7 @@ namespace Kraken.WebUI.Models
         public IEnumerable<double> SourceDepths { get; set; }
         public IEnumerable<double> ReceiverDepths { get; set; }    
         public List<TLAtSourceDepth> TransmissionLoss { get; set; }
+
+        public List<string> Warnings { get; set; }
     }
 }

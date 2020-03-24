@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import InitializedInputForm from '../initialized-input-form';
+
 import { Row, Col } from 'reactstrap';
 import { Helmet } from "react-helmet";
 import FormWrapper from '../form-wrapper';
@@ -69,7 +69,7 @@ export default class Scholte extends Component {
                     </figure>
                     <p>This problem is a version of the Pekeris waveguide but with an elastic half-space as the bottom. This type of problem has a Scholte mode with a phase velocity less than the slowest speed in the problem. (Since the source and receiver are many wavelenghts from the interface the Scholte mode is not actually important for the transmission loss calculation.</p>
                 </div>
-                <FormWrapper form={<InitializedInputForm acousticProblemData={this.acousticProblemData} />} />
+                <FormWrapper acousticProblemData={this.acousticProblemData} />
             </Col>
         </Row>)
     }

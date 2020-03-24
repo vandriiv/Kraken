@@ -18,7 +18,7 @@ const hsvToRgb = (h, s, v) => {
     s /= 100;
     v /= 100;
 
-    if (s == 0) {       
+    if (s === 0) {       
         r = g = b = v;
         return [
             Math.round(r * 255),

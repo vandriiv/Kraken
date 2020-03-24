@@ -12,12 +12,26 @@ export default class InputErrorsList extends Component {
         });
     };
 
-    mapValidationMessages(error) {
+    componentDidUpdate(prevProps){
+        if(prevProps.error!=this.props.error)
+        this.setState({
+            visible:true
+        });
+    }
+
+    mapValidationMessagesAsObjKeys(error) {
         return Object.keys(error).map((item, idx) => <li key={idx}>{`${error[item]}`}</li>);
     }
 
-    displayErrorMessages(error) {
-        return this.mapValidationMessages(error);
+    mapValidationMessagesAsArray(error) {
+
+    }
+
+    mapValidationMessages(error) {
+        if (Array.isArray(error)) {
+            return this.mapValidationMessagesAsArray(error);
+        }       
+        return this.mapValidationMessagesAsObjKeys(error);
     }
 
     render() {
@@ -26,9 +40,9 @@ export default class InputErrorsList extends Component {
 
         return (<div className='form-alert'>
             <Alert color="danger" isOpen={visible} toggle={this.hide}>
-                <h5 className="alert-heading"> Following validation errors have been occured:</h5>
+                <h5 className="alert-heading"> Following validation errors been occured:</h5>
                 <ul>
-                    {this.displayErrorMessages(error)}
+                    {this.mapValidationMessages(error)}
                 </ul>
             </Alert>
         </div>);

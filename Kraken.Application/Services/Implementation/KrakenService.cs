@@ -1,4 +1,5 @@
-﻿using Kraken.Application.Models;
+﻿using Kraken.Application.Exceptions;
+using Kraken.Application.Models;
 using Kraken.Application.Services.Interfaces;
 using Kraken.NormalModesCalculation;
 using Kraken.NormalModesCalculation.Field;
@@ -21,7 +22,7 @@ namespace Kraken.Application.Services.Implementation
         }
 
         public KrakenComputingResult ComputeModes(AcousticProblemData acousticProblemData)
-        {
+        {          
             var result = new KrakenComputingResult();
 
             var options = acousticProblemData.InterpolationType  + acousticProblemData.TopBCType + acousticProblemData.AttenuationUnits + acousticProblemData.AddedVolumeAttenuation;
@@ -64,9 +65,19 @@ namespace Kraken.Application.Services.Implementation
             var zm = new List<double>();
             var modes = new List<List<double>>();
 
-            var modesOut = _krakenNormalModeProgram.OceanAcousticNormalModes(acousticProblemData.NModes,acousticProblemData.Frequency,acousticProblemData.NMedia, options,
-                mediumInfo,ssp.Count,ssp,bottomBC,acousticProblemData.Sigma,cLowHight,acousticProblemData.RMax,acousticProblemData.NSD,sd, acousticProblemData.NRD,
-                rd,nz,topAHSP,twerskyParams,bottomAHSP, ref cg, ref cp, ref zm, ref modes,ref k);
+            var warnings = new List<string>();
+
+            ModesOut modesOut;
+            try
+            {
+                 modesOut = _krakenNormalModeProgram.OceanAcousticNormalModes(acousticProblemData.NModes, acousticProblemData.Frequency, acousticProblemData.NMedia, options,
+                    mediumInfo, ssp.Count, ssp, bottomBC, acousticProblemData.Sigma, cLowHight, acousticProblemData.RMax, acousticProblemData.NSD, sd, acousticProblemData.NRD,
+                    rd, nz, topAHSP, twerskyParams, bottomAHSP, ref cg, ref cp, ref zm, ref modes, ref k, warnings);
+            }
+            catch(KrakenException ex)
+            {
+                throw new KrakenComputingException(ex.Message);
+            }
 
             result.PhaseSpeed = cp; 
             result.GroupSpeed = cg;
@@ -84,7 +95,7 @@ namespace Kraken.Application.Services.Implementation
             foreach(var mode in result.Modes)
             {
                 mode.RemoveAt(0);
-            }
+            }           
 
             if (acousticProblemData.CalculateTransmissionLoss)
             {
@@ -113,7 +124,7 @@ namespace Kraken.Application.Services.Implementation
                 _fieldModel.CalculateFieldPressure(modesOut, fieldOptions, acousticProblemData.NModesForField, acousticProblemData.NProf,
                                                     rProf, acousticProblemData.NR, r, acousticProblemData.NSDField, sdField, acousticProblemData.NRDField,
                                                     rdField, acousticProblemData.NRR, rr, ref ranges, ref sourceDepths, ref receiverDepths,
-                                                    ref fieldPressure);
+                                                    ref fieldPressure, warnings);
 
                 var transmissionLoss = fieldPressure.GetRange(1, fieldPressure.Count - 1)
                                        .Select(x => x.GetRange(1, x.Count - 1)
@@ -146,6 +157,8 @@ namespace Kraken.Application.Services.Implementation
                     result.ReceiverDepths.RemoveAt(0);
                 }
             }
+
+            result.Warnings = warnings;
 
             return result;
         }

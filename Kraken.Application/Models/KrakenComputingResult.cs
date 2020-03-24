@@ -11,12 +11,13 @@ namespace Kraken.Application.Models
         public List<List<double>> Modes { get; set; }
         public List<double> ZM { get; set; }
         public int ModesCount { get; set; }
-
-        
+                       
         public bool TransmissionLossCalculated { get; set; }
         public List<double> Ranges { get; set; }
         public List<double> SourceDepths { get; set; }
         public List<double> ReceiverDepths { get; set; }
         public List<List<List<double>>> TransmissionLoss { get; set; }
+
+        public List<string> Warnings { get; set; }
     }
 }
