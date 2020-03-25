@@ -11,10 +11,7 @@ export default class AcousticProblemForm extends Component {
         nMedia: 0,
         topBCType: '',
         interpolationType: '',
-        attenuationUnits: '',
-        isTopAcoustic: false,
-        isTopTwersky: false,
-        isBottomAcoustic: false,
+        attenuationUnits: '',       
         isVolumeAttenuatonAdded: false,
         zt: 0,
         cpt: 0,
@@ -65,13 +62,9 @@ export default class AcousticProblemForm extends Component {
         const { acousticProblemData } = props;
 
         if (acousticProblemData) {
-            this.hasInitValue = true;
-            const isTopAcoustic = acousticProblemData.topBCType === 'A';
-            const isTopTwersky = (acousticProblemData.topBCType === 'T' || acousticProblemData.topBCType === 'S'
-                || acousticProblemData.topBCType === 'I' || acousticProblemData.topBCType === 'H');
-            const isBottomAcoustic = acousticProblemData.bottomBCType === 'A';
+            this.hasInitValue = true;            
 
-            this.state = { ...acousticProblemData, isTopAcoustic, isTopTwersky, isBottomAcoustic, error: null };
+            this.state = { ...acousticProblemData, error: null };
         }
     }
 
@@ -182,49 +175,7 @@ export default class AcousticProblemForm extends Component {
             key: 'C',
             name: 'Coupled mode theory'
         }
-    ];
-
-    //refactor
-    handleTopBCTypeChange = (e) => {
-        const { value } = e.target;
-        if (value === 'A') {
-            this.setState({
-                isTopAcoustic: true,
-                isTopTwersky: false,
-                topBCType: value
-            });
-        }
-        else if (value === 'S' || value === 'H' || value === 'T' || value === 'I') {
-            this.setState({
-                isTopAcoustic: false,
-                isTopTwersky: true,
-                topBCType: value
-            });
-        }
-        else {
-            this.setState({
-                isTopAcoustic: false,
-                isTopTwersky: false,
-                topBCType: value
-            });
-        }
-    };
-
-    handleBottomBCTypeChange = (e) => {
-        const { value } = e.target;
-        if (value === 'A') {
-            this.setState({
-                isBottomAcoustic: true,
-                bottomBCType: value
-            });
-        }
-        else {
-            this.setState({
-                isBottomAcoustic: false,
-                bottomBCType: value
-            });
-        }
-    };
+    ];    
 
     handleChange = (e) => {
         const { name, value } = e.target;
@@ -508,12 +459,17 @@ export default class AcousticProblemForm extends Component {
 
     render() {
 
-        const { isBottomAcoustic, isTopAcoustic, isTopTwersky, error } = this.state;
+        const { error } = this.state;
         const { frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
             calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
             nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
+
+        const isTopAcoustic = topBCType === 'A';
+        const isTopTwersky = (topBCType === 'T' || topBCType === 'S'
+            || topBCType === 'I' || topBCType === 'H');
+        const isBottomAcoustic = bottomBCType === 'A';
 
         return (
            <>
@@ -540,7 +496,7 @@ export default class AcousticProblemForm extends Component {
                     </Col>
                     <Col md={6}>
                         <FormGroup>
-                            <Select label={"Type of top boundary condition"} name={"topBCType"} onChange={this.handleTopBCTypeChange} options={this.topBoundaryConditions} initValue={topBCType} />
+                            <Select label={"Type of top boundary condition"} name={"topBCType"} onChange={this.handleChange} options={this.topBoundaryConditions} initValue={topBCType} />
                         </FormGroup>
                     </Col>
                 </Row>
@@ -626,7 +582,7 @@ export default class AcousticProblemForm extends Component {
                 <Row form>
                     <Col md={6}>
                         <FormGroup>
-                            <Select label={"Type of bottom boundary condition"} name={"bottomBCType"} onChange={this.handleBottomBCTypeChange} options={this.bottomBoundaryConditions} initValue={bottomBCType} />
+                            <Select label={"Type of bottom boundary condition"} name={"bottomBCType"} onChange={this.handleChange} options={this.bottomBoundaryConditions} initValue={bottomBCType} />
                         </FormGroup>
                     </Col>
                     <Col md={6}>
@@ -738,7 +694,7 @@ export default class AcousticProblemForm extends Component {
                             </Col>
                             <Col md={6}>
                                 <FormGroup>
-                                    <Select label={"Mode theory"} name={"modesTheory"} onChange={this.handleTopBCTypeChange} options={this.modesTheories} initValue={modesTheory} />
+                                    <Select label={"Mode theory"} name={"modesTheory"} onChange={this.handleChange} options={this.modesTheories} initValue={modesTheory} />
                                 </FormGroup>
                             </Col>
                         </Row>
@@ -846,7 +802,7 @@ export default class AcousticProblemForm extends Component {
                            </Col>
                            <Col md={6}>
                                <FormGroup>
-                                   <Select label={"Type of top boundary condition"} name={"topBCType"} onChange={this.handleTopBCTypeChange} options={this.topBoundaryConditions} />
+                                   <Select label={"Type of top boundary condition"} name={"topBCType"} onChange={this.handleChange} options={this.topBoundaryConditions} />
                                </FormGroup>
                            </Col>
                        </Row>
@@ -932,7 +888,7 @@ export default class AcousticProblemForm extends Component {
                        <Row form>
                            <Col md={6}>
                                <FormGroup>
-                                   <Select label={"Type of bottom boundary condition"} name={"bottomBCType"} onChange={this.handleBottomBCTypeChange} options={this.bottomBoundaryConditions} />
+                                   <Select label={"Type of bottom boundary condition"} name={"bottomBCType"} onChange={this.handleChange} options={this.bottomBoundaryConditions} />
                                </FormGroup>
                            </Col>
                            <Col md={6}>
@@ -1044,7 +1000,7 @@ export default class AcousticProblemForm extends Component {
                                    </Col>
                                    <Col md={6}>
                                        <FormGroup>
-                                           <Select label={"Mode theory"} name={"modesTheory"} onChange={this.handleTopBCTypeChange} options={this.modesTheories} />
+                                           <Select label={"Mode theory"} name={"modesTheory"} onChange={this.handleChange} options={this.modesTheories} />
                                        </FormGroup>
                                    </Col>
                                </Row>
