@@ -2,9 +2,9 @@
 import KrakenService from '../../services/kraken-service';
 import ComputingResult from '../computing-result';
 import AcousticProblemForm from '../acoustic-problem-form';
-import { Alert } from 'reactstrap';
 import InputErrorsList from '../input-errors-list';
 import ErrorMessage from '../error-message';
+import WarningsList from '../warnings-list';
 
 export default class FormWrapper extends Component {
 
@@ -79,9 +79,10 @@ export default class FormWrapper extends Component {
 
         return (<Fragment>
             <AcousticProblemForm acousticProblemData={acousticProblemData} onSubmit={this.onSubmit} onError={this.onError} />
+            {isSuccess && computingResult.warnings.length>0 && <WarningsList warnings={computingResult.warnings} />}
             {isSuccess ? <ComputingResult computingResult={computingResult} ssp={formData.ssp} /> : null}
             {hasValidationError ? <InputErrorsList error={error.validationErrors} /> : null}
-            {hasError && !hasValidationError ? <ErrorMessage errorMessage={error.data} /> : null}
+            {hasError && !hasValidationError ? <ErrorMessage errorMessage={error.data} /> : null}            
         </Fragment>);
     }
 }

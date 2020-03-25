@@ -24,7 +24,7 @@ export default class InputErrorsList extends Component {
     }
 
     mapValidationMessagesAsArray(error) {
-
+        return error.map((e, idx) => <li key={idx}>{e}</li>);
     }
 
     mapValidationMessages(error) {
