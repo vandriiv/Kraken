@@ -483,15 +483,14 @@ Output:
                 }
             }
 
-
+            var MMM = Math.Min(krakMod.M, nm);
             modes = new List<List<double>>(NZTAB + 1);
             for (var i = 0; i <= NZTAB; i++)
             {
-                modes.Add(Enumerable.Repeat(0d, nm + 1).ToList());
+                modes.Add(Enumerable.Repeat(0d, MMM + 1).ToList());
             }
             zm = Enumerable.Repeat(0d, NZTAB + 1).ToList();
-
-            var MMM = Math.Min(krakMod.M, nm);
+            
             for (var MZ = 1; MZ <= NZTAB; MZ++)
             {
                 for (krakMod.Mode = 1; krakMod.Mode <= MMM; krakMod.Mode++)
