@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -1225,7 +1226,11 @@ Output:
         private Complex TWERSK(char OPT, double OMEGA, double BUMDEN, double XI, double ETA,
                                  double KX, double RHO0, double C0)
         {
-            return new Complex();
+            double C1 = 0, C2 = 0;
+            FortranDllManager.TWERSK(ref OPT, ref OMEGA, ref BUMDEN, ref XI, ref ETA, ref KX, ref RHO0,
+                                     ref C0, ref C1, ref C2);
+
+            return new Complex(C1, C2);
         }
     }
 }

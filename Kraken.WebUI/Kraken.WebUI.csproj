@@ -22,11 +22,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="UnmanagedDlls\TWERSK.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Kraken.Application\Kraken.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="ClientApp\src\components\test-problems\figures\" />
+    <Folder Include="UnmanagedDlls\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
