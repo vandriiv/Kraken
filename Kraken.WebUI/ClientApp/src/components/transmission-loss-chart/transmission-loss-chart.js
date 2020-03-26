@@ -30,7 +30,7 @@ export default class TransmissionLossChart extends Component {
                     <LineChart margin={{ left: 10, top: 35 }}>
                         <CartesianGrid strokeDasharray="10 10" />
                         <XAxis dataKey="range" type="number" tickFormatter={this.rangeDataFormatter} domain={['dataMin', 'dataMax']} label={{ value: 'Range (km)', position: 'insideBottomRight', offset: 0, dy: 10 }} />
-                        <YAxis dataKey="tl" type="number" tickFormatter={this.tLDataFormater} domain={['dataMin', 'dataMax']} tickCount={20} label={{ value: 'TL (dB)', position: 'insideTopLeft', dx: -10, dy: -35 }} />
+                        <YAxis dataKey="tl" type="number" tickFormatter={this.tLDataFormater} domain={[dataMin => dataMin/1.1, 'dataMax']} tickCount={20} label={{ value: 'TL (dB)', position: 'insideTopLeft', dx: -10, dy: -35 }} />
                         <Tooltip />
                         <Legend />
                         <Line dataKey="tl" data={data} name="Transmission loss" dot={false} stroke="#8884d8" />
