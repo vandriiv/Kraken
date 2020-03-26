@@ -53,10 +53,11 @@ namespace Kraken.NormalModesCalculation.Field
 
             var C = Enumerable.Repeat(new Complex(), MaxM + 1).ToList();
 
+            rr = Enumerable.Repeat(0d, Nrr + 1).ToList();
+
             if (Nrr != sdrdMod.Nrd)
             {
-                Nrr = sdrdMod.Nrd;
-                rr = Enumerable.Repeat(0d, Nrr + 1).ToList();
+                Nrr = sdrdMod.Nrd;              
             }
 
             if (Nrr > 1)
