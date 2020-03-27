@@ -57,7 +57,8 @@ namespace Kraken.NormalModesCalculation.Field
 
             if (Nrr != sdrdMod.Nrd)
             {
-                Nrr = sdrdMod.Nrd;              
+                Nrr = sdrdMod.Nrd;
+                rr = Enumerable.Repeat(0d, Nrr + 1).ToList();
             }
 
             if (Nrr > 1)

@@ -38,7 +38,21 @@ export default class Pekeris extends Component {
         nsd: 1,
         sd: '500',
         nrd: 1,
-        rd: '2500'
+        rd: '2500',
+        calculateTransmissionLoss: true,
+        nModesForField: 9999,
+        sourceType: 'R',
+        modesTheory: 'A',
+        nProf: 1,
+        rProf: '0',
+        nr: 501,
+        r: '200,220',
+        nsdField: 1,
+        sdField: '500',
+        nrdField: 1,
+        rdField: '2500',
+        nrr: 1,
+        rr: '0'
     };   
 
     render() {        
