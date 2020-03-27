@@ -46,6 +46,8 @@ export default class ComputingResult extends Component {
             phaseSpeed: computingResult.phaseSpeed
         };
 
+        const { transmissionLossCalculated } = computingResult;
+
         const { showKrakenComputing, showModes, showSoundSpeed, showTransmissionLoss } = this.state;
 
         return (<>
@@ -76,15 +78,18 @@ export default class ComputingResult extends Component {
                 <span className="switch-button-descr">Normal modes</span>
             </div>
             {showModes && < Modes modes={computingResult.modes} modesCount={computingResult.modesCount} />}
-            <div className="switch-with-descr">
-                <BootstrapSwitchButton checked={showTransmissionLoss} onstyle="outline-primary" offstyle="outline-secondary"
-                    onlabel='Collapse'
-                    offlabel='Expand'
-                    onChange={this.toggleTransmissionLossVisibility}
-                    size="sm" />
-                <span className="switch-button-descr">Transmission loss</span>
-            </div>
-            {showTransmissionLoss && < TransmissionLoss transmissionLoss={computingResult.transmissionLoss} ranges={computingResult.ranges} sourceDepths={computingResult.sourceDepths} receiverDepths={computingResult.receiverDepths} />}
+
+            {transmissionLossCalculated &&
+                <div className="switch-with-descr">
+                    <BootstrapSwitchButton checked={showTransmissionLoss} onstyle="outline-primary" offstyle="outline-secondary"
+                        onlabel='Collapse'
+                        offlabel='Expand'
+                        onChange={this.toggleTransmissionLossVisibility}
+                        size="sm" />
+                    <span className="switch-button-descr">Transmission loss</span>
+                </div>
+                }
+            {showTransmissionLoss && <TransmissionLoss transmissionLoss={computingResult.transmissionLoss} ranges={computingResult.ranges} sourceDepths={computingResult.sourceDepths} receiverDepths={computingResult.receiverDepths} />}
         </>);
     }
 }
