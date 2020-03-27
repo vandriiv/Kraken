@@ -129,9 +129,9 @@ namespace Kraken.WebUI.Models.Validators
                 errors.Add("Upper phase speed limit must be greater than 0");
             }
 
-            if (model.RMax <= 0)
+            if (model.RMax < 0)
             {
-                errors.Add("Maximum range must be greater than 0");
+                errors.Add("Maximum range must be greater than or equal 0");
             }
 
             if (model.NSD <= 0)

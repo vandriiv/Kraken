@@ -57,7 +57,7 @@ export default class ModesTable extends Component {
                                 <th colSpan={modes.length}>Depth (m)</th>
                             </tr>
                             <tr>
-                                <th colSpan="1">N mode</th>
+                                <th colSpan="1">Number of mode</th>
                                 {this.mapDepths(modes)}
                             </tr>
                         </thead>

@@ -15,6 +15,12 @@ import Pekeris from '../test-problems/pekeris';
 import Scholte from '../test-problems/scholte';
 import Twersky from '../test-problems/twersky';
 
+import MatlabKrakenTestOne from '../test-problems/matlab-kraken-test-one';
+import MatlabKrakenTestTwo from '../test-problems/matlab-kraken-test-two';
+import MatlabKrakenTestThree from '../test-problems/matlab-kraken-test-three';
+import Munk from '../test-problems/munk';
+import Dickins from '../test-problems/dickins';
+
 import './app.css';
 
 export default class App extends Component {
@@ -34,6 +40,11 @@ export default class App extends Component {
                         <Route path={"/pekeris"} exact component={Pekeris} />
                         <Route path={"/scholte"} exact component={Scholte} />
                         <Route path={"/twersky"} exact component={Twersky} />
+                        <Route path={"/matlab-kraken-test-1"} exact component={MatlabKrakenTestOne} />
+                        <Route path={"/matlab-kraken-test-2"} exact component={MatlabKrakenTestTwo} />
+                        <Route path={"/matlab-kraken-test-3"} exact component={MatlabKrakenTestThree} />
+                        <Route path={"/munk"} exact component={Munk} />
+                        <Route path={"/dickins"} exact component={Dickins}/>
                     </Switch>
                 </Layout>
             </Router>);

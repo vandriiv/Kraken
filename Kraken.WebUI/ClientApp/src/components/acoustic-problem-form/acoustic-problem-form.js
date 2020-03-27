@@ -204,7 +204,7 @@ export default class AcousticProblemForm extends Component {
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
             calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
-            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
+            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;       
 
         if (frequency <= 0) {
             error.frequency = "Frequency must be greater than 0";
@@ -294,8 +294,8 @@ export default class AcousticProblemForm extends Component {
             error.cHigh = "Upper phase speed limit must be greater than 0";
         }
 
-        if (rMax <= 0) {
-            error.rMax = "Maximum range must be greater than 0";
+        if (rMax < 0) {
+            error.rMax = "Maximum range must be greater than or equal 0";
         }
 
         if (nsd <= 0) {

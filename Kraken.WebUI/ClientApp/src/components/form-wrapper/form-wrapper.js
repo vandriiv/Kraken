@@ -73,6 +73,7 @@ export default class FormWrapper extends Component {
 
     render() {
         const { acousticProblemData } = this.props;
+        console.log(acousticProblemData);
         const { computingResult, error, isSuccess, formData } = this.state;
         const hasError = error !== null;
         const hasValidationError = hasError && error.validationErrors !== null && error.validationErrors !== undefined;
