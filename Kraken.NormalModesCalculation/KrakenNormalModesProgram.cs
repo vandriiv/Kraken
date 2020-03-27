@@ -79,7 +79,7 @@ Output:
             sDRDRMod.SDRD(ZMin, ZMax, sDRDRMod.Nsd, sDRDRMod.sd, sDRDRMod.Nrd, sDRDRMod.rd,
                         zsr, zrc);
 
-            krakMod.Omega2 = Math.Pow((2.0 * 3.1415926535898 * krakMod.Freq), 2);
+            krakMod.Omega2 = Math.Pow((2.0 * Math.PI * krakMod.Freq), 2);
 
             double error = 0;
             var isSuccess = false;
@@ -228,7 +228,7 @@ Output:
                 else
                 {
                     krakMod.CMin = Math.Min(krakMod.CMin, krakMod.CPB.Real);
-                    krakMod.CHigh = Math.Min(krakMod.CHigh, krakMod.CPB.Real);
+                    // krakMod.CHigh = Math.Min(krakMod.CHigh, krakMod.CPB.Real); //commented 27.03.2020
                 }
             }
 
@@ -245,7 +245,7 @@ Output:
                     else
                     {
                         krakMod.CMin = Math.Min(krakMod.CMin, krakMod.CPT.Real);
-                        krakMod.CHigh = Math.Min(krakMod.CHigh, krakMod.CPT.Real);
+                        //krakMod.CHigh = Math.Min(krakMod.CHigh, krakMod.CPT.Real);//commented 27.03.2020
                     }
                 }
             }
@@ -763,6 +763,11 @@ Output:
 
         private void NORMIZ(KrakMod krakMod, List<double> PHI, int ITP, int NTot1, double X)
         {
+            if(krakMod.Mode > 149)
+            {
+
+            }
+
             Complex PERK = new Complex(0.0, 0.0);
             Complex DEL = new Complex();
 
@@ -831,10 +836,10 @@ Output:
             if (krakMod.BotOpt[0] == 'A')
             {
                 DEL = -0.5 * (krakMod.Omega2 / Complex.Pow(krakMod.CPB, 2) - (krakMod.Omega2 / Complex.Pow(krakMod.CPB, 2)).Real /
-                            Math.Sqrt(X - (krakMod.Omega2 / Complex.Pow(krakMod.CPB, 2)).Real));
+                            Complex.Sqrt(X - (krakMod.Omega2 / Complex.Pow(krakMod.CPB, 2))).Real);
                 PERK -= DEL * Math.Pow(PHI[J], 2) / krakMod.rhoB;
-                SLOW += Math.Pow(PHI[J], 2) / (2 * Math.Sqrt(X - (krakMod.Omega2 / Complex.Pow(krakMod.CPB, 2)).Real))
-                        / (krakMod.rhoB * Math.Pow(krakMod.CPB.Real, 2));
+                SLOW += Complex.Pow(PHI[J], 2).Real / (2 * Complex.Sqrt(X - (krakMod.Omega2 / Complex.Pow(krakMod.CPB, 2)))).Real
+                        / (krakMod.rhoB * Complex.Pow(krakMod.CPB, 2)).Real;
             }
 
             var X1 = 0.9999999 * X;
@@ -878,6 +883,11 @@ Output:
             for (var i = 1; i <= NTot1; i++)
             {
                 PHI[i] = SCALEF * PHI[i];
+            }
+
+            if(krakMod.Mode > 149)
+            {
+
             }
 
             PERK = Math.Pow(SCALEF, 2) * PERK;

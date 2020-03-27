@@ -41,20 +41,21 @@ namespace Kraken.NormalModesCalculation
 
             if (BCType[0] == 'A')
             {
-                double gammaS2, gammaP2, gammaS, gammaP, RMU;
+                Complex gammaS2, gammaP2, gammaS, gammaP;
+                double RMU;
                 if (CSHS.Real > 0)
                 {
                     gammaS2 = x - krakMod.Omega2 / Math.Pow(CSHS.Real, 2);
                     gammaP2 = x - krakMod.Omega2 / Math.Pow(CPHS.Real, 2);
-                    gammaS = Math.Sqrt(gammaS2);
-                    gammaP = Math.Sqrt(gammaP2);
+                    gammaS = Complex.Sqrt(gammaS2);
+                    gammaP = Complex.Sqrt(gammaP2);
                     RMU = rhoHS * Math.Pow(CSHS.Real, 2);
 
-                    yV[1] = (gammaS * gammaP - x) / RMU;
-                    yV[2] = (Math.Pow((gammaS2 + x), 2) - 4.0 * gammaS * gammaP * x) * RMU;
-                    yV[3] = 2.0 * gammaS * gammaP - gammaS2 - x;
-                    yV[4] = gammaP * (x - gammaS2);
-                    yV[5] = gammaS * (gammaS2 - x);
+                    yV[1] = ((gammaS * gammaP - x) / RMU).Real;
+                    yV[2] = ((Complex.Pow((gammaS2 + x), 2) - 4.0 * gammaS * gammaP * x) * RMU).Real;
+                    yV[3] = (2.0 * gammaS * gammaP - gammaS2 - x).Real;
+                    yV[4] = (gammaP * (x - gammaS2)).Real;
+                    yV[5] = (gammaS * (gammaS2 - x)).Real;
 
                     F = krakMod.Omega2 * yV[4];
                     G = yV[2];
@@ -65,8 +66,8 @@ namespace Kraken.NormalModesCalculation
                 }
                 else
                 {
-                    gammaP = Math.Sqrt(x - krakMod.Omega2 / Complex.Pow(CPHS, 2).Real);
-                    F = gammaP;
+                    gammaP = Complex.Sqrt(x - krakMod.Omega2 / Complex.Pow(CPHS, 2).Real);
+                    F = gammaP.Real;
                     G = rhoHS;
                 }
             }
