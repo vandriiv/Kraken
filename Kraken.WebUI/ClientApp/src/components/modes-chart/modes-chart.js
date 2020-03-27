@@ -56,9 +56,13 @@ export default class ModesChart extends Component {
             });
         });
 
-        return result.filter((x, idx) => toDisplay.includes((idx + 1).toString())).map((val, idx) => {
-            return { name: "Mode " + (idx + 1), data: val }
-        });
+        return result
+            .filter((_, idx) => {
+                return toDisplay.includes((idx + 1).toString())
+            })
+            .map((val, idx) => {
+                return { name: "Mode " + toDisplay[idx], data: val }
+            });
     };
 
     onSelect = (selectedList) => {
