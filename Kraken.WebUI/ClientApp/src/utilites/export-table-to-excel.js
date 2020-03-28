@@ -12,6 +12,6 @@
     document.body.appendChild(downloadLink);
 
     downloadLink.href = uri + base64(format(template, ctx))
-    downloadLink.download = filename;
+    downloadLink.download = filename +".xls";
     downloadLink.click();
 };

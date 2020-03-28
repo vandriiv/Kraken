@@ -82,7 +82,7 @@ export default class FormWrapper extends Component {
             {isSuccess && computingResult.warnings.length>0 && <WarningsList warnings={computingResult.warnings} />}
             {isSuccess ? <ComputingResult computingResult={computingResult} ssp={formData.ssp} /> : null}
             {hasValidationError ? <InputErrorsList error={error.validationErrors} /> : null}
-            {hasError && !hasValidationError ? <ErrorMessage errorMessage={error.data} /> : null}            
+            {hasError && !hasValidationError ? <ErrorMessage header="An error been occured" errorMessage={error.data} /> : null}            
         </Fragment>);
     }
 }

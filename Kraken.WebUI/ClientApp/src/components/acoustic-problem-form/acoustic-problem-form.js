@@ -3,6 +3,10 @@ import { Form, FormGroup, Label, Input, Button, Row, Col } from 'reactstrap';
 import Select from '../select';
 import InputErrorsList from '../input-errors-list';
 import './acoustic-problem-form.css';
+import { readJsonFile } from '../../utilites/json-file-reader';
+import { exportAsJson } from '../../utilites/export-as-json';
+import ErrorMessage from '../error-message';
+
 
 export default class AcousticProblemForm extends Component {
     state = {
@@ -52,19 +56,19 @@ export default class AcousticProblemForm extends Component {
         rdField: [],
         nrr: 0,
         rr: [],
-        error: null
-    };
+        error: null,
+        uploadFileError:null
+    };   
 
-    hasInitValue = false;
+    fileInputRef = React.createRef();
 
     constructor(props) {
         super(props);
         const { acousticProblemData } = props;
 
-        if (acousticProblemData) {
-            this.hasInitValue = true;            
+        if (acousticProblemData) {            
 
-            this.state = { ...acousticProblemData, error: null };
+            this.state = { ...acousticProblemData, error: null, uploadFileError: null, hasInitValue: true };
         }
     }
 
@@ -183,7 +187,7 @@ export default class AcousticProblemForm extends Component {
         this.setState({ [name]: value });
     }
 
-    handleCheckboxChange = (e) => {
+    handleCheckboxChange = (e) => {       
         const { name, checked } = e.target;
 
         this.setState({ [name]: checked });
@@ -457,14 +461,112 @@ export default class AcousticProblemForm extends Component {
         return array;
     };
 
-    render() {
+    loadFileButtonClick = () => {
+        this.fileInputRef.current["value"] = "";
+        this.fileInputRef.current.click();     
+    };
 
-        const { error } = this.state;
+    uploadFile = (e) => {
+        this.setState({
+            uploadFileError: null
+        });
+
+        if (e.target.files.length == 0) {
+            return;
+        }
+
+        let file = e.target.files[0];       
+        readJsonFile(file).then(formData => {
+            if (formData === false) {
+                this.setState({
+                    uploadFileError: 'File content is not valid JSON object.'
+                });
+            }
+            else {
+                const { isValid, missedProps } = this.isValidJsonStructureForFormData(formData);            
+                if (isValid === true) {
+                    this.hasInitValue = true;
+                    this.setState({                        
+                        ...formData,
+                        hasInitValue:true
+                    });
+                }
+                else {
+                    const props = missedProps.join(", ");
+                    this.setState({
+                        uploadFileError: 'Following properties are missed or set to undefined: ' + props + '.'
+                    });
+                }
+            }
+        }).catch(() => {           
+            this.setState({
+                uploadFileError: 'An unexected error while reading the file.'
+            });
+        });                
+    };
+
+    isValidJsonStructureForFormData = (data) => {       
+        const missedProps = [];
+
+        const krakenProps = ['frequency', 'nModes', 'nMedia', 'topBCType', 'interpolationType',
+            'attenuationUnits', 'isVolumeAttenuatonAdded', 'zt', 'cpt',
+            'cst', 'rhot', 'apt', 'ast', 'bumDen', 'eta', 'xi',
+            'mediumInfo', 'ssp', 'bottomBCType', 'sigma', 'zb', 'cpb',
+            'csb', 'rhob', 'apb', 'asb', 'cLow', 'cHigh', 'rMax', 'nsd', 'sd', 'nrd', 'rd',
+            'calculateTransmissionLoss'];
+
+        const tlProps = ['sourceType', 'modesTheory', 'nModesForField',
+            'nProf', 'rProf', 'nr', 'r', 'nsdField', 'sdField', 'nrdField', 'rdField', 'nrr', 'rr'];
+
+
+        krakenProps.forEach(prop => {
+            if (!data.hasOwnProperty(prop) || data[prop] === undefined) {
+               missedProps.push(prop);
+            }
+        });
+
+        if (data.calculateTransmissionLoss === true) {
+            tlProps.forEach(prop => {
+                if (!data.hasOwnProperty(prop) || data[prop] === undefined) {
+                  missedProps.push(prop);
+                }
+            });
+        }
+
+        if (missedProps.length === 0) {
+            return { isValid: true };
+        }
+
+        return { isValid: false, missedProps };
+    };
+
+    saveFormData = () => {
         const { frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
             calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
             nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
+
+        const jsonText = JSON.stringify({
+            frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
+            cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
+            csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
+            calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
+            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr
+        });
+
+        exportAsJson(jsonText, "acoustic-problem");
+    };
+
+    render() {
+        const { error, uploadFileError, hasInitValue } = this.state;
+        const { frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
+            cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
+            csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
+            calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
+            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
+
+      
 
         const isTopAcoustic = topBCType === 'A';
         const isTopTwersky = (topBCType === 'T' || topBCType === 'S'
@@ -472,9 +574,14 @@ export default class AcousticProblemForm extends Component {
         const isBottomAcoustic = bottomBCType === 'A';
 
         return (
-           <>
+            <>
+                <div className='d-flex justify-content-end'>
+                    <input type="file" accept=".json" style={{ display: "none" }} ref={this.fileInputRef} onChange={this.uploadFile} />
+                    <Button onClick={this.loadFileButtonClick} outline color="primary">Load data from file</Button>
+                </div>
+                {uploadFileError && <ErrorMessage header="An error occured while uploading file" errorMessage={uploadFileError}/>}
            <Form onSubmit={this.onSubmit}>
-               {this.hasInitValue ? <>
+               {hasInitValue ? <>
                 <FormGroup>
                     <Label for="frequency">Frequency (Hz)</Label>
                     <Input type="number" name="frequency" id="frequency" onChange={this.handleChange} placeholder="Frequency" defaultValue={frequency} required />
@@ -566,8 +673,9 @@ export default class AcousticProblemForm extends Component {
                     <Select label={"Attenuation units"} name={"attenuationUnits"} onChange={this.handleChange} options={this.attenuationUnits} required initValue={attenuationUnits} />
                 </FormGroup>
                 <FormGroup check>
-                    <Label check>
-                        <Input type="checkbox" name="isVolumeAttenuatonAdded" id="isVolumeAttenuatonAdded" onChange={this.handleCheckboxChange} checked={isVolumeAttenuatonAdded} defaultValue={isVolumeAttenuatonAdded} />{' '}
+                            <Label check>
+                                <Input type="checkbox" name="isVolumeAttenuatonAdded" id="isVolumeAttenuatonAdded" onChange={this.handleCheckboxChange}
+                                    checked={isVolumeAttenuatonAdded}  />{' '}
                         Add volume attenuation
                     </Label>
                 </FormGroup>
@@ -680,7 +788,9 @@ export default class AcousticProblemForm extends Component {
                 </Row>
                 <FormGroup check>
                     <Label check>
-                        <Input type="checkbox" name="calculateTransmissionLoss" id="calculateTransmissionLoss" checked={calculateTransmissionLoss} defaultValue={calculateTransmissionLoss} onChange={this.handleCheckboxChange} />{' '}
+                                <Input type="checkbox" name="calculateTransmissionLoss" id="calculateTransmissionLoss"
+                                    checked={calculateTransmissionLoss}
+                                    defaultValue={calculateTransmissionLoss} onChange={this.handleCheckboxChange} />{' '}
                         Calculate transmission loss
                     </Label>
                 </FormGroup>
@@ -872,8 +982,9 @@ export default class AcousticProblemForm extends Component {
                            <Select label={"Attenuation units"} name={"attenuationUnits"} onChange={this.handleChange} options={this.attenuationUnits} required />
                        </FormGroup>
                        <FormGroup check>
-                           <Label check>
-                               <Input type="checkbox" name="isVolumeAttenuatonAdded" id="isVolumeAttenuatonAdded" onChange={this.handleCheckboxChange} />{' '}
+                                <Label check>
+                                    <Input type="checkbox" name="isVolumeAttenuatonAdded" id="isVolumeAttenuatonAdded" checked={isVolumeAttenuatonAdded} value={isVolumeAttenuatonAdded}
+                                        onChange={this.handleCheckboxChange} />{' '}
                                Add volume attenuation
                     </Label>
                        </FormGroup>
@@ -986,7 +1097,9 @@ export default class AcousticProblemForm extends Component {
                        </Row>
                        <FormGroup check>
                            <Label check>
-                               <Input type="checkbox" name="calculateTransmissionLoss" id="calculateTransmissionLoss" onChange={this.handleCheckboxChange} />{' '}
+                                    <Input type="checkbox" name="calculateTransmissionLoss" id="calculateTransmissionLoss"
+                                        checked={calculateTransmissionLoss}
+                                        defaultValue={calculateTransmissionLoss} onChange={this.handleCheckboxChange} />{' '}
                                Calculate transmission loss
                     </Label>
                        </FormGroup>
@@ -1083,7 +1196,10 @@ export default class AcousticProblemForm extends Component {
                                </Row>
                            </>
                            : null
-                       } </>}
+                            } </>}
+                    <div>
+                        <Button outline color="success" onClick={this.saveFormData}>Save form data to file</Button>
+                    </div>
                 <Button outline color="secondary">Submit</Button>                
            </Form>
            {

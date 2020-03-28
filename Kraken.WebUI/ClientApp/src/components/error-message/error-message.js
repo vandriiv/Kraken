@@ -21,12 +21,12 @@ export default class ErrorMessage extends Component {
     }
 
     render() {
-        const { errorMessage } = this.props;
+        const {header, errorMessage } = this.props;
         const { visible } = this.state;
 
         return (<div className='form-alert'>
             <Alert color="danger" isOpen={visible} toggle={this.hide}>
-                <h5 className="alert-heading">An error has occured:</h5>
+                <h5 className="alert-heading">{header}:</h5>
                 <p>{errorMessage}</p>
             </Alert>
         </div>);

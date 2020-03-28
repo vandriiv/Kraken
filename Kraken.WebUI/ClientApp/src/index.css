@@ -1,4 +1,8 @@
-﻿figure {
+﻿p {
+    word-wrap: break-word;
+}
+
+figure {
     margin-top: 16px;
 }
 
@@ -75,4 +79,9 @@ form button{
 .problems-list{
     margin-bottom:16px;
 }
+
+.form-alert{
+    margin-top:16px;
+}
+
 

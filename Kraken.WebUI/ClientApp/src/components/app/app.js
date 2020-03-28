@@ -1,6 +1,7 @@
 ﻿import React, { Component } from 'react';
 import Layout from '../layout';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import Helmet from 'react-helmet';
 
 import KrakenPage from '../kraken-page';
 import TestProblemsPage from '../test-problems-page';
@@ -25,9 +26,12 @@ import './app.css';
 
 export default class App extends Component {
     render() {
-        return (
-            <Router>
-                <Layout>
+        return (<>
+            <Helmet>
+                <title>Kraken</title>
+            </Helmet>
+            <Router>               
+                <Layout>                
                     <Switch>
                         <Route path={"/"} exact component={KrakenPage} />
                         <Route path={"/test-problems"} exact component={TestProblemsPage} />
@@ -47,6 +51,7 @@ export default class App extends Component {
                         <Route path={"/dickins"} exact component={Dickins}/>
                     </Switch>
                 </Layout>
-            </Router>);
+            </Router>
+            </>);
     }
 }
