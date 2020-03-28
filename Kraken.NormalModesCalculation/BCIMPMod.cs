@@ -9,7 +9,7 @@ namespace Kraken.NormalModesCalculation
     {
         public void BCIMP(KrakMod krakMod, double x, string BCType, string BOTTOP, Complex CPHS, Complex CSHS,
                           double rhoHS, ref double F, ref double G, ref int IPow)
-        {
+        { 
             IPow = 0;
             var yV = Enumerable.Repeat(0d, 5 + 1).ToList();
 

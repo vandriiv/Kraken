@@ -462,7 +462,7 @@ Output:
 
                 if (IERR != 0)
                 {
-                    krakMod.Warnings.Add("Inverse iteration failed to converge");
+                    krakMod.Warnings.Add($"Inverse iteration failed to converge. Mode = {krakMod.Mode}");
                     PHI = PHI.Select(x => 0d).ToList();
                 }
                 else
@@ -556,9 +556,7 @@ Output:
                 if (errorMsg != "")
                 {
                     krakMod.Warnings.Add(errorMsg);
-                }
-
-                //error
+                }               
 
                 krakMod.EVMat[krakMod.ISet][krakMod.Mode] = X;
             }
@@ -568,7 +566,7 @@ Output:
         private void SOLVE2(KrakMod krakMod)
         {
             var X = krakMod.Omega2 / Math.Pow(krakMod.CLow, 2);
-            var MaxIT = 500;
+            var MaxIT = 1500;
             var P = Enumerable.Repeat(0d, 11).ToList();
 
             if (krakMod.k == null)
@@ -616,10 +614,16 @@ Output:
                         X = P[1];
                     }
                 }
-                var IT = 1;
+                var IERR = 0;
+                //var TOL = Math.Abs(X) * 10 * Math.Pow(0.1, 11);
                 var TOL = Math.Abs(X) * (krakMod.B1.Count - 1) * Math.Pow(0.1, 15);
-
-                ZSCEX(krakMod, ref X, TOL, IT, MaxIT);
+              
+                ZSCEX(krakMod, ref X, TOL, MaxIT,ref IERR);
+                if (IERR == -1)
+                {
+                    krakMod.Warnings.Add("Root finder secant failure to converge.");
+                    X = 1 / double.MaxValue;
+                }
 
                 krakMod.EVMat[krakMod.ISet][krakMod.Mode] = X;
 
@@ -638,8 +642,7 @@ Output:
             var MaxIT = 500;
             var XMin = 1.00001 * krakMod.Omega2 / Math.Pow(krakMod.CHigh, 2);
             var DELTA = 0.0;
-            var IPower = 0;
-            var IT = 0;
+            var IPower = 0;           
 
             FUNCT(krakMod, XMin, ref DELTA, ref IPower);
             krakMod.M = krakMod.ModeCount;
@@ -648,9 +651,15 @@ Output:
             {
                 var X = krakMod.EVMat[krakMod.ISet][krakMod.Mode];
                 var TOL = Math.Abs(X) * Math.Pow(10, (2.0 - 15));
-                ZSCEX(krakMod, ref X, TOL, IT, MaxIT);
 
-                // X = 2.2 * Math.Pow(0.1, 307);
+                var IERR = 0;
+
+                ZSCEX(krakMod, ref X, TOL,MaxIT,ref IERR);
+                if (IERR == -1)
+                {
+                    krakMod.Warnings.Add("Root finder secant failure to converge.");
+                    X = 1 / double.MaxValue;
+                }
 
                 krakMod.EVMat[krakMod.ISet][krakMod.Mode] = X;
                 if (krakMod.Omega2 / X > Math.Pow(krakMod.CHigh, 2))
@@ -716,7 +725,7 @@ Output:
         }
 
         private void ACOUST(KrakMod krakMod, double X, ref double F, ref double G, ref int IPower)
-        {// todo
+        {
             var Roof = Math.Pow(10, 50);
             var Floor = Math.Pow(0.1, 50);
             var IPowerF = -50;
@@ -746,7 +755,7 @@ Output:
                         krakMod.ModeCount++;
                     }
 
-                    while (Math.Abs(P2) > Roof)
+                    if(Math.Abs(P2) > Roof)
                     {
                         P0 = Floor * P0;
                         P1 = Floor * P1;
@@ -763,11 +772,6 @@ Output:
 
         private void NORMIZ(KrakMod krakMod, List<double> PHI, int ITP, int NTot1, double X)
         {
-            if(krakMod.Mode > 149)
-            {
-
-            }
-
             Complex PERK = new Complex(0.0, 0.0);
             Complex DEL = new Complex();
 
@@ -1062,7 +1066,7 @@ Output:
             }
         }
 
-        private void ZSCEX(KrakMod krakMod, ref double x2, double TOL, int Iteration, int MAXIteration)
+        private void ZSCEX(KrakMod krakMod, ref double x2, double TOL, int MAXIteration, ref int IERR)
         {
             var x1 = x2 + 10.0 * TOL;
             double F1 = 0;
@@ -1070,7 +1074,7 @@ Output:
 
             FUNCT(krakMod, x1, ref F1, ref IPower1);
 
-            for (Iteration = 1; Iteration <= MAXIteration; Iteration++)
+            for (var Iteration = 1; Iteration <= MAXIteration; Iteration++)
             {
                 double x0 = x1;
                 double F0 = F1;
@@ -1094,6 +1098,8 @@ Output:
                     return;
                 }
             }
+
+            IERR = -1;
         }
 
         private void ZBRENTX(KrakMod krakMod, ref double X, ref double A, ref double B, double T, string errorMessage)

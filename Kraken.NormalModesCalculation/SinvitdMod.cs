@@ -69,7 +69,7 @@ namespace Kraken.NormalModesCalculation
                 EigenVector[i] = UK;
             }
 
-            var MAXIT = 5;
+            var MAXIT = 20;
             for (var ITER = 1; ITER <= MAXIT; ITER++)
             {
 
