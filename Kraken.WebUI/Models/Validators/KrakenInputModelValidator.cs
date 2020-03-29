@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Kraken.WebUI.Models.Validators
 {
@@ -147,9 +147,18 @@ namespace Kraken.WebUI.Models.Validators
             {
                 errors.Add("Source depth is required");
             }
+            else if (model.SD.Any(x => x < 0))
+            {
+                errors.Add("Source depth must consist of non-negative numbers");
+            }
+
             if (model.RD == null || model.RD.Count == 0)
             {
                 errors.Add("Receiver depth is required");
+            }
+            else if (model.RD.Any(x => x < 0))
+            {
+                errors.Add("Receiver depth must consist of non-negative numbers");
             }
 
             if (model.MediumInfo == null || model.MediumInfo.Count == 0)
@@ -159,10 +168,17 @@ namespace Kraken.WebUI.Models.Validators
             else
             {
                 foreach (var m in model.MediumInfo)
-                {
+                {                   
+
                     if (m == null || m.Count != 3)
                     {
                         errors.Add("Medium info must consist of lists with 3 elements each");
+                        break;
+                    }
+
+                    if (m.Any(x => x < 0))
+                    {
+                        errors.Add("Medium info can't contain negative numbers");
                         break;
                     }
                 }
@@ -178,7 +194,13 @@ namespace Kraken.WebUI.Models.Validators
                 {
                     if (ssp == null || ssp.Count != 6)
                     {
-                        errors.Add("Sound speed profile consist of lists with 5 elements each");
+                        errors.Add("Sound speed profile must consist of lists with 6 elements each");
+                        break;
+                    }
+
+                    if (ssp.Any(x => x < 0))
+                    {
+                        errors.Add("Sound speed profile can't contain negative numbers");
                     }
                 }
             }
@@ -229,10 +251,18 @@ namespace Kraken.WebUI.Models.Validators
                 {
                     errors.Add("The receiver displacements are required");
                 }
+                else if (model.RR.Any(x => x < 0))
+                {
+                    errors.Add("The receiver displacements must consist of non-negative numbers");
+                }
 
                 if (model.R == null || model.R.Count == 0)
                 {
                     errors.Add("The receiver ranges are required");
+                }
+                else if (model.R.Any(x => x < 0))
+                {
+                    errors.Add("The receiver ranges must consist of non-negative numbers");
                 }
 
                 if (model.RProf == null || model.RProf.Count == 0)
@@ -244,9 +274,18 @@ namespace Kraken.WebUI.Models.Validators
                 {
                     errors.Add("Source depth (for field) is required");
                 }
+                else if (model.SDField.Any(x => x < 0))
+                {
+                    errors.Add("Source depth (for field) must consist of non-negative numbers");
+                }
+
                 if (model.RDField == null || model.RDField.Count == 0)
                 {
-                    errors.Add("Receiver (for field) depth is required");
+                    errors.Add("Receiver depth (for field) is required");
+                }
+                else if (model.RDField.Any(x => x < 0))
+                {
+                    errors.Add("Receiver depth (for field) must consist of non-negative numbers");
                 }
             }
 

@@ -202,13 +202,16 @@ export default class AcousticProblemForm extends Component {
         }
     }
 
+    isTwersky = (bcType) => (bcType === 'S' || bcType === 'H' || bcType === 'T' || bcType === 'I');
+
     validateAndFormatData = () => {
         const error = {};
         let { frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
             calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
-            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;       
+            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;      
+       
 
         if (frequency <= 0) {
             error.frequency = "Frequency must be greater than 0";
@@ -252,15 +255,15 @@ export default class AcousticProblemForm extends Component {
             error.ast = "AS Top must be greater than or equal 0";
         }
 
-        if ((topBCType === 'S' || topBCType === 'H' || topBCType === 'T' || topBCType === 'I') && bumDen < 0) {
+        if (this.isTwersky(topBCType) && bumDen < 0) {
             error.bumDen = "Bump density must be greater than or equal 0";
         }
 
-        if ((topBCType === 'S' || topBCType === 'H' || topBCType === 'T' || topBCType === 'I') && eta < 0) {
+        if (this.isTwersky(topBCType) && eta < 0) {
             error.eta = "Principal radius 1 must be greater than or equal 0";
         }
 
-        if ((topBCType === 'S' || topBCType === 'H' || topBCType === 'T' || topBCType === 'I') && xi < 0) {
+        if (this.isTwersky(topBCType) && xi < 0) {
             error.eta = "Principal radius 2 must be greater than or equal 0";
         }
 
@@ -312,6 +315,12 @@ export default class AcousticProblemForm extends Component {
 
         try {
             sd = this.parseOneDimensionalArray(sd);
+            if (sd.some(x => isNaN(x))) {
+                error.sd = "Source depth format is not valid";
+            }
+            else if (sd.some(x => x < 0)) {
+                error.sd = "Source depth must consist of non-negative numbers";
+            }
         }
         catch (e) {
             error.sd = "Source depth format is not valid";
@@ -319,6 +328,12 @@ export default class AcousticProblemForm extends Component {
 
         try {
             rd = this.parseOneDimensionalArray(rd);
+            if (rd.some(x => isNaN(x))) {
+                error.rd = "Receiver depth format is not valid";
+            }
+            else if (rd.some(x => x < 0)) {
+                error.rd = "Receiver depth must consist of non-negative numbers";
+            }
         }
         catch (e) {
             error.rd = "Source depth format is not valid";
@@ -326,6 +341,22 @@ export default class AcousticProblemForm extends Component {
 
         try {
             mediumInfo = this.parseTwoDimensionalArray(mediumInfo);
+            if (mediumInfo.length === 0) {
+                error.mediumInfo = "Medium info is required";
+            }
+            else {
+                mediumInfo.forEach(mi => {
+                    if (mi.length !== 3) {
+                        error.mediumInfo = "Medium info must consist of lists with 3 elements each";
+                        return;
+                    }
+                    if (mi.some(x => isNaN(x))) {
+                        error.mediumInfo = "Medium info format is not valid";
+                        return;
+                    }
+                });
+            }
+
         }
         catch (e) {
             error.mediumInfo = "Medium info format is not valid";
@@ -333,6 +364,23 @@ export default class AcousticProblemForm extends Component {
 
         try {
             ssp = this.parseTwoDimensionalArray(ssp);
+            if (ssp.length === 0) {
+                error.ssp = "Sound speed profile is required";
+            }
+            else {
+                ssp.forEach(s => {
+                    if (s.length !== 6) {
+                        error.ssp = "Sound speed profile must consist of lists with 6 elements each";
+                        return;
+                    }
+
+                    if (s.some(x => isNaN(x))) {
+                        error.ssp = "Sound speed format is not valid";
+                        return;
+                    }
+                });
+            }
+            
         }
         catch (e) {
             error.ssp = "SSP format is not valid";
@@ -373,6 +421,12 @@ export default class AcousticProblemForm extends Component {
 
             try {
                 rr = this.parseOneDimensionalArray(rr);
+                if (rr.some(x => isNaN(x))) {
+                    error.rr = "The receiver displacements format is not valid";
+                }
+                else if (rr.some(x => x < 0)) {
+                    error.rr = "The receiver displacements must consist of non-negative numbers";
+                }
             }
             catch (e) {
                 error.rr = "The receiver displacements format is invalid";
@@ -387,6 +441,12 @@ export default class AcousticProblemForm extends Component {
 
             try {
                 rProf = this.parseOneDimensionalArray(rProf);
+                if (rProf.some(x => isNaN(x))) {
+                    error.rProf = "Ranges format is not valid";
+                }
+                else if (rProf.some(x => x < 0)) {
+                    error.rProf = "Ranges must consist of non-negative numbers";
+                }
             }
             catch (e) {
                 error.rProf = "Ranges format is invalid";
@@ -394,6 +454,12 @@ export default class AcousticProblemForm extends Component {
 
             try {
                 sdField = this.parseOneDimensionalArray(sdField);
+                if (sdField.some(x => isNaN(x))) {
+                    error.sdField = "Source depth (for field) format is not valid";
+                }
+                else if (sdField.some(x => x < 0)) {
+                    error.sdField = "Source depth must (for field) consist of non-negative numbers";
+                }
             }
             catch (e) {
                 error.sdField = "Source depth format (for field) is invalid";
@@ -401,6 +467,12 @@ export default class AcousticProblemForm extends Component {
 
             try {
                 rdField = this.parseOneDimensionalArray(rdField);
+                if (rdField.some(x => isNaN(x))) {
+                    error.rdField = "Receiver depth (for field) format is not valid";
+                }
+                else if (rdField.some(x => x < 0)) {
+                    error.rdField = "Receiver depth (for field) must consist of non-negative numbers";
+                }
             }
             catch (e) {
                 error.rdField = "Receiver depth format (for field) is invalid";
@@ -440,13 +512,12 @@ export default class AcousticProblemForm extends Component {
             throw "Given string is not array";
         }
 
-        if (Array.isArray(array[0])) {
+        if (array.some(x => Array.isArray(x))) {
             throw "Given string is not one dimensional array";
         }
 
         return array;
     };
-
 
     parseTwoDimensionalArray = (str) => {
         const array = JSON.parse('[' + str + ']');
@@ -454,7 +525,7 @@ export default class AcousticProblemForm extends Component {
             throw "Given string is not array";
         }
 
-        if (!Array.isArray(array[0])) {
+        if (array.some(x => !Array.isArray(x))) {
             throw "Given string is not two dimensional array";
         }
 
