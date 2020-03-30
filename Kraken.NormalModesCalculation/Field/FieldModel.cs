@@ -8,9 +8,9 @@ namespace Kraken.NormalModesCalculation.Field
 {
     public class FieldModel
     {
-        public void CalculateFieldPressure(ModesOut modesOut, string Opt, int MLimit, int NProf, List<double> rProf,
-                                           int NR, List<double> R, int NSD, List<double> SD, int NRD, List<double> RD,
-                                           int Nrr, List<double> rr, ref List<double> ranges, ref List<double> sources, ref List<double> receivers,
+        public void CalculateFieldPressure(ModesOut modesOut, string Opt, int MLimit, int NR, List<double> R, int NSD,
+                                           List<double> SD, int NRD, List<double> RD, int Nrr, List<double> rr,
+                                           ref List<double> ranges, ref List<double> sources, ref List<double> receivers,
                                            ref List<List<List<Complex>>> res, List<string> warnings)
         {
             var MaxM = Math.Min(MLimit, modesOut.M);
@@ -19,19 +19,6 @@ namespace Kraken.NormalModesCalculation.Field
             if (Opt.Length > 2)
             {
                 Comp = Opt[2].ToString();
-            }
-
-            if (NProf > 2)
-            {
-                rProf[3] = -999.9;
-            }
-
-            var subTabMod = new SubTabMod();
-            subTabMod.SUBTAB(rProf, NProf);
-
-            if (rProf[1] != 0)
-            {
-                throw new ArgumentException("The first profile must be at 0 km");
             }
 
             var sdrdMod = new SDRDRMod();
@@ -69,6 +56,8 @@ namespace Kraken.NormalModesCalculation.Field
             {
                 rr[3] = -999.9;
             }
+
+            var subTabMod = new SubTabMod();
 
             subTabMod.SUBTAB(rr, Nrr);
 

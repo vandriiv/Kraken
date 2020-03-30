@@ -230,12 +230,7 @@ namespace Kraken.WebUI.Models.Validators
                 if (model.NRDField <= 0)
                 {
                     errors.Add("Number of receiver depth (for field) must be greater than 0");
-                }
-
-                if (model.NProf <= 0)
-                {
-                    errors.Add("The number of profiles must be greater than 0");
-                }
+                }              
 
                 if (model.NR <= 0)
                 {
@@ -263,11 +258,6 @@ namespace Kraken.WebUI.Models.Validators
                 else if (model.R.Any(x => x < 0))
                 {
                     errors.Add("The receiver ranges must consist of non-negative numbers");
-                }
-
-                if (model.RProf == null || model.RProf.Count == 0)
-                {
-                    errors.Add("Ranges are required");
                 }
 
                 if (model.SDField == null || model.SDField.Count == 0)

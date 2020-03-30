@@ -99,10 +99,7 @@ namespace Kraken.Application.Services.Implementation
 
             if (acousticProblemData.CalculateTransmissionLoss)
             {
-                var fieldOptions = acousticProblemData.SourceType + acousticProblemData.ModesTheory;
-                
-                var rProf = new List<double>(acousticProblemData.RProf);
-                rProf.Insert(0,0);
+                var fieldOptions = acousticProblemData.SourceType + acousticProblemData.ModesTheory;              
 
                 var r = new List<double>(acousticProblemData.R);
                 r.Insert(0, 0);
@@ -121,8 +118,8 @@ namespace Kraken.Application.Services.Implementation
                 var receiverDepths = new List<double>();
                 var fieldPressure = new List<List<List<Complex>>>();
 
-                _fieldModel.CalculateFieldPressure(modesOut, fieldOptions, acousticProblemData.NModesForField, acousticProblemData.NProf,
-                                                    rProf, acousticProblemData.NR, r, acousticProblemData.NSDField, sdField, acousticProblemData.NRDField,
+                _fieldModel.CalculateFieldPressure(modesOut, fieldOptions, acousticProblemData.NModesForField, acousticProblemData.NR, r, 
+                                                    acousticProblemData.NSDField, sdField, acousticProblemData.NRDField,
                                                     rdField, acousticProblemData.NRR, rr, ref ranges, ref sourceDepths, ref receiverDepths,
                                                     ref fieldPressure, warnings);
 

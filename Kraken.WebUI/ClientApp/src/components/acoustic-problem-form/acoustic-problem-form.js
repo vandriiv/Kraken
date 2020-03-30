@@ -45,9 +45,7 @@ export default class AcousticProblemForm extends Component {
         calculateTransmissionLoss: false,
         sourceType: '',
         modesTheory: '',
-        nModesForField: 0,
-        nProf: 0,
-        rProf: [],
+        nModesForField: 0,       
         nr: 0,
         r: [],
         nsdField: 0,
@@ -210,7 +208,7 @@ export default class AcousticProblemForm extends Component {
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
             calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
-            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;      
+            nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;      
        
 
         if (frequency <= 0) {
@@ -407,10 +405,6 @@ export default class AcousticProblemForm extends Component {
                 error.nrdField = "Number of receiver depth (for field) must be greater than 0";
             }
 
-            if (nProf <= 0) {
-                error.nProf = "The number of profiles must be greater than 0";
-            }
-
             if (nr <= 0) {
                 error.nr = "The number of receiver ranges must be greater than 0";
             }
@@ -437,20 +431,7 @@ export default class AcousticProblemForm extends Component {
             }
             catch (e) {
                 error.r = "The receiver ranges format is invalid";
-            }
-
-            try {
-                rProf = this.parseOneDimensionalArray(rProf);
-                if (rProf.some(x => isNaN(x))) {
-                    error.rProf = "Ranges format is not valid";
-                }
-                else if (rProf.some(x => x < 0)) {
-                    error.rProf = "Ranges must consist of non-negative numbers";
-                }
-            }
-            catch (e) {
-                error.rProf = "Ranges format is invalid";
-            }
+            }          
 
             try {
                 sdField = this.parseOneDimensionalArray(sdField);
@@ -492,7 +473,7 @@ export default class AcousticProblemForm extends Component {
                 return {
                     frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, addedVolumeAttenuation, zt, cpt,
                     cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
-                    csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd, nModesForField, nProf, rProf,
+                    csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd, nModesForField,
                     nr, r, nsdField, sdField, nrdField, rdField, nrr, rr, calculateTransmissionLoss, sourceType, modesTheory
                 };
             }
@@ -587,7 +568,7 @@ export default class AcousticProblemForm extends Component {
             'calculateTransmissionLoss'];
 
         const tlProps = ['sourceType', 'modesTheory', 'nModesForField',
-            'nProf', 'rProf', 'nr', 'r', 'nsdField', 'sdField', 'nrdField', 'rdField', 'nrr', 'rr'];
+              'nr', 'r', 'nsdField', 'sdField', 'nrdField', 'rdField', 'nrr', 'rr'];
 
 
         krakenProps.forEach(prop => {
@@ -616,14 +597,14 @@ export default class AcousticProblemForm extends Component {
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
             calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
-            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
+            nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
 
         const jsonText = JSON.stringify({
             frequency, nModes, nMedia, topBCType, interpolationType, attenuationUnits, isVolumeAttenuatonAdded, zt, cpt,
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
             calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
-            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr
+            nr, r, nsdField, sdField, nrdField, rdField, nrr, rr
         });
 
         exportAsJson(jsonText, "acoustic-problem");
@@ -635,9 +616,7 @@ export default class AcousticProblemForm extends Component {
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
             calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
-            nProf, rProf, nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
-
-      
+            nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;      
 
         const isTopAcoustic = topBCType === 'A';
         const isTopTwersky = (topBCType === 'T' || topBCType === 'S'
@@ -882,21 +861,7 @@ export default class AcousticProblemForm extends Component {
                         <FormGroup>
                             <Label for="nModesForField">Number of modes in field computation</Label>
                             <Input type="number" name="nModesForField" id="nModesForField" onChange={this.handleChange} defaultValue={nModesForField} placeholder="Number of modes to use in field computation" required />
-                        </FormGroup>
-                        <Row form>
-                            <Col md={6}>
-                                <FormGroup>
-                                    <Label for="nProf">The number of profiles</Label>
-                                    <Input type="number" name="nProf" id="nProf" onChange={this.handleChange} defaultValue={nProf} required />
-                                </FormGroup>
-                            </Col>
-                            <Col md={6}>
-                                <FormGroup>
-                                    <Label for="rProf">Ranges (km) of each of these profiles.</Label>
-                                    <Input type="textarea" name="rProf" id="rProf" onChange={this.handleChange} defaultValue={rProf} required />
-                                </FormGroup>
-                            </Col>
-                        </Row>
+                        </FormGroup>                     
 
                         <Row form>
                             <Col md={6}>
@@ -1192,21 +1157,7 @@ export default class AcousticProblemForm extends Component {
                                    <Label for="nModesForField">Number of modes in field computation</Label>
                                    <Input type="number" name="nModesForField" id="nModesForField" onChange={this.handleChange} placeholder="Number of modes to use in field computation" required />
                                </FormGroup>
-                               <Row form>
-                                   <Col md={6}>
-                                       <FormGroup>
-                                           <Label for="nProf">The number of profiles</Label>
-                                           <Input type="number" name="nProf" id="nProf" onChange={this.handleChange} required />
-                                       </FormGroup>
-                                   </Col>
-                                   <Col md={6}>
-                                       <FormGroup>
-                                           <Label for="rProf">Ranges (km) of each of these profiles.</Label>
-                                           <Input type="textarea" name="rProf" id="rProf" onChange={this.handleChange} required />
-                                       </FormGroup>
-                                   </Col>
-                               </Row>
-
+                               
                                <Row form>
                                    <Col md={6}>
                                        <FormGroup>
