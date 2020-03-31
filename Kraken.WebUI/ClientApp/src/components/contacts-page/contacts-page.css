@@ -1,0 +1,7 @@
+.contacts span a{
+    color:inherit;
+}
+
+.contacts span svg{
+    margin-bottom: 3px;
+}

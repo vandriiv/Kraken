@@ -70,7 +70,7 @@ export default class DocsPage extends Component {
                     <p>
                         This project is web application for predicting acoustic transmission-loss in the ocean based on <a href="https://oalib-acoustics.org/AcousticsToolbox/manual/kraken.html">KRAKEN normal mode program</a>.
                         <br />
-                        The results of the calculations may differ from the results of the original program, so use it on your own risks.                        
+                        This project was developed for education purposes, so results of the calculations may differ from the results of the original program, use it on your own risks.                        
                     </p>
                     <p>The source code is available <a href="https://github.com/vandriiv/Kraken">here</a> <FaGithub/></p>
                 </section>
@@ -366,7 +366,7 @@ export default class DocsPage extends Component {
                     </div>
 
                     <div className="file-upload-table">
-                        <p>The table contains comparisons between properties in JSON object for upload and form inputs.</p>
+                        <p>The table contains comparisons between properties in JSON object for upload and <Link smooth to="#form-description">form inputs</Link>.</p>
                         <Table responsive bordered hover>
                             <thead>
                                 <tr>

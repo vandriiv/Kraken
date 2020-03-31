@@ -6,6 +6,8 @@ import {TinyButton as ScrollUpButton} from "react-scroll-up-button";
 
 import KrakenPage from '../kraken-page';
 import TestProblemsPage from '../test-problems-page';
+import DocsPage from '../docs-page';
+import ContactsPage from '../contacts-page/contacts-page';
 
 import Atten from '../test-problems/atten';
 import Double from '../test-problems/double';
@@ -24,7 +26,6 @@ import Munk from '../test-problems/munk';
 import Dickins from '../test-problems/dickins';
 
 import './app.css';
-import DocsPage from '../docs-page';
 
 export default class App extends Component {
     render() {
@@ -38,6 +39,8 @@ export default class App extends Component {
                         <Route path={"/"} exact component={KrakenPage} />
                         <Route path={"/test-problems"} exact component={TestProblemsPage} />
                         <Route path={"/docs"} exact component={DocsPage}/>
+                        <Route path={"/contacts"} exact component ={ContactsPage}/>
+
                         <Route path={"/atten"} exact component={Atten} />
                         <Route path={"/double"} exact component={Double} />
                         <Route path={"/elsed"} exact component={Elsed} />
