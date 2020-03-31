@@ -3,6 +3,8 @@ import { Multiselect } from 'multiselect-react-dropdown';
 import TransmissionLossChart from '../transmission-loss-chart';
 import TransmissionLossTable from '../transmission-loss-table';
 
+import './transmission-loss.css';
+
 export default class TransmissionLoss extends Component {
     state = {
         selectedReceiverDepth: null,

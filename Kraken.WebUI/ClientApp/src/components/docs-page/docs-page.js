@@ -4,6 +4,8 @@ import ReactJson from 'react-json-view';
 import { HashLink as Link } from 'react-router-hash-link';
 import { FaGithub } from 'react-icons/fa';
 
+import './docs-page.css';
+
 export default class DocsPage extends Component {
 
     render() {

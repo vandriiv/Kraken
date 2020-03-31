@@ -5,6 +5,8 @@ import { Multiselect } from 'multiselect-react-dropdown';
 import { exportChart } from '../../utilites/export-chart';
 import { Button } from 'reactstrap';
 
+import './modes-chart.css';
+
 export default class ModesChart extends Component {
 
     state = {

@@ -2,6 +2,8 @@
 import { Row, Col, ListGroup, ListGroupItem } from 'reactstrap';
 import { Link } from 'react-router-dom';
 
+import './test-problems-page.css';
+
 export default class TestProblemsPage extends Component {
 
     render() {

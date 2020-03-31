@@ -1,4 +1,8 @@
 ﻿form {
-    margin-bottom: 16px;
-  
+    margin-bottom: 16px; 
 }
+
+form button{
+    margin-top:14px;
+}
+

@@ -10,103 +10,12 @@ table ol {
     padding-left: 0;
 }
 
-.switch-with-descr {
-    margin-bottom: 16px;
-    margin-top: 16px;
-}
-
-.switch.btn-sm {
-    min-width: 5rem;
-}
-
-.lg-chart-wrapper {
-    max-width: 100%;
-    margin: 16px auto;
-}
-
-.switch-button-descr {
-    font-weight: bolder;
-    margin-left: 16px;
-    vertical-align: middle;
-}
-.recharts-legend-wrapper {
-    max-width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-    left: 0;
-    right: 0;
-}
-
-form button{
-    margin-top:14px;
-}
-
-.select-wrapper{
-    margin-top:16px;
-}
-.select-wrapper p {
-    margin-bottom: 8px;
-}
-
-.tl-selects-wrapper {  
-  
-    display: flex;
-    align-items: center;
-}
-
-.tl-selects-wrapper div p{
-    margin-bottom:8px;
-}
-
-.tl-selects-wrapper div:first-child {
-    width: 150px;
-    margin-right: 16px;    
-}
-
-.tl-selects-wrapper .searchBox{
-    display:none;
-}
-.tl-selects-wrapper [class^="optionListContainer"]{
-    width: 150px;
-}
-
 .overflow-table{
     max-height:600px;
     overflow-y:auto;
     margin-top:16px;
 }
 
-.problems-list{
-    margin-bottom:16px;
-}
-
 .form-alert{
     margin-top:16px;
-}
-
-.file-upload-table{
-    margin-top: 16px;
-}
-
-.docs-nav a{
-    padding: 0 0.5rem;
-    color:#343a40;
-}
-
-.docs-nav a:hover{
-    text-decoration: none;
-    color:#121416;
-}
-
-.docs-nav a:first-child{
-    padding-left: 0;
-}
-
-.docs-nav{
-    margin-bottom: 16px;
-    
-}
-
-table ul{
-    padding-inline-start: 25px;
 }

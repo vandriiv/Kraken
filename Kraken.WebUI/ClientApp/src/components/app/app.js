@@ -7,7 +7,7 @@ import {TinyButton as ScrollUpButton} from "react-scroll-up-button";
 import KrakenPage from '../kraken-page';
 import TestProblemsPage from '../test-problems-page';
 import DocsPage from '../docs-page';
-import ContactsPage from '../contacts-page/contacts-page';
+import ContactsPage from '../contacts-page';
 
 import Atten from '../test-problems/atten';
 import Double from '../test-problems/double';
