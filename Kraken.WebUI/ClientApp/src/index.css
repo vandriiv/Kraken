@@ -84,4 +84,29 @@ form button{
     margin-top:16px;
 }
 
+.file-upload-table{
+    margin-top: 16px;
+}
 
+.docs-nav a{
+    padding: 0 0.5rem;
+    color:#343a40;
+}
+
+.docs-nav a:hover{
+    text-decoration: none;
+    color:#121416;
+}
+
+.docs-nav a:first-child{
+    padding-left: 0;
+}
+
+.docs-nav{
+    margin-bottom: 16px;
+    
+}
+
+table ul{
+    padding-inline-start: 25px;
+}

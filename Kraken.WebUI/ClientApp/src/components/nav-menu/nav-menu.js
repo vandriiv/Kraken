@@ -34,12 +34,12 @@ export default class NavMenu extends Component {
                         </NavbarBrand>
                         <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
                         <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
-                            <Nav className="mr-auto" navbar>
-                                <NavItem>
-                                    <NavLink tag={Link} className="text-dark" to="/docs">Documentation</NavLink>
-                                </NavItem>
+                            <Nav className="mr-auto" navbar>                               
                                 <NavItem>
                                     <NavLink tag={Link} className="text-dark" to="/test-problems">Test problems</NavLink>
+                                </NavItem>
+                                <NavItem>
+                                    <NavLink tag={Link} className="text-dark" to="/docs">Documentation</NavLink>
                                 </NavItem>
                                 <NavItem>
                                     <NavLink tag={Link} className="text-dark" to="/contacts">Contacts</NavLink>
