@@ -617,7 +617,7 @@ Output:
                 var IERR = 0;
                 //var TOL = Math.Abs(X) * 10 * Math.Pow(0.1, 11);
                 var TOL = Math.Abs(X) * (krakMod.B1.Count - 1) * Math.Pow(0.1, 15);
-              
+               
                 ZSCEX(krakMod, ref X, TOL, MaxIT,ref IERR);
                 if (IERR == -1)
                 {
@@ -1071,6 +1071,10 @@ Output:
             var x1 = x2 + 10.0 * TOL;
             double F1 = 0;
             int IPower1 = 1;
+            if(krakMod.Mode >= 40)
+            {
+
+            }
 
             FUNCT(krakMod, x1, ref F1, ref IPower1);
 

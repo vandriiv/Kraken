@@ -109,10 +109,10 @@ namespace Kraken.NormalModesCalculation
             var xV = Enumerable.Repeat(0d, 5 + 1).ToList();
             var zV = Enumerable.Repeat(0d, 5 + 1).ToList();
 
-            double Roof = Math.Pow(10, 4);
-            double Floor = Math.Pow(0.1, 4);
-            int IPowR = 5;
-            int IPowF = -5;
+            double Roof = Math.Pow(10, 50);
+            double Floor = Math.Pow(10, -50);
+            int IPowR = 50;
+            int IPowF = -50;
 
             double TWOx, TWOH, FOURHx, xB3;
             int J;
@@ -185,10 +185,10 @@ namespace Kraken.NormalModesCalculation
             var xV = Enumerable.Repeat(0d, 5 + 1).ToList();
             var zV = Enumerable.Repeat(0d, 5 + 1).ToList();
 
-            double Roof = 100000;
-            double Floor = 0.00001;
-            int IPowR = 5;
-            int IPowF = -5;
+            double Roof = Math.Pow(10,50);
+            double Floor = Math.Pow(10,-50);
+            int IPowR = 50;
+            int IPowF = -50;
 
             double TWOx, TWOH, FOURHx, xB3;
             int J;
