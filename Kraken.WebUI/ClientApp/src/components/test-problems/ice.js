@@ -7,7 +7,7 @@ import FormWrapper from '../form-wrapper';
 export default class Ice extends Component {
     acousticProblemData = {
         frequency: 10,
-        nModes: 10,
+        nModes: 44,
         nMedia: 2,
         topBCType: 'V',
         interpolationType: 'N',

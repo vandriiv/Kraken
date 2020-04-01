@@ -7,7 +7,7 @@ import FormWrapper from '../form-wrapper';
 export default class Munk extends Component {
     acousticProblemData = {
         frequency: 50,
-        nModes: 200,
+        nModes: 102,
         nMedia:1,
         topBCType: 'V',
         interpolationType: 'N',

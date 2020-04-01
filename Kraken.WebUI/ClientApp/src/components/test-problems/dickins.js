@@ -7,7 +7,7 @@ import FormWrapper from '../form-wrapper';
 export default class Dickins extends Component {
     acousticProblemData = {
         frequency: 230,
-        nModes: 200,
+        nModes: 128,
         nMedia: 1,
         topBCType: 'V',
         interpolationType: 'C',
@@ -84,7 +84,7 @@ export default class Dickins extends Component {
             </Helmet>
             <Col xs={12}>
                 <div>
-                    <p>Dickins seamount from <a href="https://oalib-acoustics.org/AcousticsToolbox/index_at.html">Acoustic Toolbox</a></p>
+                    <p>Dickins seamount profile from <a href="https://oalib-acoustics.org/AcousticsToolbox/index_at.html">Acoustic Toolbox</a></p>
                 </div>
                 <FormWrapper acousticProblemData={this.acousticProblemData} />
             </Col>

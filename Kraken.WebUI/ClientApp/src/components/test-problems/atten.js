@@ -8,7 +8,7 @@ export default class Atten extends Component {
 
     acousticProblemData = {
         frequency: 10,
-        nModes: 10,
+        nModes: 44,
         nMedia: 1,
         topBCType: 'V',
         interpolationType: 'N',

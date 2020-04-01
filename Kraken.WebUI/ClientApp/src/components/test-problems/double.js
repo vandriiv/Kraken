@@ -7,7 +7,7 @@ import FormWrapper from '../form-wrapper';
 export default class Double extends Component {
     acousticProblemData = {
         frequency: 10,
-        nModes: 10,
+        nModes: 42,
         nMedia: 3,
         topBCType: 'V',
         interpolationType: 'N',

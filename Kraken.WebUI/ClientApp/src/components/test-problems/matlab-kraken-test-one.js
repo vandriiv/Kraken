@@ -8,7 +8,7 @@ export default class MatlabKrakenTestOne extends Component {
 
     acousticProblemData = {
         frequency: 15,
-        nModes: 5,
+        nModes: 40,
         nMedia: 2,
         topBCType: 'V',
         interpolationType: 'S',
