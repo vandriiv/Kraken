@@ -13,7 +13,7 @@ export default class InputErrorsList extends Component {
     };
 
     componentDidUpdate(prevProps){
-        if(prevProps.error!=this.props.error)
+        if(prevProps.error!== this.props.error)
         this.setState({
             visible:true
         });

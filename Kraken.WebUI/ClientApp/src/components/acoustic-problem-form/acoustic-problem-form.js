@@ -490,11 +490,11 @@ export default class AcousticProblemForm extends Component {
     parseOneDimensionalArray = (str) => {
         const array = JSON.parse('[' + str + ']');
         if (!Array.isArray(array)) {
-            throw "Given string is not array";
+            throw new Error("Given string is not array");
         }
 
         if (array.some(x => Array.isArray(x))) {
-            throw "Given string is not one dimensional array";
+            throw new Error("Given string is not one dimensional array");
         }
 
         return array;
@@ -503,11 +503,11 @@ export default class AcousticProblemForm extends Component {
     parseTwoDimensionalArray = (str) => {
         const array = JSON.parse('[' + str + ']');
         if (!Array.isArray(array)) {
-            throw "Given string is not array";
+            throw new Error("Given string is not array");
         }
 
         if (array.some(x => !Array.isArray(x))) {
-            throw "Given string is not two dimensional array";
+            throw new Error("Given string is not two dimensional array");
         }
 
         return array;
@@ -523,7 +523,7 @@ export default class AcousticProblemForm extends Component {
             uploadFileError: null
         });
 
-        if (e.target.files.length == 0) {
+        if (e.target.files.length === 0) {
             return;
         }
 

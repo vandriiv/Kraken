@@ -5,6 +5,8 @@ import TransmissionLoss from '../transmission-loss';
 import SoundSpeed from '../sound-speed/sound-speed';
 import BootstrapSwitchButton from 'bootstrap-switch-button-react';
 
+import './computing-result.css';
+
 export default class ComputingResult extends Component {
     state = {
         showKrakenComputing:false,
@@ -55,8 +57,9 @@ export default class ComputingResult extends Component {
                 <BootstrapSwitchButton checked={showKrakenComputing} onstyle="outline-primary" offstyle="outline-secondary"
                     onlabel='Collapse'
                     offlabel='Expand'
-                    onChange={this.toggleKrakenComputingVisibility}
-                    size="sm" />
+                    onChange={this.toggleKrakenComputingVisibility}                    
+                    width="100" 
+                    size="sm"/>  
                 <span className="switch-button-descr">Wavenumber, scatter loss, phase and group speed for each mode</span>
             </div>
             {showKrakenComputing && < KrakenComputingResult data={krakenComputingResult} />}
@@ -65,7 +68,8 @@ export default class ComputingResult extends Component {
                     onlabel='Collapse'
                     offlabel='Expand'
                     onChange={this.toggleSoundSpeedVisibility}
-                    size="sm" />
+                    width="100" 
+                    size="sm"/>                    
                 <span className="switch-button-descr">Sound speed</span>
             </div>
             {showSoundSpeed && < SoundSpeed data={ssp} />}
@@ -74,7 +78,8 @@ export default class ComputingResult extends Component {
                     onlabel='Collapse'
                     offlabel='Expand'
                     onChange={this.toggleModesVisibility}
-                    size="sm" />
+                    width="100" 
+                    size="sm"/>  
                 <span className="switch-button-descr">Normal modes</span>
             </div>
             {showModes && < Modes modes={computingResult.modes} modesCount={computingResult.modesCount} />}
@@ -85,7 +90,8 @@ export default class ComputingResult extends Component {
                         onlabel='Collapse'
                         offlabel='Expand'
                         onChange={this.toggleTransmissionLossVisibility}
-                        size="sm" />
+                        width="100" 
+                        size="sm"/>  
                     <span className="switch-button-descr">Transmission loss</span>
                 </div>
                 }

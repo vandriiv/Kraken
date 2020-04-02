@@ -6,8 +6,6 @@ import InputErrorsList from '../input-errors-list';
 import ErrorMessage from '../error-message';
 import WarningsList from '../warnings-list';
 
-import './form-wrapper.css';
-
 export default class FormWrapper extends Component {
 
     state = {

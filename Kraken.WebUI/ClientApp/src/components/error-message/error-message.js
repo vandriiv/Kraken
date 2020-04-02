@@ -14,7 +14,7 @@ export default class ErrorMessage extends Component {
     };
 
     componentDidUpdate(prevProps) {
-        if (prevProps.errorMessage != this.props.errorMessage)
+        if (prevProps.errorMessage !== this.props.errorMessage)
             this.setState({
                 visible: true
             });

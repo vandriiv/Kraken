@@ -9,7 +9,7 @@
         };
 
         reader.onerror = function () {
-            throw "File read error";
+            throw new Error("File read error");
         };
 
         reader.readAsText(file);

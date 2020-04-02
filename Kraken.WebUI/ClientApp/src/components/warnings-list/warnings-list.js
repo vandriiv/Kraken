@@ -13,7 +13,7 @@ export default class WarningsList extends Component {
     };
 
     componentDidUpdate(prevProps) {
-        if (prevProps.warnings != this.props.warnings)
+        if (prevProps.warnings !== this.props.warnings)
             this.setState({
                 visible: true
             });
