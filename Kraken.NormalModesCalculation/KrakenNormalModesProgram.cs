@@ -1246,8 +1246,7 @@ Output:
                                  double KX, double RHO0, double C0)
         {
             double C1 = 0, C2 = 0;
-            FortranDllManager.TWERSK(ref OPT, ref OMEGA, ref BUMDEN, ref XI, ref ETA, ref KX, ref RHO0,
-                                     ref C0, ref C1, ref C2);
+            //call twersky
 
             return new Complex(C1, C2);
         }
