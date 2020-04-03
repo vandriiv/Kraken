@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kraken.WebUI", "Kraken.WebUI\Kraken.WebUI.csproj", "{3040D3AD-CAF9-4BDF-A8AB-10B58A972E28}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kraken.NormalModesCalculation", "Kraken.NormalModesCalculation\Kraken.NormalModesCalculation.csproj", "{1CA12AB2-C65C-475C-851C-B3DB89683E1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kraken.Calculation", "Kraken.NormalModesCalculation\Kraken.Calculation.csproj", "{1CA12AB2-C65C-475C-851C-B3DB89683E1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.Application", "Kraken.Application\Kraken.Application.csproj", "{4AD7E68D-7E7B-44D3-8A82-4DB989E11FD7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kraken.Application", "Kraken.Application\Kraken.Application.csproj", "{4AD7E68D-7E7B-44D3-8A82-4DB989E11FD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

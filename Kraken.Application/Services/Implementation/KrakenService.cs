@@ -1,8 +1,9 @@
 ﻿using Kraken.Application.Exceptions;
 using Kraken.Application.Models;
 using Kraken.Application.Services.Interfaces;
-using Kraken.NormalModesCalculation;
-using Kraken.NormalModesCalculation.Field;
+using Kraken.Calculation;
+using Kraken.Calculation.Exceptions;
+using Kraken.Calculation.Field;
 using System;
 using System.Collections.Generic;
 using System.Linq;

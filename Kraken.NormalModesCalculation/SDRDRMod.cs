@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Kraken.Calculation.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Kraken.NormalModesCalculation
+namespace Kraken.Calculation
 {
     public class SDRDRMod
     {

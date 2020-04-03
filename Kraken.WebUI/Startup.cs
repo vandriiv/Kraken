@@ -1,7 +1,7 @@
 using Kraken.Application.Services.Implementation;
 using Kraken.Application.Services.Interfaces;
-using Kraken.NormalModesCalculation;
-using Kraken.NormalModesCalculation.Field;
+using Kraken.Calculation;
+using Kraken.Calculation.Field;
 using Kraken.WebUI.Models.Mappers;
 using Kraken.WebUI.Models.Validators;
 using Microsoft.AspNetCore.Builder;

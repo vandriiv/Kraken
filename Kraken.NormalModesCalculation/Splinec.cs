@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Kraken.NormalModesCalculation
+namespace Kraken.Calculation
 {
     public class Splinec
     {

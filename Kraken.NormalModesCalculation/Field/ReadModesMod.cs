@@ -4,7 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace Kraken.NormalModesCalculation.Field
+namespace Kraken.Calculation.Field
 {
     public class ReadModesMod
     {

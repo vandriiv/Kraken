@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Kraken.Calculation.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace Kraken.NormalModesCalculation
+namespace Kraken.Calculation
 {
     public class Readin
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Kraken.NormalModesCalculation.Field
+namespace Kraken.Calculation.Field
 {
     public class InterpMod
     {

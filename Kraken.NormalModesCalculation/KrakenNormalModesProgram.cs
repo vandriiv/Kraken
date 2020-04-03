@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Kraken.Calculation.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace Kraken.NormalModesCalculation
+namespace Kraken.Calculation
 {
     //need to take a good look at loops, arguments changing in methods, list init
 

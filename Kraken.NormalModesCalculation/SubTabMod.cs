@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Kraken.NormalModesCalculation
+namespace Kraken.Calculation
 {
     class SubTabMod
     {

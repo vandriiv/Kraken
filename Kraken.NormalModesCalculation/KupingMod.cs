@@ -1,7 +1,7 @@
 using System;
 using System.Numerics;
 
-namespace Kraken.NormalModesCalculation
+namespace Kraken.Calculation
 {
     class KupingMod
     {
