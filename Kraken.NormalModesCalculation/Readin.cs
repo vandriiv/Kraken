@@ -447,10 +447,10 @@ namespace Kraken.Calculation
 
                         var IBCBEG = 0;
                         var IBCEND = 0;
-                        var splineC = new Splinec();
-                        splineC.CSPLINE(Z, alphaC, ILoc, NSSPPts[Medium], IBCBEG, IBCEND, NSSPPts[Medium]);
-                        splineC.CSPLINE(Z, betaC, ILoc, NSSPPts[Medium], IBCBEG, IBCEND, NSSPPts[Medium]);
-                        splineC.CSPLINE(Z, rhoC, ILoc, NSSPPts[Medium], IBCBEG, IBCEND, NSSPPts[Medium]);
+                        var splineC = new SplineCalculator();
+                        splineC.CalculateCubicSpline(Z, alphaC, ILoc, NSSPPts[Medium], IBCBEG, IBCEND);
+                        splineC.CalculateCubicSpline(Z, betaC, ILoc, NSSPPts[Medium], IBCBEG, IBCEND);
+                        splineC.CalculateCubicSpline(Z, rhoC, ILoc, NSSPPts[Medium], IBCBEG, IBCEND);
 
                         return;
                     }
@@ -478,11 +478,11 @@ namespace Kraken.Calculation
                     {
                         Lay += 1;
                     }
-                    var splineC = new Splinec();
+                    var splineC = new SplineCalculator();
                     var HSPLNE = ZT - Z[ILoc + Lay];
-                    CP[I] = splineC.ESPLINE(alphaC, ILoc + Lay, HSPLNE);
-                    CS[I] = splineC.ESPLINE(betaC, ILoc + Lay, HSPLNE);
-                    rhoT[I] = splineC.ESPLINE(rhoC, ILoc + Lay, HSPLNE).Real;
+                    CP[I] = splineC.CalculateExponentialSpline(alphaC, ILoc + Lay, HSPLNE);
+                    CS[I] = splineC.CalculateExponentialSpline(betaC, ILoc + Lay, HSPLNE);
+                    rhoT[I] = splineC.CalculateExponentialSpline(rhoC, ILoc + Lay, HSPLNE).Real;
                 }
             }
         }
