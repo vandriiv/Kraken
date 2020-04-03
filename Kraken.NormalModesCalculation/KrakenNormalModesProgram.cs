@@ -350,12 +350,10 @@ Output:
             var vectorsManager = new VectorsManager();
             var (zTab, NzTab) = vectorsManager.MergeVectors(sDRDRMod.sd, sDRDRMod.Nsd, sDRDRMod.rd, sDRDRMod.Nrd);
 
-            var WTS = Enumerable.Repeat(0d, NzTab + 1).ToList();
-            var IZTAB = Enumerable.Repeat(0, NzTab + 1).ToList();
             var PHITAB = Enumerable.Repeat(new Complex(), NzTab + 1).ToList();
 
-            var weightMod = new WeightMod();
-            weightMod.WEIGHT(Z, NTot1, zTab, NzTab, WTS, IZTAB);
+            var weightsCalculator = new WeightsCalculator();
+            var (WTS,IZTAB) = weightsCalculator.CalculateWeightsAndIndices(Z, NTot1, zTab, NzTab);
 
             var modesave = new List<List<double>>(NzTab + 1);
             for (var i = 0; i <= NzTab + 1; i++)

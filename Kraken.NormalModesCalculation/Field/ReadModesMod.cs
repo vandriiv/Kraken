@@ -20,10 +20,8 @@ namespace Kraken.Calculation.Field
                 PhiR.Add(Enumerable.Repeat(new Complex(), Nrd + 1).ToList());
             }
 
-            var W = Enumerable.Repeat(0d, Nrd + 1).ToList();
-            var ird = Enumerable.Repeat(0, Nrd + 1).ToList();
-            var weightMod = new WeightMod();
-            weightMod.WEIGHT(modesOut.Z, modesOut.NTot, rd, Nrd, W, ird);
+            var weightsCalculator = new WeightsCalculator();
+            var (W, ird) = weightsCalculator.CalculateWeightsAndIndices(modesOut.Z, modesOut.NTot, rd, Nrd);          
 
             if (modesOut.M > MaxM)
             {
