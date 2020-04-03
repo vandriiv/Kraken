@@ -24,7 +24,7 @@ namespace Kraken.NormalModesCalculation.Field
             }
 
             var ic = new Complex(0, 1);
-            var pi = 3.1415926;
+            var pi = Math.PI;
             var factor = ic * Math.Sqrt(2 * pi) * Complex.Exp(ic * pi / 4);
 
             var cnst = new List<Complex>();

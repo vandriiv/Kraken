@@ -10,7 +10,7 @@ namespace Kraken.NormalModesCalculation.Field
     {
         private Complex kTop2;
         private Complex kBot2;
-        private double pi = 3.141592;
+        private double pi = Math.PI;
 
         public List<List<Complex>> GetModes(ModesOut modesOut, int MaxM, List<double> rd, int Nrd, string Comp, List<string> warnings)
         {

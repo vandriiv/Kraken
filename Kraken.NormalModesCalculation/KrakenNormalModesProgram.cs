@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 
 namespace Kraken.NormalModesCalculation
 {
@@ -870,7 +868,7 @@ Output:
                 DrhoDX = -(F2 / G2 - F1 / G1) / (X2 - X1);
             }
 
-            var RN = SQNRM + DrhoDX * Math.Pow(PHI[1], 2) - DetaDX * Math.Pow(PHI[NTot1], 2);
+            var RN = SQNRM - DrhoDX * Math.Pow(PHI[1], 2) + DetaDX * Math.Pow(PHI[NTot1], 2);
 
             if (RN <= 0.0)
             {
@@ -889,10 +887,6 @@ Output:
                 PHI[i] = SCALEF * PHI[i];
             }
 
-            if(krakMod.Mode > 149)
-            {
-
-            }
 
             PERK = Math.Pow(SCALEF, 2) * PERK;
             SLOW = Math.Pow(SCALEF, 2) * SLOW * Math.Sqrt(krakMod.Omega2 / X);

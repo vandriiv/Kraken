@@ -177,7 +177,7 @@ namespace Kraken.NormalModesCalculation
 
         public Complex CRCI(double C, double alpha, double Freq, string AttenUnit)
         {
-            var Omega = 2.0 * 3.1415926535898 * Freq;
+            var Omega = 2.0 * Math.PI * Freq;
             var alphaT = 0.0;
             switch (AttenUnit[0])
             {
