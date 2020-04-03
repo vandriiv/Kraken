@@ -24,7 +24,7 @@ export default class Atten extends Component {
         eta: 0,
         xi: 0,
         mediumInfo: '[500,0,5000]',
-        ssp: '[0,1500,0,1,0.01,0], [5000,1500,0,1,0.01,0]',
+        ssp: '[0,1500,0,1,0.001,0], [5000,1500,0,1,0.001,0]',
         bottomBCType: 'A',
         sigma: 0,
         zb: 5000,
