@@ -92,9 +92,9 @@ namespace Kraken.Calculation
                 }
             }
 
-            for (var J = L + i; J >= 1 + i; J--)
+            for (var j = L + i; j >= 1 + i; j--)
             {
-                C[2][J] = (C[2][J] - C[3][J] * C[2][J + 1]) / C[4][J];
+                C[2][j] = (C[2][j] - C[3][j] * C[2][j + 1]) / C[4][j];
             }
 
             for(var I = 2+i;I<=N+i;I++){
