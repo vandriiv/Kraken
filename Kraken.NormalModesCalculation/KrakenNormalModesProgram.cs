@@ -452,8 +452,8 @@ Output:
                 }
 
                 var IERR = 0;
-                var sinvitMod = new SinvitdMod();
-                sinvitMod.SINVIT(NTot1, D, E, ref IERR, PHI);
+                var sinvitMod = new EigenvectorFinder();
+                sinvitMod.FindEigenvectorUsingInverseIteration(NTot1, D, E,PHI, ref IERR);
 
                 if (IERR != 0)
                 {
