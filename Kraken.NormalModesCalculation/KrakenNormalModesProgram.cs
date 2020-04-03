@@ -347,20 +347,18 @@ Output:
             }
 
             E[NTot1 + 1] = 1.0 / Hrho;
-            var mergevMod = new MergeVMod();
-            var ZTAB = Enumerable.Repeat(0d, sDRDRMod.Nrd + sDRDRMod.Nsd + 1).ToList();
-            var NZTAB = 0;
-            mergevMod.MERGEV(sDRDRMod.sd, sDRDRMod.Nsd, sDRDRMod.rd, sDRDRMod.Nrd, ZTAB, ref NZTAB);
+            var vectorsManager = new VectorsManager();
+            var (zTab, NzTab) = vectorsManager.MergeVectors(sDRDRMod.sd, sDRDRMod.Nsd, sDRDRMod.rd, sDRDRMod.Nrd);
 
-            var WTS = Enumerable.Repeat(0d, NZTAB + 1).ToList();
-            var IZTAB = Enumerable.Repeat(0, NZTAB + 1).ToList();
-            var PHITAB = Enumerable.Repeat(new Complex(), NZTAB + 1).ToList();
+            var WTS = Enumerable.Repeat(0d, NzTab + 1).ToList();
+            var IZTAB = Enumerable.Repeat(0, NzTab + 1).ToList();
+            var PHITAB = Enumerable.Repeat(new Complex(), NzTab + 1).ToList();
 
             var weightMod = new WeightMod();
-            weightMod.WEIGHT(Z, NTot1, ZTAB, NZTAB, WTS, IZTAB);
+            weightMod.WEIGHT(Z, NTot1, zTab, NzTab, WTS, IZTAB);
 
-            var modesave = new List<List<double>>(NZTAB + 1);
-            for (var i = 0; i <= NZTAB + 1; i++)
+            var modesave = new List<List<double>>(NzTab + 1);
+            for (var i = 0; i <= NzTab + 1; i++)
             {
                 modesave.Add(Enumerable.Repeat(0d, krakMod.M + 1).ToList());
             }
@@ -369,15 +367,15 @@ Output:
             modesOut.Title = "Dummy title";
             modesOut.NFreq = 1;
             modesOut.NMedia = krakMod.LastAcoustic - krakMod.FirstAcoustic + 1;
-            modesOut.NTot = NZTAB;
-            modesOut.NMat = NZTAB;
+            modesOut.NTot = NzTab;
+            modesOut.NMat = NzTab;
 
             modesOut.N = new List<int>(krakMod.N);
             modesOut.Material = new List<string>(krakMod.Mater);
             modesOut.Depth = new List<double>(krakMod.Depth);
             modesOut.rho = new List<double>(krakMod.RHO);
             modesOut.freqVec = new List<double> { 0, krakMod.Freq };
-            modesOut.Z = new List<double>(ZTAB);
+            modesOut.Z = new List<double>(zTab);
 
             modesOut.BCTop = krakMod.TopOpt[1].ToString();//changed
             modesOut.cPT = krakMod.CPT;
@@ -469,34 +467,34 @@ Output:
                     NORMIZ(krakMod, PHI, ITP, NTot1, X);
                 }
 
-                for (var i = 1; i <= NZTAB; i++)
+                for (var i = 1; i <= NzTab; i++)
                 {
                     PHITAB[i] = PHI[IZTAB[i]] + WTS[i] * (PHI[IZTAB[i] + 1] - PHI[IZTAB[i]]);
                 }
 
                 modesOut.Phi.Add(new List<Complex>(PHITAB));
 
-                for (var i = 1; i <= NZTAB; i++)
+                for (var i = 1; i <= NzTab; i++)
                 {
                     modesave[i][krakMod.Mode] = PHITAB[i].Real;
                 }
             }
 
             var MMM = Math.Min(krakMod.M, nm);
-            modes = new List<List<double>>(NZTAB + 1);
-            for (var i = 0; i <= NZTAB; i++)
+            modes = new List<List<double>>(NzTab + 1);
+            for (var i = 0; i <= NzTab; i++)
             {
                 modes.Add(Enumerable.Repeat(0d, MMM + 1).ToList());
             }
-            zm = Enumerable.Repeat(0d, NZTAB + 1).ToList();
+            zm = Enumerable.Repeat(0d, NzTab + 1).ToList();
             
-            for (var MZ = 1; MZ <= NZTAB; MZ++)
+            for (var MZ = 1; MZ <= NzTab; MZ++)
             {
                 for (krakMod.Mode = 1; krakMod.Mode <= MMM; krakMod.Mode++)
                 {
                     modes[MZ][krakMod.Mode] = modesave[MZ][krakMod.Mode];
                 }
-                zm[MZ] = ZTAB[MZ];
+                zm[MZ] = zTab[MZ];
             }
         }
 
