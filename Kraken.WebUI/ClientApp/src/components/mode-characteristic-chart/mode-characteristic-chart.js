@@ -16,7 +16,11 @@ export default class ModeCharacteristicChart extends Component {
     };
 
     dataFormater = (number) => {
-        return number.toFixed(3).toString();
+        const toFixed3 = number.toFixed(3).toString()
+        if (toFixed3.includes("0.000")) {
+            return number.toExponential(3);
+        }
+        return toFixed3;
     }
 
 
