@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Kraken.Calculation
 {
-    class SubTabMod
+    class SubTabulator
     {
-        public void SUBTAB(List<double> x, int Nx)
+        public void SubTabulate(List<double> x, int Nx)
         {
             if (Nx >= 3)
             {
@@ -15,12 +15,12 @@ namespace Kraken.Calculation
                     {
                         x[2] = x[1];
                     }
-                    var deltax = (x[2] - x[1]) / (Nx - 1);
+                    var deltaX = (x[2] - x[1]) / (Nx - 1);
 
                     var temp = x[1];
                     for (var i = 0; i < Nx; i++)
                     {
-                        x[i+1] = temp + i * deltax;
+                        x[i+1] = temp + i * deltaX;
                     }
                 }
             }

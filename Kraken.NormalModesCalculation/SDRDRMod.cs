@@ -48,8 +48,8 @@ namespace Kraken.Calculation
                 sd[i] = zsr[i];
             }
 
-            var subTabMod = new SubTabMod();
-            subTabMod.SUBTAB(sd, Nsd);
+            var subTabMod = new SubTabulator();
+            subTabMod.SubTabulate(sd, Nsd);
 
             rd = Enumerable.Repeat(0d, Math.Max(3 + 1, Nrd + 1)).ToList();
 
@@ -60,7 +60,7 @@ namespace Kraken.Calculation
                 rd[i] = zrc[i];
             }
 
-            subTabMod.SUBTAB(rd, Nrd);
+            subTabMod.SubTabulate(rd, Nrd);
 
             for (var IS = 1; IS <= Nsd; IS++)
             {
@@ -97,8 +97,8 @@ namespace Kraken.Calculation
             R = Enumerable.Repeat(0d, Math.Max(3 + 1, NR + 1)).ToList();
 
             R[3] = -999.9;
-            var subTabMod = new SubTabMod();
-            subTabMod.SUBTAB(R, NR); //check
+            var subTabMod = new SubTabulator();
+            subTabMod.SubTabulate(R, NR); //check
 
             R.Sort();
 
@@ -115,8 +115,8 @@ namespace Kraken.Calculation
                 r[i] = givenR[i];
             }
 
-            var subtabMod = new SubTabMod();
-            subtabMod.SUBTAB(r, Nr);
+            var subtabMod = new SubTabulator();
+            subtabMod.SubTabulate(r, Nr);
             r.Sort();
 
             for (var i = 1; i < r.Count; i++)

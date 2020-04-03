@@ -57,9 +57,9 @@ namespace Kraken.Calculation.Field
                 rr[3] = -999.9;
             }
 
-            var subTabMod = new SubTabMod();
+            var subTabMod = new SubTabulator();
 
-            subTabMod.SUBTAB(rr, Nrr);
+            subTabMod.SubTabulate(rr, Nrr);
 
             var readModesMod = new ReadModesMod();
 
