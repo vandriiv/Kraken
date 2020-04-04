@@ -36,7 +36,7 @@ Output:
   modes = nm mode functions at depths zm*/
     public class KrakenNormalModesProgram
     {
-        public CalculatedModesInfo OceanAcousticNormalModes(int nm, double frq, int nl, string note1, List<List<double>> bb, int nc,
+        public CalculatedModesInfo CalculateNormalModes(int nm, double frq, int nl, string note1, List<List<double>> bb, int nc,
                                              List<List<double>> ssp, string note2, double bsig, List<double> clh, double rng, int nsr, List<double> zsr,
                                              int nrc, List<double> zrc, int nz, List<double> tahsp, List<double> tsp, List<double> bahsp, ref List<double> cg, ref List<double> cp,
                                              ref List<double> zm, ref List<List<double>> modes, ref List<Complex> k, List<string> warnings)

@@ -71,7 +71,7 @@ namespace Kraken.Application.Services.Implementation
             CalculatedModesInfo modesInfo;
             try
             {
-                 modesInfo = _krakenNormalModeProgram.OceanAcousticNormalModes(acousticProblemData.NModes, acousticProblemData.Frequency, acousticProblemData.NMedia, options,
+                 modesInfo = _krakenNormalModeProgram.CalculateNormalModes(acousticProblemData.NModes, acousticProblemData.Frequency, acousticProblemData.NMedia, options,
                     mediumInfo, ssp.Count, ssp, bottomBC, acousticProblemData.Sigma, cLowHight, acousticProblemData.RMax, acousticProblemData.NSD, sd, acousticProblemData.NRD,
                     rd, nz, topAHSP, twerskyParams, bottomAHSP, ref cg, ref cp, ref zm, ref modes, ref k, warnings);
             }
