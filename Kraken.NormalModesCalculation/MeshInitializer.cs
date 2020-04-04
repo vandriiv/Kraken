@@ -23,9 +23,9 @@ namespace Kraken.Calculation
         private readonly List<Complex> beta;
         private readonly List<double> rho;
 
-        private readonly List<List<Complex>> alphaC;
-        private readonly List<List<Complex>> betaC;
-        private readonly List<List<Complex>> rhoC;
+        private readonly List<List<Complex>> cpSpline;
+        private readonly List<List<Complex>> csSpline;
+        private readonly List<List<Complex>> rhoSpline;
 
         public MeshInitializer(KrakMod krakMod)
         {
@@ -34,22 +34,22 @@ namespace Kraken.Calculation
 
             if (krakMod.TopOpt[0] == 'S')
             {
-                alphaC = new List<List<Complex>>(4 + 1);
+                cpSpline = new List<List<Complex>>(4 + 1);
                 for (var i = 0; i < 5; i++)
                 {
-                    alphaC.Add(Enumerable.Repeat(new Complex(), maxSSP + 1).ToList());
+                    cpSpline.Add(Enumerable.Repeat(new Complex(), maxSSP + 1).ToList());
                 }
 
-                betaC = new List<List<Complex>>(4 + 1);
+                csSpline = new List<List<Complex>>(4 + 1);
                 for (var i = 0; i < 5; i++)
                 {
-                    betaC.Add(Enumerable.Repeat(new Complex(), maxSSP + 1).ToList());
+                    csSpline.Add(Enumerable.Repeat(new Complex(), maxSSP + 1).ToList());
                 }
 
-                rhoC = new List<List<Complex>>(4 + 1);
+                rhoSpline = new List<List<Complex>>(4 + 1);
                 for (var i = 0; i < 5; i++)
                 {
-                    rhoC.Add(Enumerable.Repeat(new Complex(), maxSSP + 1).ToList());
+                    rhoSpline.Add(Enumerable.Repeat(new Complex(), maxSSP + 1).ToList());
                 }
             }
             else
@@ -92,8 +92,8 @@ namespace Kraken.Calculation
                     throw new Exception("Sound speed or density vanishes in halfspace");
                 }
 
-                krakMod.CPT = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, krakMod.Freq, attenUnit);
-                krakMod.CST = ConvertToSingleComplexWaveSpeed(betaR, betaI, krakMod.Freq, attenUnit);
+                krakMod.CPT = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, krakMod.Frequency, attenUnit);
+                krakMod.CST = ConvertToSingleComplexWaveSpeed(betaR, betaI, krakMod.Frequency, attenUnit);
                 krakMod.rhoT = rhoR;
             }
 
@@ -109,13 +109,13 @@ namespace Kraken.Calculation
 
             for (var medium = 1; medium <= krakMod.NMedia; medium++)
             {
-                if ((25 * krakMod.Freq / 1500) * Math.Pow(krakMod.SIGMA[medium], 2) > 1)
+                if ((25 * krakMod.Frequency / 1500) * Math.Pow(krakMod.SIGMA[medium], 2) > 1)
                 {
                     krakMod.Warnings.Add("The Rayleigh roughness parameter might exceed the region of validity for the scatter approximation");
                 }
 
                 var task = "INIT";
-                EvaluateSSP(krakMod, krakMod.Depth, cP, cS, rho, medium, ref NElts, 0, krakMod.Freq, SSPType,
+                EvaluateSSP(krakMod, krakMod.Depth, cP, cS, rho, medium, ref NElts, 0, krakMod.Frequency, SSPType,
                        attenUnit, task,ssp);
 
                 var c = alphaR;
@@ -123,7 +123,7 @@ namespace Kraken.Calculation
                 {
                     c = betaR;
                 }
-                var deltaZ = c / krakMod.Freq / 20;
+                var deltaZ = c / krakMod.Frequency / 20;
                 var nNeeded =(int) (krakMod.Depth[medium + 1] - krakMod.Depth[medium]) / deltaZ;
                 nNeeded = Math.Max(nNeeded, 10);
                 if (krakMod.NG[medium] == 0)
@@ -150,34 +150,34 @@ namespace Kraken.Calculation
                     throw new Exception("Sound speed or density vanishes in halfspace");
                 }
 
-                krakMod.CPB = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, krakMod.Freq, attenUnit);
-                krakMod.CSB = ConvertToSingleComplexWaveSpeed(betaR, betaI, krakMod.Freq, attenUnit);
+                krakMod.CPB = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, krakMod.Frequency, attenUnit);
+                krakMod.CSB = ConvertToSingleComplexWaveSpeed(betaR, betaI, krakMod.Frequency, attenUnit);
                 krakMod.rhoB = rhoR;
             }
         }
 
         public void EvaluateSSP(KrakMod krakMod, List<double> depth, List<Complex> cP, List<Complex> cS, List<double> rhoT,
-                          int medium, ref int n1, int offset, double Freq, string SSPType, string attenUnit, string task, List<List<double>> ssp)
+                          int medium, ref int n1, int offset, double Frequency, string SSPType, string attenUnit, string task, List<List<double>> ssp)
         {
             switch (SSPType)
             {
                 case "N":
-                    N2Linear(krakMod, depth, cP, cS, rhoT, medium, ref n1, offset, Freq, attenUnit, task, ssp);
+                    N2Linear(krakMod, depth, cP, cS, rhoT, medium, ref n1, offset, Frequency, attenUnit, task, ssp);
                     break;
                 case "c":
-                    CLinear(krakMod, depth, cP, cS, rhoT, medium, ref n1, offset, Freq, attenUnit, task, ssp);
+                    CLinear(krakMod, depth, cP, cS, rhoT, medium, ref n1, offset, Frequency, attenUnit, task, ssp);
                     break;
                 case "S":
-                    CubicSpline(krakMod, depth, cP, cS, rhoT, medium, ref n1, offset, Freq, attenUnit, task, ssp);
+                    CubicSpline(krakMod, depth, cP, cS, rhoT, medium, ref n1, offset, Frequency, attenUnit, task, ssp);
                     break;
                 default:
                     throw new ArgumentException("Unknown profile option (SSPType)");
             }
         }
 
-        private Complex ConvertToSingleComplexWaveSpeed(double c, double alpha, double Freq, string attenUnit)
+        private Complex ConvertToSingleComplexWaveSpeed(double c, double alpha, double Frequency, string attenUnit)
         {
-            var omega = 2.0 * Math.PI * Freq;
+            var omega = 2.0 * Math.PI * Frequency;
             var alphaT = 0.0;
             switch (attenUnit[0])
             {
@@ -188,12 +188,12 @@ namespace Kraken.Calculation
                     alphaT = alpha / 8.6858896;
                     break;
                 case 'F':
-                    alphaT = alpha * Freq / 8685.8896;
+                    alphaT = alpha * Frequency / 8685.8896;
                     break;
                 case 'W':
                     if (c != 0)
                     {
-                        alphaT = alpha * Freq / (8.6858896 * c);
+                        alphaT = alpha * Frequency / (8.6858896 * c);
                     }
                     break;
                 case 'Q':
@@ -215,7 +215,7 @@ namespace Kraken.Calculation
                 switch (attenUnit[1])
                 {
                     case 'T':
-                        var f2 = Math.Pow((Freq / 1000.0), 2);
+                        var f2 = Math.Pow((Frequency / 1000.0), 2);
 
                         var thorp = 3.3 * Math.Pow(10, -3) + 0.11 * f2 / (1.0 + f2) + 44.0 * f2 / (4100.0 + f2) + 3 * Math.Pow(10, -4) * f2;
                         thorp /= 8685.8896;
@@ -231,7 +231,7 @@ namespace Kraken.Calculation
         }
 
         private void N2Linear(KrakMod krakMod, List<double> depth, List<Complex> cP, List<Complex> cS, List<double> rhoT, int medium, ref int n1,
-                          int offset, double Freq, string attenUnit, string task, List<List<double>> ssp)
+                          int offset, double Frequency, string attenUnit, string task, List<List<double>> ssp)
         {
           
             int ILoc;
@@ -260,8 +260,8 @@ namespace Kraken.Calculation
                     alphaI = ssp[ind][5];
                     betaI = ssp[ind][6];
 
-                    alpha[ILoc + i] = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, Freq, attenUnit);
-                    beta[ILoc + i] = ConvertToSingleComplexWaveSpeed(betaR, betaI, Freq, attenUnit);
+                    alpha[ILoc + i] = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, Frequency, attenUnit);
+                    beta[ILoc + i] = ConvertToSingleComplexWaveSpeed(betaR, betaI, Frequency, attenUnit);
                     rho[ILoc + i] = rhoR;
 
                     if (Math.Abs(z[ILoc + i] - depth[medium + 1]) < 0.000000119 * depth[medium + 1])
@@ -323,7 +323,7 @@ namespace Kraken.Calculation
         }
 
         private void CLinear(KrakMod krakMod, List<double> depth, List<Complex> cP, List<Complex> cS, List<double> rhoT, int medium, ref int n1,
-                          int offset, double Freq, string attenUnit, string task, List<List<double>> ssp)
+                          int offset, double Frequency, string attenUnit, string task, List<List<double>> ssp)
         {           
             int ILoc;
             if (task.Contains("INIT"))
@@ -351,8 +351,8 @@ namespace Kraken.Calculation
                     alphaI = ssp[ind][5];
                     betaI = ssp[ind][6];
 
-                    alpha[ILoc + i] = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, Freq, attenUnit);
-                    beta[ILoc + i] = ConvertToSingleComplexWaveSpeed(betaR, betaI, Freq, attenUnit);
+                    alpha[ILoc + i] = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, Frequency, attenUnit);
+                    beta[ILoc + i] = ConvertToSingleComplexWaveSpeed(betaR, betaI, Frequency, attenUnit);
                     rho[ILoc + i] = rhoR;
 
                     if (Math.Abs(z[ILoc + i] - depth[medium + 1]) < 0.0000001 * depth[medium + 1])
@@ -400,7 +400,7 @@ namespace Kraken.Calculation
         }
 
         private void CubicSpline(KrakMod krakMod, List<double> depth, List<Complex> cP, List<Complex> cS, List<double> rhoT, int medium,
-            ref int n1, int offset, double Freq, string attenUnit, string task, List<List<double>> ssp)
+            ref int n1, int offset, double Frequency, string attenUnit, string task, List<List<double>> ssp)
         {           
             int ILoc;
             if (task.Contains("INIT"))
@@ -428,9 +428,9 @@ namespace Kraken.Calculation
                     alphaI = ssp[ind][5];
                     betaI = ssp[ind][6];
 
-                    alphaC[1][ILoc + i] = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, Freq, attenUnit);
-                    betaC[1][ILoc + i] = ConvertToSingleComplexWaveSpeed(betaR, betaI, Freq, attenUnit);
-                    rhoC[1][ILoc + i] = rhoR;
+                    cpSpline[1][ILoc + i] = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, Frequency, attenUnit);
+                    csSpline[1][ILoc + i] = ConvertToSingleComplexWaveSpeed(betaR, betaI, Frequency, attenUnit);
+                    rhoSpline[1][ILoc + i] = rhoR;
 
                     if (Math.Abs(z[ILoc + i] - depth[medium + 1]) < 0.0000001 * depth[medium + 1])
                     {
@@ -443,9 +443,9 @@ namespace Kraken.Calculation
                         var IBCBEG = 0;
                         var IBCEND = 0;
                         var splineC = new SplineCalculator();
-                        splineC.CalculateCubicSpline(z, alphaC, ILoc, NSSPPts[medium], IBCBEG, IBCEND);
-                        splineC.CalculateCubicSpline(z, betaC, ILoc, NSSPPts[medium], IBCBEG, IBCEND);
-                        splineC.CalculateCubicSpline(z, rhoC, ILoc, NSSPPts[medium], IBCBEG, IBCEND);
+                        splineC.CalculateCubicSpline(z, cpSpline, ILoc, NSSPPts[medium], IBCBEG, IBCEND);
+                        splineC.CalculateCubicSpline(z, csSpline, ILoc, NSSPPts[medium], IBCBEG, IBCEND);
+                        splineC.CalculateCubicSpline(z, rhoSpline, ILoc, NSSPPts[medium], IBCBEG, IBCEND);
 
                         return;
                     }
@@ -475,9 +475,9 @@ namespace Kraken.Calculation
                     }
                     var splineCalculator = new SplineCalculator();
                     var hSpline = zT - z[ILoc + Lay];
-                    cP[i] = splineCalculator.CalculateExponentialSpline(alphaC, ILoc + Lay, hSpline);
-                    cS[i] = splineCalculator.CalculateExponentialSpline(betaC, ILoc + Lay, hSpline);
-                    rhoT[i] = splineCalculator.CalculateExponentialSpline(rhoC, ILoc + Lay, hSpline).Real;
+                    cP[i] = splineCalculator.CalculateExponentialSpline(cpSpline, ILoc + Lay, hSpline);
+                    cS[i] = splineCalculator.CalculateExponentialSpline(csSpline, ILoc + Lay, hSpline);
+                    rhoT[i] = splineCalculator.CalculateExponentialSpline(rhoSpline, ILoc + Lay, hSpline).Real;
                 }
             }
         }
