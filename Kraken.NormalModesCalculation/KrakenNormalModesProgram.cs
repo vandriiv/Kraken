@@ -52,7 +52,7 @@ Output:
             krakMod.BotOpt = note2[0].ToString();
 
             var rangedDataManager = new RangedDataManager();
-            var readinMod = new Readin(krakMod);
+            var meshInitializer = new MeshInitializer(krakMod);
 
             krakMod.Depth[1] = 0;
             for (var il = 1; il <= nl; il++)
@@ -63,7 +63,7 @@ Output:
             }
 
             krakMod.SIGMA[nl + 1] = bsig;
-            readinMod.READIN(krakMod, nc, ssp, tahsp, tsp, bahsp);
+            meshInitializer.ProccedMesh(krakMod, nc, ssp, tahsp, tsp, bahsp);
 
             krakMod.CLow = clh[1];
             krakMod.CHigh = clh[2];
@@ -88,7 +88,7 @@ Output:
                     krakMod.H[j] = (krakMod.Depth[j + 1] - krakMod.Depth[j]) / krakMod.N[j];
                 }
                 krakMod.HV[krakMod.ISet] = krakMod.H[1];
-                SOLVE(modesOut, krakMod, rangedDataManager, readinMod, ref error, nm, nz, ref zm, ref modes);
+                SOLVE(modesOut, krakMod, rangedDataManager, meshInitializer, ref error, nm, nz, ref zm, ref modes);
 
                 if (error * 1000.0 * krakMod.RMax < 1.0)
                 {
@@ -130,7 +130,7 @@ Output:
             return modesOut;
         }
 
-        private void INIT(KrakMod krakMod, Readin readinMod)
+        private void INIT(KrakMod krakMod, MeshInitializer meshInitializer)
         {
             var ELFLAG = false;
             double CP2 = 0.0, CS2 = 0.0;
@@ -162,7 +162,7 @@ Output:
                 var II = krakMod.LOC[Medium] + 1;
 
                 var TASK = "TAB";
-                readinMod.PROFIL(krakMod, krakMod.Depth, CP, CS, krakMod.RHO, Medium, ref N1, II, krakMod.Freq, krakMod.TopOpt[0].ToString(), krakMod.TopOpt.Substring(2), TASK, 1, dummy);
+                meshInitializer.EvaluateSSP(krakMod, krakMod.Depth, CP, CS, krakMod.RHO, Medium, ref N1, II, krakMod.Freq, krakMod.TopOpt[0].ToString(), krakMod.TopOpt.Substring(2), TASK, dummy);
 
                 if (CS[II].Real == 0)
                 {
@@ -254,11 +254,11 @@ Output:
             krakMod.CLow = Math.Max(krakMod.CLow, krakMod.CMin);
         }
 
-        private void SOLVE(ModesOut modesOut, KrakMod krakMod, RangedDataManager rangedDataManager, Readin readinMod, ref double error, int nm, int nz, ref List<double> zm, ref List<List<double>> modes)
+        private void SOLVE(ModesOut modesOut, KrakMod krakMod, RangedDataManager rangedDataManager, MeshInitializer meshInitializer, ref double error, int nm, int nz, ref List<double> zm, ref List<List<double>> modes)
         {
             var NOMODES = 0;
 
-            INIT(krakMod, readinMod);
+            INIT(krakMod, meshInitializer);
 
             if (krakMod.IProf > 1 && krakMod.ISet <= 2 && krakMod.TopOpt[3] == 'C')
             {
