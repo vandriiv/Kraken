@@ -7,7 +7,7 @@ namespace Kraken.Calculation
 {
     class BCImpedanceSolver
     {
-        public void ComputeBoundaryConditionImpedance(KrakMod krakMod, double x, string BCType, string botTop, Complex cPHS, Complex cSHS,
+        public void ComputeBoundaryConditionImpedance(KrakenModule krakenModule, double x, string BCType, string botTop, Complex cPHS, Complex cSHS,
                           double rhoHS, ref double f, ref double g, ref int iPow)
         { 
             iPow = 0;
@@ -45,8 +45,8 @@ namespace Kraken.Calculation
                 double mu;
                 if (cSHS.Real > 0)
                 {
-                    gammaS2 = x - krakMod.Omega2 / Math.Pow(cSHS.Real, 2);
-                    gammaP2 = x - krakMod.Omega2 / Math.Pow(cPHS.Real, 2);
+                    gammaS2 = x - krakenModule.Omega2 / Math.Pow(cSHS.Real, 2);
+                    gammaP2 = x - krakenModule.Omega2 / Math.Pow(cPHS.Real, 2);
                     gammaS = Complex.Sqrt(gammaS2);
                     gammaP = Complex.Sqrt(gammaP2);
                     mu = rhoHS * Math.Pow(cSHS.Real, 2);
@@ -57,16 +57,16 @@ namespace Kraken.Calculation
                     yV[4] = (gammaP * (x - gammaS2)).Real;
                     yV[5] = (gammaS * (gammaS2 - x)).Real;
 
-                    f = krakMod.Omega2 * yV[4];
+                    f = krakenModule.Omega2 * yV[4];
                     g = yV[2];
                     if (g > 0)
                     {
-                        krakMod.ModeCount++;
+                        krakenModule.ModeCount++;
                     }
                 }
                 else
                 {
-                    gammaP = Complex.Sqrt(x - krakMod.Omega2 / Complex.Pow(cPHS, 2).Real);
+                    gammaP = Complex.Sqrt(x - krakenModule.Omega2 / Complex.Pow(cPHS, 2).Real);
                     f = gammaP.Real;
                     g = rhoHS;
                 }
@@ -79,32 +79,32 @@ namespace Kraken.Calculation
 
             if (botTop == "TOP")
             {
-                if (krakMod.FirstAcoustic > 1)
+                if (krakenModule.FirstAcoustic > 1)
                 {
-                    for (var medium = 1; medium <= krakMod.FirstAcoustic - 1; medium++)
+                    for (var medium = 1; medium <= krakenModule.FirstAcoustic - 1; medium++)
                     {
-                        ELASDN(krakMod, x, yV, ref iPow, medium);
+                        ELASDN(krakenModule, x, yV, ref iPow, medium);
                     }
-                    f = krakMod.Omega2 * yV[4];
+                    f = krakenModule.Omega2 * yV[4];
                     g = yV[2];
                 }
 
             }
             else
             {
-                if (krakMod.LastAcoustic < krakMod.NMedia)
+                if (krakenModule.LastAcoustic < krakenModule.NMedia)
                 {
-                    for (var medium = krakMod.NMedia; medium >= krakMod.LastAcoustic + 1; medium--)
+                    for (var medium = krakenModule.NMedia; medium >= krakenModule.LastAcoustic + 1; medium--)
                     {
-                        ELASUP(krakMod, x, yV, ref iPow, medium);
+                        ELASUP(krakenModule, x, yV, ref iPow, medium);
                     }
-                    f = krakMod.Omega2 * yV[4];
+                    f = krakenModule.Omega2 * yV[4];
                     g = yV[2];
                 }
             }
         }
 
-        private void ELASUP(KrakMod krakMod, double x, List<double> yV, ref int iPow, int medium)
+        private void ELASUP(KrakenModule krakenModule, double x, List<double> yV, ref int iPow, int medium)
         {
             var xV = Enumerable.Repeat(0d, 5 + 1).ToList();
             var zV = Enumerable.Repeat(0d, 5 + 1).ToList();
@@ -118,18 +118,18 @@ namespace Kraken.Calculation
             int j;
 
             twoX = 2.0 * x;
-            twoH = 2.0 * krakMod.H[medium];
-            fourHX = 4.0 * krakMod.H[medium] * x;
-            j = krakMod.LOC[medium] + krakMod.N[medium] + 1;
-            xB3 = x * krakMod.B3[j] - krakMod.RHO[j];
+            twoH = 2.0 * krakenModule.H[medium];
+            fourHX = 4.0 * krakenModule.H[medium] * x;
+            j = krakenModule.Loc[medium] + krakenModule.N[medium] + 1;
+            xB3 = x * krakenModule.B3[j] - krakenModule.Rho[j];
 
-            zV[1] = yV[1] - 0.5 * (krakMod.B1[j] * yV[4] - krakMod.B2[j] * yV[5]);
-            zV[2] = yV[2] - 0.5 * (-krakMod.RHO[j] * yV[4] - xB3 * yV[5]);
-            zV[3] = yV[3] - 0.5 * (twoH * yV[4] + krakMod.B4[j] * yV[5]);
-            zV[4] = yV[4] - 0.5 * (xB3 * yV[1] + krakMod.B2[j] * yV[2] - twoX * krakMod.B4[j] * yV[3]);
-            zV[5] = yV[5] - 0.5 * (krakMod.RHO[j] * yV[1] - krakMod.B1[j] * yV[2] - fourHX * yV[3]);
+            zV[1] = yV[1] - 0.5 * (krakenModule.B1[j] * yV[4] - krakenModule.B2[j] * yV[5]);
+            zV[2] = yV[2] - 0.5 * (-krakenModule.Rho[j] * yV[4] - xB3 * yV[5]);
+            zV[3] = yV[3] - 0.5 * (twoH * yV[4] + krakenModule.B4[j] * yV[5]);
+            zV[4] = yV[4] - 0.5 * (xB3 * yV[1] + krakenModule.B2[j] * yV[2] - twoX * krakenModule.B4[j] * yV[3]);
+            zV[5] = yV[5] - 0.5 * (krakenModule.Rho[j] * yV[1] - krakenModule.B1[j] * yV[2] - fourHX * yV[3]);
 
-            for (var II = krakMod.N[medium]; II >= 1; II--)
+            for (var II = krakenModule.N[medium]; II >= 1; II--)
             {
                 j -= 1;
 
@@ -142,13 +142,13 @@ namespace Kraken.Calculation
                     yV[i] = zV[i];
                 }
 
-                xB3 = x * krakMod.B3[j] - krakMod.RHO[j];
+                xB3 = x * krakenModule.B3[j] - krakenModule.Rho[j];
 
-                zV[1] = xV[1] - (krakMod.B1[j] * yV[4] - krakMod.B2[j] * yV[5]);
-                zV[2] = xV[2] - (-krakMod.RHO[j] * yV[4] - xB3 * yV[5]);
-                zV[3] = xV[3] - (twoH * yV[4] + krakMod.B4[j] * yV[5]);
-                zV[4] = xV[4] - (xB3 * yV[1] + krakMod.B2[j] * yV[2] - twoX * krakMod.B4[j] * yV[3]);
-                zV[5] = xV[5] - (krakMod.RHO[j] * yV[1] - krakMod.B1[j] * yV[2] - fourHX * yV[3]);
+                zV[1] = xV[1] - (krakenModule.B1[j] * yV[4] - krakenModule.B2[j] * yV[5]);
+                zV[2] = xV[2] - (-krakenModule.Rho[j] * yV[4] - xB3 * yV[5]);
+                zV[3] = xV[3] - (twoH * yV[4] + krakenModule.B4[j] * yV[5]);
+                zV[4] = xV[4] - (xB3 * yV[1] + krakenModule.B2[j] * yV[2] - twoX * krakenModule.B4[j] * yV[3]);
+                zV[5] = xV[5] - (krakenModule.Rho[j] * yV[1] - krakenModule.B1[j] * yV[2] - fourHX * yV[3]);
 
                 if (II != 1)
                 {
@@ -180,7 +180,7 @@ namespace Kraken.Calculation
             }
         }
 
-        private void ELASDN(KrakMod krakMod, double x, List<double> yV, ref int iPow, int medium)
+        private void ELASDN(KrakenModule krakenModule, double x, List<double> yV, ref int iPow, int medium)
         {
             var xV = Enumerable.Repeat(0d, 5 + 1).ToList();
             var zV = Enumerable.Repeat(0d, 5 + 1).ToList();
@@ -194,18 +194,18 @@ namespace Kraken.Calculation
             int j;
 
             twoX = 2.0 * x;
-            twoH = 2.0 * krakMod.H[medium];
-            fourHX = 4.0 * krakMod.H[medium] * x;
-            j = krakMod.LOC[medium] + 1;
-            xB3 = x * krakMod.B3[j] - krakMod.RHO[j];
+            twoH = 2.0 * krakenModule.H[medium];
+            fourHX = 4.0 * krakenModule.H[medium] * x;
+            j = krakenModule.Loc[medium] + 1;
+            xB3 = x * krakenModule.B3[j] - krakenModule.Rho[j];
 
-            zV[1] = yV[1] + 0.5 * (krakMod.B1[j] * yV[4] - krakMod.B2[j] * yV[5]);
-            zV[2] = yV[2] + 0.5 * (-krakMod.RHO[j] * yV[4] - xB3 * yV[5]);
-            zV[3] = yV[3] + 0.5 * (twoH * yV[4] + krakMod.B4[j] * yV[5]);
-            zV[4] = yV[4] + 0.5 * (xB3 * yV[1] + krakMod.B2[j] * yV[2] - twoX * krakMod.B4[j] * yV[3]);
-            zV[5] = yV[5] + 0.5 * (krakMod.RHO[j] * yV[1] - krakMod.B1[j] * yV[2] - fourHX * yV[3]);
+            zV[1] = yV[1] + 0.5 * (krakenModule.B1[j] * yV[4] - krakenModule.B2[j] * yV[5]);
+            zV[2] = yV[2] + 0.5 * (-krakenModule.Rho[j] * yV[4] - xB3 * yV[5]);
+            zV[3] = yV[3] + 0.5 * (twoH * yV[4] + krakenModule.B4[j] * yV[5]);
+            zV[4] = yV[4] + 0.5 * (xB3 * yV[1] + krakenModule.B2[j] * yV[2] - twoX * krakenModule.B4[j] * yV[3]);
+            zV[5] = yV[5] + 0.5 * (krakenModule.Rho[j] * yV[1] - krakenModule.B1[j] * yV[2] - fourHX * yV[3]);
 
-            for (var II = 1; II <= krakMod.N[medium]; II++)
+            for (var II = 1; II <= krakenModule.N[medium]; II++)
             {
                 j += 1;
 
@@ -218,15 +218,15 @@ namespace Kraken.Calculation
                     yV[i] = zV[i];
                 }
 
-                xB3 = x * krakMod.B3[j] - krakMod.RHO[j];
+                xB3 = x * krakenModule.B3[j] - krakenModule.Rho[j];
 
-                zV[1] = xV[1] + (krakMod.B1[j] * yV[4] - krakMod.B2[j] * yV[5]);
-                zV[2] = xV[2] + (-krakMod.RHO[j] * yV[4] - xB3 * yV[5]);
-                zV[3] = xV[3] + (twoH * yV[4] + krakMod.B4[j] * yV[5]);
-                zV[4] = xV[4] + (xB3 * yV[1] + krakMod.B2[j] * yV[2] - twoX * krakMod.B4[j] * yV[3]);
-                zV[5] = xV[5] + (krakMod.RHO[j] * yV[1] - krakMod.B1[j] * yV[2] - fourHX * yV[3]);
+                zV[1] = xV[1] + (krakenModule.B1[j] * yV[4] - krakenModule.B2[j] * yV[5]);
+                zV[2] = xV[2] + (-krakenModule.Rho[j] * yV[4] - xB3 * yV[5]);
+                zV[3] = xV[3] + (twoH * yV[4] + krakenModule.B4[j] * yV[5]);
+                zV[4] = xV[4] + (xB3 * yV[1] + krakenModule.B2[j] * yV[2] - twoX * krakenModule.B4[j] * yV[3]);
+                zV[5] = xV[5] + (krakenModule.Rho[j] * yV[1] - krakenModule.B1[j] * yV[2] - fourHX * yV[3]);
 
-                if (II != krakMod.N[medium])
+                if (II != krakenModule.N[medium])
                 {
                     if (Math.Abs(zV[2]) < floor)
                     {

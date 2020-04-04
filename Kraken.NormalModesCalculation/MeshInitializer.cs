@@ -27,12 +27,12 @@ namespace Kraken.Calculation
         private readonly List<List<Complex>> csSpline;
         private readonly List<List<Complex>> rhoSpline;
 
-        public MeshInitializer(KrakMod krakMod)
+        public MeshInitializer(KrakenModule krakenModule)
         {
-            NSSPPts = Enumerable.Repeat(0, krakMod.MaxMedium + 1).ToList();
+            NSSPPts = Enumerable.Repeat(0, krakenModule.MaxMedium + 1).ToList();
             z = Enumerable.Repeat(0d, maxSSP + 1).ToList();
 
-            if (krakMod.TopOpt[0] == 'S')
+            if (krakenModule.BCTop[0] == 'S')
             {
                 cpSpline = new List<List<Complex>>(4 + 1);
                 for (var i = 0; i < 5; i++)
@@ -61,15 +61,15 @@ namespace Kraken.Calculation
         }
 
 
-        public void ProccedMesh(KrakMod krakMod, int nc, List<List<double>> ssp,
+        public void ProccedMesh(KrakenModule krakenModule, int nc, List<List<double>> ssp,
                            List<double> tahsp, List<double> tsp, List<double> bahsp)
         {          
-            string SSPType = krakMod.TopOpt[0].ToString();
-            string BCType = krakMod.TopOpt[1].ToString();
-            string attenUnit = krakMod.TopOpt[2].ToString();
-            if (krakMod.TopOpt.Length > 3)
+            string SSPType = krakenModule.BCTop[0].ToString();
+            string BCType = krakenModule.BCTop[1].ToString();
+            string attenUnit = krakenModule.BCTop[2].ToString();
+            if (krakenModule.BCTop.Length > 3)
             {
-                attenUnit += krakMod.TopOpt[3].ToString();
+                attenUnit += krakenModule.BCTop[3].ToString();
             }
 
             alphaR = 1500.0;
@@ -92,30 +92,30 @@ namespace Kraken.Calculation
                     throw new Exception("Sound speed or density vanishes in halfspace");
                 }
 
-                krakMod.CPT = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, krakMod.Frequency, attenUnit);
-                krakMod.CST = ConvertToSingleComplexWaveSpeed(betaR, betaI, krakMod.Frequency, attenUnit);
-                krakMod.rhoT = rhoR;
+                krakenModule.CPTop = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, krakenModule.Frequency, attenUnit);
+                krakenModule.CSTop = ConvertToSingleComplexWaveSpeed(betaR, betaI, krakenModule.Frequency, attenUnit);
+                krakenModule.RhoTop = rhoR;
             }
 
             if (BCType == "S" || BCType == "H" || BCType == "T" || BCType == "I")
             {
-                krakMod.BumDen = tsp[1];
-                krakMod.eta = tsp[2];
-                krakMod.xi = tsp[3];
+                krakenModule.BumpDensity = tsp[1];
+                krakenModule.Eta = tsp[2];
+                krakenModule.Xi = tsp[3];
             }
 
             var cP = new List<Complex>(maxSSP + 1);
             var cS = new List<Complex>(maxSSP + 1);
 
-            for (var medium = 1; medium <= krakMod.NMedia; medium++)
+            for (var medium = 1; medium <= krakenModule.NMedia; medium++)
             {
-                if ((25 * krakMod.Frequency / 1500) * Math.Pow(krakMod.SIGMA[medium], 2) > 1)
+                if ((25 * krakenModule.Frequency / 1500) * Math.Pow(krakenModule.Sigma[medium], 2) > 1)
                 {
-                    krakMod.Warnings.Add("The Rayleigh roughness parameter might exceed the region of validity for the scatter approximation");
+                    krakenModule.Warnings.Add("The Rayleigh roughness parameter might exceed the region of validity for the scatter approximation");
                 }
 
                 var task = "INIT";
-                EvaluateSSP(krakMod, krakMod.Depth, cP, cS, rho, medium, ref NElts, 0, krakMod.Frequency, SSPType,
+                EvaluateSSP(krakenModule, krakenModule.Depth, cP, cS, rho, medium, ref NElts, 0, krakenModule.Frequency, SSPType,
                        attenUnit, task,ssp);
 
                 var c = alphaR;
@@ -123,20 +123,20 @@ namespace Kraken.Calculation
                 {
                     c = betaR;
                 }
-                var deltaZ = c / krakMod.Frequency / 20;
-                var nNeeded =(int) (krakMod.Depth[medium + 1] - krakMod.Depth[medium]) / deltaZ;
+                var deltaZ = c / krakenModule.Frequency / 20;
+                var nNeeded =(int) (krakenModule.Depth[medium + 1] - krakenModule.Depth[medium]) / deltaZ;
                 nNeeded = Math.Max(nNeeded, 10);
-                if (krakMod.NG[medium] == 0)
+                if (krakenModule.NG[medium] == 0)
                 {
-                    krakMod.NG[medium] = (int)nNeeded;
+                    krakenModule.NG[medium] = (int)nNeeded;
                 }
-                else if (krakMod.NG[medium] < nNeeded / 2)
+                else if (krakenModule.NG[medium] < nNeeded / 2)
                 {
                     throw new KrakenException("Mesh is too coarse");
                 }
             }
 
-            BCType = krakMod.BotOpt[0].ToString();
+            BCType = krakenModule.BCBottom[0].ToString();
             if (BCType == "A")
             {
                 alphaR = bahsp[2];
@@ -150,25 +150,25 @@ namespace Kraken.Calculation
                     throw new Exception("Sound speed or density vanishes in halfspace");
                 }
 
-                krakMod.CPB = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, krakMod.Frequency, attenUnit);
-                krakMod.CSB = ConvertToSingleComplexWaveSpeed(betaR, betaI, krakMod.Frequency, attenUnit);
-                krakMod.rhoB = rhoR;
+                krakenModule.CPBottom = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, krakenModule.Frequency, attenUnit);
+                krakenModule.CSBottom = ConvertToSingleComplexWaveSpeed(betaR, betaI, krakenModule.Frequency, attenUnit);
+                krakenModule.RhoBottom = rhoR;
             }
         }
 
-        public void EvaluateSSP(KrakMod krakMod, List<double> depth, List<Complex> cP, List<Complex> cS, List<double> rhoT,
+        public void EvaluateSSP(KrakenModule krakenModule, List<double> depth, List<Complex> cP, List<Complex> cS, List<double> RhoTop,
                           int medium, ref int n1, int offset, double Frequency, string SSPType, string attenUnit, string task, List<List<double>> ssp)
         {
             switch (SSPType)
             {
                 case "N":
-                    N2Linear(krakMod, depth, cP, cS, rhoT, medium, ref n1, offset, Frequency, attenUnit, task, ssp);
+                    N2Linear(krakenModule, depth, cP, cS, RhoTop, medium, ref n1, offset, Frequency, attenUnit, task, ssp);
                     break;
                 case "c":
-                    CLinear(krakMod, depth, cP, cS, rhoT, medium, ref n1, offset, Frequency, attenUnit, task, ssp);
+                    CLinear(krakenModule, depth, cP, cS, RhoTop, medium, ref n1, offset, Frequency, attenUnit, task, ssp);
                     break;
                 case "S":
-                    CubicSpline(krakMod, depth, cP, cS, rhoT, medium, ref n1, offset, Frequency, attenUnit, task, ssp);
+                    CubicSpline(krakenModule, depth, cP, cS, RhoTop, medium, ref n1, offset, Frequency, attenUnit, task, ssp);
                     break;
                 default:
                     throw new ArgumentException("Unknown profile option (SSPType)");
@@ -230,7 +230,7 @@ namespace Kraken.Calculation
             return waveSpeed;
         }
 
-        private void N2Linear(KrakMod krakMod, List<double> depth, List<Complex> cP, List<Complex> cS, List<double> rhoT, int medium, ref int n1,
+        private void N2Linear(KrakenModule krakenModule, List<double> depth, List<Complex> cP, List<Complex> cS, List<double> RhoTop, int medium, ref int n1,
                           int offset, double Frequency, string attenUnit, string task, List<List<double>> ssp)
         {
           
@@ -241,13 +241,13 @@ namespace Kraken.Calculation
 
                 if (medium == 1)
                 {
-                    krakMod.LOC[medium] = 0;
+                    krakenModule.Loc[medium] = 0;
                 }
                 else
                 {
-                    krakMod.LOC[medium] = krakMod.LOC[medium - 1] + NSSPPts[medium - 1];
+                    krakenModule.Loc[medium] = krakenModule.Loc[medium - 1] + NSSPPts[medium - 1];
                 }
-                ILoc = krakMod.LOC[medium];
+                ILoc = krakenModule.Loc[medium];
 
                 n1 = 1;
                 for (var i = 1; i <= maxSSP; i++)
@@ -317,12 +317,12 @@ namespace Kraken.Calculation
                         cS[i] = new Complex(0.0, 0.0);
                     }
 
-                    rhoT[i] = (1.0 - r) * rho[ILoc + Lay] + r * rho[ILoc + Lay + 1];
+                    RhoTop[i] = (1.0 - r) * rho[ILoc + Lay] + r * rho[ILoc + Lay + 1];
                 }
             }
         }
 
-        private void CLinear(KrakMod krakMod, List<double> depth, List<Complex> cP, List<Complex> cS, List<double> rhoT, int medium, ref int n1,
+        private void CLinear(KrakenModule krakenModule, List<double> depth, List<Complex> cP, List<Complex> cS, List<double> RhoTop, int medium, ref int n1,
                           int offset, double Frequency, string attenUnit, string task, List<List<double>> ssp)
         {           
             int ILoc;
@@ -332,13 +332,13 @@ namespace Kraken.Calculation
 
                 if (medium == 1)
                 {
-                    krakMod.LOC[medium] = 0;
+                    krakenModule.Loc[medium] = 0;
                 }
                 else
                 {
-                    krakMod.LOC[medium] = krakMod.LOC[medium - 1] + NSSPPts[medium - 1];
+                    krakenModule.Loc[medium] = krakenModule.Loc[medium - 1] + NSSPPts[medium - 1];
                 }
-                ILoc = krakMod.LOC[medium];
+                ILoc = krakenModule.Loc[medium];
 
                 n1 = 1;
                 for (var i = 1; i <= maxSSP; i++)
@@ -394,12 +394,12 @@ namespace Kraken.Calculation
                     var r = (zT - z[ILoc + Lay]) / (z[ILoc + Lay + 1] - z[ILoc + Lay]);
                     cP[i] = (1.0 - r) * alpha[ILoc + Lay] + r * alpha[ILoc + Lay + 1];
                     cS[i] = (1.0 - r) * beta[ILoc + Lay] + r * beta[ILoc + Lay + 1];
-                    rhoT[i] = (1.0 - r) * rho[ILoc + Lay] + r * rho[ILoc + Lay + 1];
+                    RhoTop[i] = (1.0 - r) * rho[ILoc + Lay] + r * rho[ILoc + Lay + 1];
                 }
             }
         }
 
-        private void CubicSpline(KrakMod krakMod, List<double> depth, List<Complex> cP, List<Complex> cS, List<double> rhoT, int medium,
+        private void CubicSpline(KrakenModule krakenModule, List<double> depth, List<Complex> cP, List<Complex> cS, List<double> RhoTop, int medium,
             ref int n1, int offset, double Frequency, string attenUnit, string task, List<List<double>> ssp)
         {           
             int ILoc;
@@ -409,13 +409,13 @@ namespace Kraken.Calculation
 
                 if (medium == 1)
                 {
-                    krakMod.LOC[medium] = 0;
+                    krakenModule.Loc[medium] = 0;
                 }
                 else
                 {
-                    krakMod.LOC[medium] = krakMod.LOC[medium - 1] + NSSPPts[medium - 1];
+                    krakenModule.Loc[medium] = krakenModule.Loc[medium - 1] + NSSPPts[medium - 1];
                 }
-                ILoc = krakMod.LOC[medium];
+                ILoc = krakenModule.Loc[medium];
 
                 n1 = 1;
                 for (var i = 1; i <= maxSSP; i++)
@@ -477,7 +477,7 @@ namespace Kraken.Calculation
                     var hSpline = zT - z[ILoc + Lay];
                     cP[i] = splineCalculator.CalculateExponentialSpline(cpSpline, ILoc + Lay, hSpline);
                     cS[i] = splineCalculator.CalculateExponentialSpline(csSpline, ILoc + Lay, hSpline);
-                    rhoT[i] = splineCalculator.CalculateExponentialSpline(rhoSpline, ILoc + Lay, hSpline).Real;
+                    RhoTop[i] = splineCalculator.CalculateExponentialSpline(rhoSpline, ILoc + Lay, hSpline).Real;
                 }
             }
         }

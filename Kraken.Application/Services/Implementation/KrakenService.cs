@@ -68,10 +68,10 @@ namespace Kraken.Application.Services.Implementation
 
             var warnings = new List<string>();
 
-            ModesOut modesOut;
+            CalculatedModesInfo modesInfo;
             try
             {
-                 modesOut = _krakenNormalModeProgram.OceanAcousticNormalModes(acousticProblemData.NModes, acousticProblemData.Frequency, acousticProblemData.NMedia, options,
+                 modesInfo = _krakenNormalModeProgram.OceanAcousticNormalModes(acousticProblemData.NModes, acousticProblemData.Frequency, acousticProblemData.NMedia, options,
                     mediumInfo, ssp.Count, ssp, bottomBC, acousticProblemData.Sigma, cLowHight, acousticProblemData.RMax, acousticProblemData.NSD, sd, acousticProblemData.NRD,
                     rd, nz, topAHSP, twerskyParams, bottomAHSP, ref cg, ref cp, ref zm, ref modes, ref k, warnings);
             }
@@ -85,7 +85,7 @@ namespace Kraken.Application.Services.Implementation
             result.K = k;
             result.Modes = modes;
             result.ZM = zm;
-            result.ModesCount = modesOut.M;
+            result.ModesCount = modesInfo.ModesCount;
 
             result.PhaseSpeed.RemoveAt(0);
             result.GroupSpeed.RemoveAt(0);
@@ -119,7 +119,7 @@ namespace Kraken.Application.Services.Implementation
                 var receiverDepths = new List<double>();
                 var fieldPressure = new List<List<List<Complex>>>();
 
-                _fieldModel.CalculateFieldPressure(modesOut, fieldOptions, acousticProblemData.NModesForField, acousticProblemData.NR, r, 
+                _fieldModel.CalculateFieldPressure(modesInfo, fieldOptions, acousticProblemData.NModesForField, acousticProblemData.NR, r, 
                                                     acousticProblemData.NSDField, sdField, acousticProblemData.NRDField,
                                                     rdField, acousticProblemData.NRR, rr, ref ranges, ref sourceDepths, ref receiverDepths,
                                                     ref fieldPressure, warnings);
