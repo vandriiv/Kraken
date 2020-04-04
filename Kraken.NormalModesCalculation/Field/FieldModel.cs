@@ -21,30 +21,26 @@ namespace Kraken.Calculation.Field
                 Comp = Opt[2].ToString();
             }
 
-            var sdrdMod = new SDRDRMod();
-            sdrdMod.Nr = NR;
-            sdrdMod.Nsd = NSD;
-            sdrdMod.Nrd = NRD;
-          
-            sdrdMod.ReadRcvrRanges(sdrdMod.Nr, R);
+            var rangedDataManager = new RangedDataManager();
+                  
+            rangedDataManager.ProceedReceiverRanges(NR, R);
 
             var zMin = -3.40282347E+38;
             var zMax = 3.40282347E+38;
 
-            sdrdMod.SDRD(zMin, zMax, sdrdMod.Nsd, sdrdMod.sd, sdrdMod.Nrd, sdrdMod.rd,
-                        SD, RD);
+            rangedDataManager.ProceedSourceAndReceiverDepths(zMin, zMax, NSD, NRD, SD, RD);
 
-            ranges = new List<double>(sdrdMod.r);
-            sources = new List<double>(sdrdMod.sd);
-            receivers = new List<double>(sdrdMod.rd);
+            ranges = new List<double>(rangedDataManager.ReceiverRanges);
+            sources = new List<double>(rangedDataManager.SourceDepths);
+            receivers = new List<double>(rangedDataManager.ReceiverDepths);
 
             var C = Enumerable.Repeat(new Complex(), MaxM + 1).ToList();
 
             rr = Enumerable.Repeat(0d, Nrr + 1).ToList();
 
-            if (Nrr != sdrdMod.Nrd)
+            if (Nrr != rangedDataManager.Nrd)
             {
-                Nrr = sdrdMod.Nrd;
+                Nrr = rangedDataManager.Nrd;
                 rr = Enumerable.Repeat(0d, Nrr + 1).ToList();
             }
 
@@ -63,20 +59,20 @@ namespace Kraken.Calculation.Field
 
             var readModesMod = new ReadModesMod();
 
-            var phiS = readModesMod.GetModes(modesOut, MaxM, sdrdMod.sd, sdrdMod.Nsd, "N", warnings);
-            var phiR = readModesMod.GetModes(modesOut, MaxM, sdrdMod.rd, sdrdMod.Nrd, Comp, warnings);
+            var phiS = readModesMod.GetModes(modesOut, MaxM, rangedDataManager.SourceDepths, rangedDataManager.Nsd, "N", warnings);
+            var phiR = readModesMod.GetModes(modesOut, MaxM, rangedDataManager.ReceiverDepths, rangedDataManager.Nrd, Comp, warnings);
             var evaluateMod = new EvaluateMod();
             res = new List<List<List<Complex>>>();
             res.Add(new List<List<Complex>>());
 
-            for (var IS = 1; IS <= sdrdMod.Nsd; IS++)
+            for (var IS = 1; IS <= rangedDataManager.Nsd; IS++)
             {
                 for (var i = 1; i <= modesOut.M; i++)
                 {
                     C[i] = phiS[i][IS];
                 }
 
-                var P = evaluateMod.Evaluate(C, phiR, sdrdMod.Nrd, sdrdMod.r, sdrdMod.Nr, rr, modesOut.k, modesOut.M, Opt);
+                var P = evaluateMod.Evaluate(C, phiR, rangedDataManager.Nrd, rangedDataManager.ReceiverRanges, rangedDataManager.Nr, rr, modesOut.k, modesOut.M, Opt);
                 res.Add(P);
             }
         }

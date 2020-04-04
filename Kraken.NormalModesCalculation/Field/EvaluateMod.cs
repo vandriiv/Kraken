@@ -9,7 +9,7 @@ namespace Kraken.Calculation.Field
     public class EvaluateMod
     {
         public List<List<Complex>> Evaluate(List<Complex> C, List<List<Complex>> phi, int Nz,
-            List<double> r, int Nr, List<double> rr, List<Complex> k, int M,
+            List<double> receiverRanges, int Nr, List<double> rr, List<Complex> k, int M,
             string Option)
         {
             var P = new List<List<Complex>>(Nz + 1);
@@ -75,7 +75,7 @@ namespace Kraken.Calculation.Field
             for (var ir = 1; ir <= Nr; ir++)
             {
                 //problem in exp
-                var Hank = ik.Select(x => Complex.Exp(x * r[ir])).ToList();
+                var Hank = ik.Select(x => Complex.Exp(x * receiverRanges[ir])).ToList();
 
                 if (Option.Length <= 3 || Option[3] != 'I')
                 {
@@ -109,9 +109,9 @@ namespace Kraken.Calculation.Field
                     
                     for(var i = 1; i <= Nz; i++)
                     {
-                        if(Math.Abs(r[ir]+rr[i])> 1.17549435E-38)
+                        if(Math.Abs(receiverRanges[ir]+rr[i])> 1.17549435E-38)
                         {
-                            P[i][ir] = P[i][ir] / Complex.Sqrt(r[ir] + rr[i]);
+                            P[i][ir] = P[i][ir] / Complex.Sqrt(receiverRanges[ir] + rr[i]);
                         }
                     }                    
                 }

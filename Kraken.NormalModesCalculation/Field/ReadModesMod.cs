@@ -12,7 +12,7 @@ namespace Kraken.Calculation.Field
         private Complex kBot2;
         private double pi = Math.PI;
 
-        public List<List<Complex>> GetModes(ModesOut modesOut, int MaxM, List<double> rd, int Nrd, string Comp, List<string> warnings)
+        public List<List<Complex>> GetModes(ModesOut modesOut, int MaxM, List<double> receiverDepths, int Nrd, string Comp, List<string> warnings)
         {
             var PhiR = new List<List<Complex>>(MaxM + 1);
             for (var i = 0; i <= MaxM; i++)
@@ -21,7 +21,7 @@ namespace Kraken.Calculation.Field
             }
 
             var weightsCalculator = new WeightsCalculator();
-            var (W, ird) = weightsCalculator.CalculateWeightsAndIndices(modesOut.Z, modesOut.NTot, rd, Nrd);          
+            var (W, ird) = weightsCalculator.CalculateWeightsAndIndices(modesOut.Z, modesOut.NTot, receiverDepths, Nrd);          
 
             if (modesOut.M > MaxM)
             {
@@ -44,45 +44,45 @@ namespace Kraken.Calculation.Field
                 var iz = ird[ir];
                 var WT = Math.Abs(Math.Min(W[ir], 1 - W[ir]));
 
-                if (rd[ir] < modesOut.DepthT)
+                if (receiverDepths[ir] < modesOut.DepthT)
                 {
                     if (modesOut.cST != 0 || modesOut.BCTop != "A")
                     {
-                        warnings.Add($"Receiver depth: {rd[ir]}. Highest valid depth: {modesOut.DepthT}. Rcvr above depth of top.");
+                        warnings.Add($"Receiver depth: {receiverDepths[ir]}. Highest valid depth: {modesOut.DepthT}. Rcvr above depth of top.");
                     }
                 }
-                else if (rd[ir] > modesOut.DepthB)
+                else if (receiverDepths[ir] > modesOut.DepthB)
                 {
                     if (modesOut.cSB != 0 || modesOut.BCBot != "A")
                     {
-                        warnings.Add($"Receiver depth: {rd[ir]}. Lowest valid depth: {modesOut.DepthB}. Rcvr below depth of top.");
+                        warnings.Add($"Receiver depth: {receiverDepths[ir]}. Lowest valid depth: {modesOut.DepthB}. Rcvr below depth of top.");
                     }
                 }
                 else if (modesOut.NTot > 1)
                 {
                     if (WT * (modesOut.Z[iz + 1] - modesOut.Z[iz]) > Tolerance)
                     {
-                        warnings.Add($"Receiver depth: {rd[ir]}. Nearest depths: {modesOut.Z[iz]}, {modesOut.Z[iz+1]}. Modes not tabulated near requested pt.");
+                        warnings.Add($"Receiver depth: {receiverDepths[ir]}. Nearest depths: {modesOut.Z[iz]}, {modesOut.Z[iz+1]}. Modes not tabulated near requested pt.");
                     }
                 }
                 else
                 {
-                    if (Math.Abs(rd[iz] - modesOut.Z[iz]) > Tolerance)
+                    if (Math.Abs(receiverDepths[iz] - modesOut.Z[iz]) > Tolerance)
                     {
-                        warnings.Add($"Rd, Tabulation depth {rd[ir]}, {modesOut.Z[iz]}. Tolerance: {Tolerance}. Modes not tabulated near requested pt.");
+                        warnings.Add($"Rd, Tabulation depth {receiverDepths[ir]}, {modesOut.Z[iz]}. Tolerance: {Tolerance}. Modes not tabulated near requested pt.");
                     }
                 }
             }
 
             for (var Mode = 1; Mode <= modesOut.M; Mode++)
             {
-                PhiR[Mode] = ReadOneMode(modesOut, W, ird, rd, Nrd, Mode, Comp);
+                PhiR[Mode] = ReadOneMode(modesOut, W, ird, receiverDepths, Nrd, Mode, Comp);
             }
 
             return PhiR;
         }
 
-        private List<Complex> ReadOneMode(ModesOut modesOut, List<double> W, List<int> ird, List<double> rd, int Nrd, int Mode, string Comp)
+        private List<Complex> ReadOneMode(ModesOut modesOut, List<double> W, List<int> ird, List<double> receiverDepths, int Nrd, int Mode, string Comp)
         {
             /* todo
               TufLuk = .FALSE. 
@@ -120,13 +120,13 @@ namespace Kraken.Calculation.Field
             var PhiR = Enumerable.Repeat(new Complex(0, 0), Nrd + 1).ToList();
             for (var ir = 1; ir <= Nrd; ir++)
             {
-                if (rd[ir] < modesOut.DepthT)
+                if (receiverDepths[ir] < modesOut.DepthT)
                 {
-                    PhiR[ir] = modesOut.Phi[Mode][1] * Complex.Exp(-gammaT * (modesOut.DepthT - rd[ir]));
+                    PhiR[ir] = modesOut.Phi[Mode][1] * Complex.Exp(-gammaT * (modesOut.DepthT - receiverDepths[ir]));
                 }
-                else if (rd[ir] > modesOut.DepthB)
+                else if (receiverDepths[ir] > modesOut.DepthB)
                 {
-                    PhiR[ir] = modesOut.Phi[Mode][modesOut.NTot] * Complex.Exp(-gammaB * (rd[ir] - modesOut.DepthB));
+                    PhiR[ir] = modesOut.Phi[Mode][modesOut.NTot] * Complex.Exp(-gammaB * (receiverDepths[ir] - modesOut.DepthB));
                 }
                 else if (modesOut.NTot > 1)
                 {

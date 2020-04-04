@@ -51,7 +51,7 @@ Output:
             krakMod.TopOpt = note1.Substring(0, 3);
             krakMod.BotOpt = note2[0].ToString();
 
-            var sDRDRMod = new SDRDRMod();
+            var rangedDataManager = new RangedDataManager();
             var readinMod = new Readin(krakMod);
 
             krakMod.Depth[1] = 0;
@@ -70,13 +70,10 @@ Output:
 
             krakMod.RMax = rng;
 
-            var ZMin = krakMod.Depth[1];
-            var ZMax = krakMod.Depth[krakMod.NMedia + 1];
-            sDRDRMod.Nsd = nsr;
-            sDRDRMod.Nrd = nrc;
+            var zMin = krakMod.Depth[1];
+            var zMax = krakMod.Depth[krakMod.NMedia + 1];           
 
-            sDRDRMod.SDRD(ZMin, ZMax, sDRDRMod.Nsd, sDRDRMod.sd, sDRDRMod.Nrd, sDRDRMod.rd,
-                        zsr, zrc);
+            rangedDataManager.ProceedSourceAndReceiverDepths(zMin, zMax, nsr, nrc, zsr, zrc);
 
             krakMod.Omega2 = Math.Pow((2.0 * Math.PI * krakMod.Freq), 2);
 
@@ -91,7 +88,7 @@ Output:
                     krakMod.H[j] = (krakMod.Depth[j + 1] - krakMod.Depth[j]) / krakMod.N[j];
                 }
                 krakMod.HV[krakMod.ISet] = krakMod.H[1];
-                SOLVE(modesOut, krakMod, sDRDRMod, readinMod, ref error, nm, nz, ref zm, ref modes);
+                SOLVE(modesOut, krakMod, rangedDataManager, readinMod, ref error, nm, nz, ref zm, ref modes);
 
                 if (error * 1000.0 * krakMod.RMax < 1.0)
                 {
@@ -257,7 +254,7 @@ Output:
             krakMod.CLow = Math.Max(krakMod.CLow, krakMod.CMin);
         }
 
-        private void SOLVE(ModesOut modesOut, KrakMod krakMod, SDRDRMod sDRDRMod, Readin readinMod, ref double error, int nm, int nz, ref List<double> zm, ref List<List<double>> modes)
+        private void SOLVE(ModesOut modesOut, KrakMod krakMod, RangedDataManager rangedDataManager, Readin readinMod, ref double error, int nm, int nz, ref List<double> zm, ref List<List<double>> modes)
         {
             var NOMODES = 0;
 
@@ -287,7 +284,7 @@ Output:
 
             if (krakMod.ISet == 1 && NOMODES == 0)
             {
-                VECTOR(modesOut, krakMod, sDRDRMod, nm, nz, ref zm, ref modes);
+                VECTOR(modesOut, krakMod, rangedDataManager, nm, nz, ref zm, ref modes);
             }
 
             error = 10;
@@ -314,7 +311,7 @@ Output:
 
         }
 
-        private void VECTOR(ModesOut modesOut, KrakMod krakMod, SDRDRMod sDRDRMod, int nm, int nz, ref List<double> zm, ref List<List<double>> modes)
+        private void VECTOR(ModesOut modesOut, KrakMod krakMod, RangedDataManager rangedDataManager, int nm, int nz, ref List<double> zm, ref List<List<double>> modes)
         {
             var BCTop = krakMod.TopOpt[1].ToString();
             var BCBot = krakMod.BotOpt[0].ToString();
@@ -348,7 +345,7 @@ Output:
 
             E[NTot1 + 1] = 1.0 / Hrho;
             var vectorsManager = new VectorsManager();
-            var (zTab, NzTab) = vectorsManager.MergeVectors(sDRDRMod.sd, sDRDRMod.Nsd, sDRDRMod.rd, sDRDRMod.Nrd);
+            var (zTab, NzTab) = vectorsManager.MergeVectors(rangedDataManager.SourceDepths, rangedDataManager.Nsd, rangedDataManager.ReceiverDepths, rangedDataManager.Nrd);
 
             var PHITAB = Enumerable.Repeat(new Complex(), NzTab + 1).ToList();
 
