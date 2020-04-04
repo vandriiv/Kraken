@@ -989,8 +989,8 @@ Output:
                 }
 
                 var PHIC = new Complex(PHI[j], 0.0);
-                var kupingMod = new KupingMod();
-                PERK += kupingMod.KUPING(krakMod.SIGMA[Medium + 1], eta1SQ, rho1, eta2SQ, rho2, PHIC, U);
+                var kupIngFormulation = new KupermanIngenitoFormulation();
+                PERK += kupIngFormulation.EvaluateImaginaryPerturbation(krakMod.SIGMA[Medium + 1], eta1SQ, rho1, eta2SQ, rho2, PHIC, U);
             }
 
             krakMod.k[krakMod.Mode] = PERK;
