@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 
 namespace Kraken.Calculation.Field
 {
-    public class ReadModesMod
+    public class ModesPreparationManager
     {
         private Complex kTop2;
-        private Complex kBot2;
-        private double pi = Math.PI;
+        private Complex kBot2;      
 
-        public List<List<Complex>> GetModes(CalculatedModesInfo modesInfo, int MaxM, List<double> receiverDepths, int Nrd, string Comp, List<string> warnings)
+        public List<List<Complex>> GetPreparedModes(CalculatedModesInfo modesInfo, int MaxM, List<double> receiverDepths, int Nrd, string Comp, List<string> warnings)
         {
             var PhiR = new List<List<Complex>>(MaxM + 1);
             for (var i = 0; i <= MaxM; i++)
@@ -30,12 +28,12 @@ namespace Kraken.Calculation.Field
 
             if (modesInfo.BCTop == "A")
             {
-                kTop2 = Complex.Pow((2 * pi * modesInfo.Frequency / modesInfo.CPTop), 2);
+                kTop2 = Complex.Pow((2 * Math.PI * modesInfo.Frequency / modesInfo.CPTop), 2);
             }
 
             if (modesInfo.BCBottom == "A")
             {
-                kBot2 = Complex.Pow((2 * pi * modesInfo.Frequency / modesInfo.CPBottom), 2);
+                kBot2 = Complex.Pow((2 * Math.PI * modesInfo.Frequency / modesInfo.CPBottom), 2);
             }
 
             var Tolerance = 1500 / modesInfo.Frequency;
@@ -74,23 +72,16 @@ namespace Kraken.Calculation.Field
                 }
             }
 
-            for (var Mode = 1; Mode <= modesInfo.ModesCount; Mode++)
+            for (var mode = 1; mode <= modesInfo.ModesCount; mode++)
             {
-                PhiR[Mode] = ReadOneMode(modesInfo, W, ird, receiverDepths, Nrd, Mode, Comp);
+                PhiR[mode] = PrepareOneMode(modesInfo, W, ird, receiverDepths, Nrd, mode, Comp);
             }
 
             return PhiR;
         }
 
-        private List<Complex> ReadOneMode(CalculatedModesInfo modesInfo, List<double> W, List<int> ird, List<double> receiverDepths, int Nrd, int Mode, string Comp)
+        private List<Complex> PrepareOneMode(CalculatedModesInfo modesInfo, List<double> W, List<int> ird, List<double> receiverDepths, int Nrd, int mode, string Comp)
         {
-            /* todo
-              TufLuk = .FALSE. 
-  IF ( ANY( Material( 1 : NMedia ) == 'ELASTIC' ) ) TufLuk = .TRUE.
-
-  ! Extract the component specified by 'Comp'
-  IF ( TufLuk ) CALL EXTRACT( Phi, N, Material, NMedia, Comp ) 
-             */
 
             var TufLuk = false;
             if (modesInfo.Material.Any(x => x == "ELASTIC"))
@@ -107,13 +98,13 @@ namespace Kraken.Calculation.Field
 
             if (modesInfo.BCTop == "A")
             {
-                var gamma2 = Math.Pow(modesInfo.K[Mode].Real, 2) - kTop2;
+                var gamma2 = Math.Pow(modesInfo.K[mode].Real, 2) - kTop2;
                 gammaT = PekerisRoot(gamma2);
             }
 
             if (modesInfo.BCBottom == "A")
             {
-                var gamma2 = Math.Pow(modesInfo.K[Mode].Real, 2) - kBot2;
+                var gamma2 = Math.Pow(modesInfo.K[mode].Real, 2) - kBot2;
                 gammaB = PekerisRoot(gamma2);
             }
             //NRD CHECK
@@ -122,21 +113,21 @@ namespace Kraken.Calculation.Field
             {
                 if (receiverDepths[ir] < modesInfo.DepthTop)
                 {
-                    PhiR[ir] = modesInfo.Phi[Mode][1] * Complex.Exp(-gammaT * (modesInfo.DepthTop - receiverDepths[ir]));
+                    PhiR[ir] = modesInfo.Phi[mode][1] * Complex.Exp(-gammaT * (modesInfo.DepthTop - receiverDepths[ir]));
                 }
                 else if (receiverDepths[ir] > modesInfo.DepthBottom)
                 {
-                    PhiR[ir] = modesInfo.Phi[Mode][modesInfo.NTot] * Complex.Exp(-gammaB * (receiverDepths[ir] - modesInfo.DepthBottom));
+                    PhiR[ir] = modesInfo.Phi[mode][modesInfo.NTot] * Complex.Exp(-gammaB * (receiverDepths[ir] - modesInfo.DepthBottom));
                 }
                 else if (modesInfo.NTot > 1)
                 {
                     var iz = ird[ir];
-                    PhiR[ir] = modesInfo.Phi[Mode][iz] + W[ir] * (modesInfo.Phi[Mode][iz + 1] - modesInfo.Phi[Mode][iz]);
+                    PhiR[ir] = modesInfo.Phi[mode][iz] + W[ir] * (modesInfo.Phi[mode][iz + 1] - modesInfo.Phi[mode][iz]);
                 }
                 else
                 {
                     var iz = ird[ir];
-                    PhiR[ir] = modesInfo.Phi[Mode][iz];
+                    PhiR[ir] = modesInfo.Phi[mode][iz];
                 }
             }
 

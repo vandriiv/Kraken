@@ -34,7 +34,7 @@ namespace Kraken.WebUI
 
             services.AddTransient<IKrakenService, KrakenService>();
             services.AddTransient<KrakenNormalModesProgram>();
-            services.AddTransient<FieldModel>();
+            services.AddTransient<FieldProgram>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

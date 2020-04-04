@@ -14,9 +14,9 @@ namespace Kraken.Application.Services.Implementation
     public class KrakenService : IKrakenService
     {
         private readonly KrakenNormalModesProgram _krakenNormalModeProgram;
-        private readonly FieldModel _fieldModel; 
+        private readonly FieldProgram _fieldModel; 
 
-        public KrakenService(KrakenNormalModesProgram krakenNormalModeProgram, FieldModel fieldModel)
+        public KrakenService(KrakenNormalModesProgram krakenNormalModeProgram, FieldProgram fieldModel)
         {
             _krakenNormalModeProgram = krakenNormalModeProgram;
             _fieldModel = fieldModel;

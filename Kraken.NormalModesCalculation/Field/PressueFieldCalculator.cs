@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 
 namespace Kraken.Calculation.Field
 {
-    public class EvaluateMod
+    public class PressueFieldCalculator
     {
         public List<List<Complex>> Evaluate(List<Complex> C, List<List<Complex>> phi, int Nz,
             List<double> receiverRanges, int Nr, List<double> rr, List<Complex> k, int M,
@@ -105,8 +104,7 @@ namespace Kraken.Calculation.Field
                 }
 
                 if (Option[0] == 'R')
-                {//check
-                    
+                {
                     for(var i = 1; i <= Nz; i++)
                     {
                         if(Math.Abs(receiverRanges[ir]+rr[i])> 1.17549435E-38)
