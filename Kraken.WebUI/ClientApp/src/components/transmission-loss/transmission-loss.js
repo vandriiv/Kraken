@@ -43,13 +43,13 @@ export default class TransmissionLoss extends Component {
         })
     }
 
-    onReceiverSelectChange = (selectedList, selectedItem) => {
+    onReceiverSelectChange = (_, selectedItem) => {
         this.setState({
             selectedReceiverDepth: selectedItem
         });
     }
 
-    onSourceSelectChange = (selectedList, selectedItem) => {
+    onSourceSelectChange = (_, selectedItem) => {
         this.setState({
             selectedSourceDepth: selectedItem
         });
@@ -80,7 +80,7 @@ export default class TransmissionLoss extends Component {
                 <div className='tl-selects-wrapper'>
                     <div>
                         <p>Source depth (m)</p>
-                        <Multiselect className="single-select"
+                        <Multiselect id="source-depth-select" className="single-select"
                             options={this.sourceDepthOptions}
                             singleSelect
                             displayValue="depth"
@@ -91,7 +91,7 @@ export default class TransmissionLoss extends Component {
                     </div>
                     <div>
                         <p>Receiver depth (m)</p>
-                        <Multiselect className="single-select"
+                        <Multiselect id="receiver-depth-select" className="single-select"
                             options={this.receiverDepthOptions}
                             singleSelect
                             displayValue="depth"

@@ -659,37 +659,37 @@ export default class AcousticProblemForm extends Component {
                 </Row>
                 {isTopAcoustic ?
                     <Row form>
-                        <Col md={2}>
+                        <Col md={4}>
                             <FormGroup>
                                 <Label for="zt">Depth (m)</Label>
                                 <Input type="number" name="zt" id="zt" onChange={this.handleChange} required defaultValue={zt} />
                             </FormGroup>
                         </Col>
-                        <Col md={2}>
+                        <Col md={4}>
                             <FormGroup>
                                 <Label for="cpt">Top P-wave speed (m/s)</Label>
                                 <Input type="number" name="cpt" id="cpt" onChange={this.handleChange} required defaultValue={cpt} />
                             </FormGroup>
                         </Col>
-                        <Col md={2}>
+                        <Col md={4}>
                             <FormGroup>
                                 <Label for="cst">Top S-wave speed (m/s)</Label>
                                 <Input type="number" name="cst" id="cst" onChange={this.handleChange} required defaultValue={cst} />
                             </FormGroup>
                         </Col>
-                        <Col md={2}>
+                        <Col md={4}>
                             <FormGroup>
                                 <Label for="rhot">Top density (g/cm3)</Label>
                                 <Input type="number" name="rhot" id="rhot" onChange={this.handleChange} required defaultValue={rhot} />
                             </FormGroup>
                         </Col>
-                        <Col md={2}>
+                        <Col md={4}>
                             <FormGroup>
                                 <Label for="apt">Top P-wave attenuation</Label>
                                 <Input type="number" name="apt" id="apt" onChange={this.handleChange} required defaultValue={apt} />
                             </FormGroup>
                         </Col>
-                        <Col md={2}>
+                        <Col md={4}>
                             <FormGroup>
                                 <Label for="ast">Top S-wave attenuation</Label>
                                 <Input type="number" name="ast" id="ast" onChange={this.handleChange} required defaultValue={ast} />
@@ -752,37 +752,37 @@ export default class AcousticProblemForm extends Component {
                 </Row>
                 {isBottomAcoustic ?
                     <Row form>
-                        <Col md={2}>
+                        <Col md={4}>
                             <FormGroup>
                                 <Label for="zb">Depth (m)</Label>
                                 <Input type="number" name="zb" id="zb" onChange={this.handleChange} required defaultValue={zb} />
                             </FormGroup>
                         </Col>
-                        <Col md={2}>
+                        <Col md={4}>
                             <FormGroup>
                                 <Label for="cpb">Bottom P-wave speed (m/s)</Label>
                                 <Input type="text" name="cpb" id="cpb" onChange={this.handleChange} required defaultValue={cpb} />
                             </FormGroup>
                         </Col>
-                        <Col md={2}>
+                        <Col md={4}>
                             <FormGroup>
                                 <Label for="csb">Bottom S-wave speed (m/s)</Label>
                                 <Input type="text" name="csb" id="csb" onChange={this.handleChange} required defaultValue={csb} />
                             </FormGroup>
                         </Col>
-                        <Col md={2}>
+                        <Col md={4}>
                             <FormGroup>
                                 <Label for="rhob">Bottom density (g/cm3)</Label>
                                 <Input type="text" name="rhob" id="rhob" onChange={this.handleChange} required defaultValue={rhob} />
                             </FormGroup>
                         </Col>
-                        <Col md={2}>
+                        <Col md={4}>
                             <FormGroup>
                                 <Label for="apb">Bottom P-wave atten.</Label>
                                 <Input type="text" name="apb" id="apb" onChange={this.handleChange} required defaultValue={apb} />
                             </FormGroup>
                         </Col>
-                        <Col md={2}>
+                        <Col md={4}>
                             <FormGroup>
                                 <Label for="asb">Bottom S-wave atten.</Label>
                                 <Input type="text" name="asb" id="asb" onChange={this.handleChange} required defaultValue={asb} />
@@ -954,37 +954,37 @@ export default class AcousticProblemForm extends Component {
                        </Row>
                        {isTopAcoustic ?
                            <Row form>
-                               <Col md={2}>
+                               <Col md={4}>
                                    <FormGroup>
                                        <Label for="zt">Depth (m)</Label>
                                        <Input type="number" name="zt" id="zt" onChange={this.handleChange} required />
                                    </FormGroup>
                                </Col>
-                               <Col md={2}>
+                               <Col md={4}>
                                    <FormGroup>
                                        <Label for="cpt">Top P-wave speed (m/s)</Label>
                                        <Input type="number" name="cpt" id="cpt" onChange={this.handleChange} required />
                                    </FormGroup>
                                </Col>
-                               <Col md={2}>
+                               <Col md={4}>
                                    <FormGroup>
                                        <Label for="cst">Top S-wave speed (m/s)</Label>
                                        <Input type="number" name="cst" id="cst" onChange={this.handleChange} required />
                                    </FormGroup>
                                </Col>
-                               <Col md={2}>
+                               <Col md={4}>
                                    <FormGroup>
                                        <Label for="rhot">Top density (g/cm3)</Label>
                                        <Input type="number" name="rhot" id="rhot" onChange={this.handleChange} required />
                                    </FormGroup>
                                </Col>
-                               <Col md={2}>
+                               <Col md={4}>
                                    <FormGroup>
                                        <Label for="apt">Top P-wave attenuation</Label>
                                        <Input type="number" name="apt" id="apt" onChange={this.handleChange} required />
                                    </FormGroup>
                                </Col>
-                               <Col md={2}>
+                               <Col md={4}>
                                    <FormGroup>
                                        <Label for="ast">Top S-wave attenuation</Label>
                                        <Input type="number" name="ast" id="ast" onChange={this.handleChange} required />
@@ -1047,37 +1047,37 @@ export default class AcousticProblemForm extends Component {
                        </Row>
                        {isBottomAcoustic ?
                            <Row form>
-                               <Col md={2}>
+                               <Col md={4}>
                                    <FormGroup>
                                        <Label for="zb">Depth (m)</Label>
                                        <Input type="number" name="zb" id="zb" onChange={this.handleChange} required />
                                    </FormGroup>
                                </Col>
-                               <Col md={2}>
+                               <Col md={4}>
                                    <FormGroup>
                                        <Label for="cpb">Bottom P-wave speed (m/s)</Label>
                                        <Input type="text" name="cpb" id="cpb" onChange={this.handleChange} required />
                                    </FormGroup>
                                </Col>
-                               <Col md={2}>
+                               <Col md={4}>
                                    <FormGroup>
                                        <Label for="csb">Bottom S-wave speed (m/s)</Label>
                                        <Input type="text" name="csb" id="csb" onChange={this.handleChange} required />
                                    </FormGroup>
                                </Col>
-                               <Col md={2}>
+                               <Col md={4}>
                                    <FormGroup>
                                        <Label for="rhob">Bottom density (g/cm3)</Label>
                                        <Input type="text" name="rhob" id="rhob" onChange={this.handleChange} required />
                                    </FormGroup>
                                </Col>
-                               <Col md={2}>
+                               <Col md={4}>
                                    <FormGroup>
                                        <Label for="apb">Bottom P-wave atten.</Label>
                                        <Input type="text" name="apb" id="apb" onChange={this.handleChange} required />
                                    </FormGroup>
                                </Col>
-                               <Col md={2}>
+                               <Col md={4}>
                                    <FormGroup>
                                        <Label for="asb">Bottom S-wave atten.</Label>
                                        <Input type="text" name="asb" id="asb" onChange={this.handleChange} required />
