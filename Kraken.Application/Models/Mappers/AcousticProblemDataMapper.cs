@@ -61,8 +61,8 @@ namespace Kraken.Application.Models.Mappers
             rd.Insert(0, 0);
 
             var fieldInputData = new FieldInputData(modesInfo, options, acousticProblemData.NModesForField,
-                acousticProblemData.NR, acousticProblemData.R, acousticProblemData.NSDField, sd,
-                acousticProblemData.NRDField, rd, acousticProblemData.NRR, acousticProblemData.RR);
+                acousticProblemData.NR, r, acousticProblemData.NSDField, sd,
+                acousticProblemData.NRDField, rd, acousticProblemData.NRR, rr);
 
             return fieldInputData;
         }
