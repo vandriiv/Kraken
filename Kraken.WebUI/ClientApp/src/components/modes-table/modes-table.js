@@ -50,7 +50,7 @@ export default class ModesTable extends Component {
                     </div>
                 </div>
                 <div className="overflow-table">
-                    <Table responsive bordered hover id={this.tableId} >
+                    <Table bordered hover id={this.tableId} >
                         <thead>
                             <tr>
                                 <th></th>
