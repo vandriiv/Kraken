@@ -108,7 +108,7 @@ namespace Kraken.Calculation.Field
                 var gamma2 = Math.Pow(modesInfo.K[mode].Real, 2) - kBot2;
                 gammaB = PekerisRoot(gamma2);
             }
-            //NRD CHECK
+            
             var PhiR = Enumerable.Repeat(new Complex(0, 0), Nrd + 1).ToList();
             for (var ir = 1; ir <= Nrd; ir++)
             {
