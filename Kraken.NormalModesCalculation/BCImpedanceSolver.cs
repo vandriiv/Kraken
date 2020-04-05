@@ -66,9 +66,114 @@ namespace Kraken.Calculation
                 }
                 else
                 {
-                    gammaP = Complex.Sqrt(x - krakenModule.Omega2 / Complex.Pow(cPHS, 2).Real);
+                    gammaP = Complex.Sqrt(x - krakenModule.Omega2 / Complex.Pow(cPHS, 2));
                     f = gammaP.Real;
                     g = rhoHS;
+                }
+            }
+
+            if (botTop == "TOP")
+            {
+                g = -g;
+            }
+
+            if (botTop == "TOP")
+            {
+                if (krakenModule.FirstAcoustic > 1)
+                {
+                    for (var medium = 1; medium <= krakenModule.FirstAcoustic - 1; medium++)
+                    {
+                        ELASDN(krakenModule, x, yV, ref iPow, medium);
+                    }
+                    f = krakenModule.Omega2 * yV[4];
+                    g = yV[2];
+                }
+
+            }
+            else
+            {
+                if (krakenModule.LastAcoustic < krakenModule.NMedia)
+                {
+                    for (var medium = krakenModule.NMedia; medium >= krakenModule.LastAcoustic + 1; medium--)
+                    {
+                        ELASUP(krakenModule, x, yV, ref iPow, medium);
+                    }
+                    f = krakenModule.Omega2 * yV[4];
+                    g = yV[2];
+                }
+            }
+        }
+
+        public void ComputeBoundaryConditionImpedance(KrakenModule krakenModule, double x, string BCType, string botTop, Complex cPHS, Complex cSHS,
+                          double rhoHS, ref Complex f, ref Complex g, ref int iPow, bool ComplexFlag = true)
+        {
+            iPow = 0;
+            var yV = Enumerable.Repeat(0d, 5 + 1).ToList();
+
+            if (BCType[0] == 'V' || BCType[0] == 'S'
+              || BCType[0] == 'H' || BCType[0] == 'T'
+              || BCType[0] == 'I')
+            {
+                f = 1.0;
+                g = 0.0;
+
+                yV[1] = f.Real;
+                yV[2] = g.Real;
+                yV[3] = 0.0;
+                yV[4] = 0.0;
+                yV[5] = 0.0;
+            }
+
+            if (BCType[0] == 'R')
+            {
+                f = 0.0;
+                g = 1.0;
+
+                yV[1] = f.Real;
+                yV[2] = g.Real;
+                yV[3] = 0.0;
+                yV[4] = 0.0;
+                yV[5] = 0.0;
+            }
+
+            if (BCType[0] == 'A')
+            {
+                Complex gammaS2, gammaP2, gammaS, gammaP;
+                double mu;
+                if (cSHS.Real > 0)
+                {
+                    gammaS2 = x - krakenModule.Omega2 / Math.Pow(cSHS.Real, 2);
+                    gammaP2 = x - krakenModule.Omega2 / Math.Pow(cPHS.Real, 2);
+                    gammaS = Complex.Sqrt(gammaS2);
+                    gammaP = Complex.Sqrt(gammaP2);
+                    mu = rhoHS * Math.Pow(cSHS.Real, 2);
+
+                    yV[1] = ((gammaS * gammaP - x) / mu).Real;
+                    yV[2] = ((Complex.Pow((gammaS2 + x), 2) - 4.0 * gammaS * gammaP * x) * mu).Real;
+                    yV[3] = (2.0 * gammaS * gammaP - gammaS2 - x).Real;
+                    yV[4] = (gammaP * (x - gammaS2)).Real;
+                    yV[5] = (gammaS * (gammaS2 - x)).Real;
+
+                    f = krakenModule.Omega2 * yV[4];
+                    g = yV[2];
+                    if (g.Real > 0)
+                    {
+                        krakenModule.ModeCount++;
+                    }
+                }
+                else
+                {
+                    gammaP = Complex.Sqrt(x - krakenModule.Omega2 / Complex.Pow(cPHS, 2));
+                    if (ComplexFlag)
+                    {
+                        f = gammaP;
+                        g = rhoHS;
+                    }
+                    else
+                    {
+                        f = gammaP.Real;
+                        g = rhoHS;
+                    }
                 }
             }
 

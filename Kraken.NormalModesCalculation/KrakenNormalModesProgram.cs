@@ -765,9 +765,9 @@ namespace Kraken.Calculation
 
             if (krakenModule.BCTop[1] == 'A')
             {
-                del = -0.5 * (krakenModule.Omega2 / Complex.Pow(krakenModule.CPTop, 2) - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPTop, 2)).Real /
-                            Math.Sqrt(x - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPTop, 2)).Real));
-                /*del = krakenModule.i * Complex.Sqrt(x - krakenModule.Omega2/(Complex.Pow(krakenModule.CPTop,2)));*/
+                /*del = -0.5 * (krakenModule.Omega2 / Complex.Pow(krakenModule.CPTop, 2) - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPTop, 2)).Real /
+                            Math.Sqrt(x - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPTop, 2)).Real));*/
+                del = krakenModule.i * Complex.Sqrt(x - krakenModule.Omega2/(Complex.Pow(krakenModule.CPTop,2))).Imaginary;
                 pertubationK -= del * Math.Pow(Phi[1], 2) / krakenModule.RhoTop;
                 slow += Math.Pow(Phi[1], 2) / (2 * Math.Sqrt(x - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPTop, 2)).Real))
                         / (krakenModule.RhoTop * Math.Pow(krakenModule.CPTop.Real, 2));
@@ -821,22 +821,38 @@ namespace Kraken.Calculation
                 slow += 0.5 * krakenModule.H[medium] * (krakenModule.B1[l] + 2) * Math.Pow(Phi[j], 2) / rhoOmH2;
             }
 
+            /* if (krakenModule.BCBottom[0] == 'A')
+             {
+                 del = -0.5 * (krakenModule.Omega2 / Complex.Pow(krakenModule.CPBottom, 2) - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPBottom, 2)).Real /
+                             Complex.Sqrt(x - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPBottom, 2))).Real);
+                 pertubationK -= del * Math.Pow(Phi[j], 2) / krakenModule.RhoBottom;
+                 slow += Complex.Pow(Phi[j], 2).Real / (2 * Complex.Sqrt(x - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPBottom, 2)))).Real
+                         / (krakenModule.RhoBottom * Complex.Pow(krakenModule.CPBottom, 2)).Real;
+             }*/
+
+            var bcimpSolver = new BCImpedanceSolver();
+
+            double f1 = 0.0, G1 = 0.01, f2 = 0.0, G2 = 0.0;
+            var BCType = krakenModule.BCBottom[0].ToString();
+            int iPower = 0;
+
             if (krakenModule.BCBottom[0] == 'A')
             {
-                del = -0.5 * (krakenModule.Omega2 / Complex.Pow(krakenModule.CPBottom, 2) - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPBottom, 2)).Real /
-                            Complex.Sqrt(x - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPBottom, 2))).Real);
-                pertubationK -= del * Math.Pow(Phi[j], 2) / krakenModule.RhoBottom;
-                slow += Complex.Pow(Phi[j], 2).Real / (2 * Complex.Sqrt(x - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPBottom, 2)))).Real
-                        / (krakenModule.RhoBottom * Complex.Pow(krakenModule.CPBottom, 2)).Real;
+                Complex fBot2, gBot2;
+                double fBot1 = 0, gBot1= 0;
+                bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x, BCType, "BOT", krakenModule.CPBottom, krakenModule.CSBottom, krakenModule.RhoBottom, ref fBot1, ref gBot1, ref iPower);
+                bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x, BCType, "BOT", krakenModule.CPBottom, krakenModule.CSBottom, krakenModule.RhoBottom, ref fBot2, ref gBot2, ref iPower);
+
+                del = fBot2 / gBot2 - fBot1 / gBot1;
+                pertubationK -= del * Complex.Pow(Phi[j],2);
             }
 
             var x1 = 0.9999999 * x;
             var x2 = 1.0000001 * x;
 
-            var BCType = krakenModule.BCTop[1].ToString();
-            double f1 = 0.0, G1 = 0.01, f2 = 0.0, G2 = 0.0;
-            int iPower = 0;
-            var bcimpSolver = new BCImpedanceSolver();
+            BCType = krakenModule.BCTop[1].ToString();           
+            
+            
             bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x1, BCType, "TOP", krakenModule.CPTop, krakenModule.CSTop, krakenModule.RhoTop, ref f1, ref G1, ref iPower);
             bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x2, BCType, "TOP", krakenModule.CPTop, krakenModule.CSTop, krakenModule.RhoTop, ref f2, ref G2, ref iPower);
             var dRhoDx = 0.0;
@@ -844,8 +860,7 @@ namespace Kraken.Calculation
             {
                 dRhoDx = -(f2 / G2 - f1 / G1) / (x2 - x1);
             }
-
-            BCType = krakenModule.BCBottom[0].ToString();
+            
             bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x1, BCType, "BOT", krakenModule.CPBottom, krakenModule.CSBottom, krakenModule.RhoBottom, ref f1, ref G1, ref iPower);
             bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x2, BCType, "BOT", krakenModule.CPBottom, krakenModule.CSBottom, krakenModule.RhoBottom, ref f2, ref G2, ref iPower);
             var deltaDx = 0.0;

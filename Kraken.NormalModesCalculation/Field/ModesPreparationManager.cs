@@ -20,7 +20,7 @@ namespace Kraken.Calculation.Field
             }
 
             var weightsCalculator = new WeightsCalculator();
-            var (W, ird) = weightsCalculator.CalculateWeightsAndIndices(modesInfo.Z, modesInfo.NTot, receiverDepths, Nrd);          
+            var (w, ird) = weightsCalculator.CalculateWeightsAndIndices(modesInfo.Z, modesInfo.NTot, receiverDepths, Nrd);          
 
             if (modesInfo.ModesCount > MaxM)
             {
@@ -37,11 +37,11 @@ namespace Kraken.Calculation.Field
                 kBot2 = Complex.Pow((2 * Math.PI * modesInfo.Frequency / modesInfo.CPBottom), 2);
             }
 
-            var Tolerance = 1500 / modesInfo.Frequency;
+            var tolerance = 1500 / modesInfo.Frequency;
             for (var ir = 1; ir <= Nrd; ir++)
             {
                 var iz = ird[ir];
-                var WT = Math.Abs(Math.Min(W[ir], 1 - W[ir]));
+                var wt = Math.Abs(Math.Min(w[ir], 1 - w[ir]));
 
                 if (receiverDepths[ir] < modesInfo.DepthTop)
                 {
@@ -59,29 +59,29 @@ namespace Kraken.Calculation.Field
                 }
                 else if (modesInfo.NTot > 1)
                 {
-                    if (WT * (modesInfo.Z[iz + 1] - modesInfo.Z[iz]) > Tolerance)
+                    if (wt * (modesInfo.Z[iz + 1] - modesInfo.Z[iz]) > tolerance)
                     {
                         warnings.Add($"Receiver depth: {receiverDepths[ir]}. Nearest depths: {modesInfo.Z[iz]}, {modesInfo.Z[iz+1]}. Modes not tabulated near requested pt.");
                     }
                 }
                 else
                 {
-                    if (Math.Abs(receiverDepths[iz] - modesInfo.Z[iz]) > Tolerance)
+                    if (Math.Abs(receiverDepths[iz] - modesInfo.Z[iz]) > tolerance)
                     {
-                        warnings.Add($"Rd, Tabulation depth {receiverDepths[ir]}, {modesInfo.Z[iz]}. Tolerance: {Tolerance}. Modes not tabulated near requested pt.");
+                        warnings.Add($"Rd, Tabulation depth {receiverDepths[ir]}, {modesInfo.Z[iz]}. tolerance: {tolerance}. Modes not tabulated near requested pt.");
                     }
                 }
             }
 
             for (var mode = 1; mode <= modesInfo.ModesCount; mode++)
             {
-                PhiR[mode] = PrepareOneMode(modesInfo, W, ird, receiverDepths, Nrd, mode, Comp);
+                PhiR[mode] = PrepareOneMode(modesInfo, w, ird, receiverDepths, Nrd, mode, Comp);
             }
 
             return PhiR;
         }
 
-        private List<Complex> PrepareOneMode(CalculatedModesInfo modesInfo, List<double> W, List<int> ird, List<double> receiverDepths, int Nrd, int mode, string Comp)
+        private List<Complex> PrepareOneMode(CalculatedModesInfo modesInfo, List<double> w, List<int> ird, List<double> receiverDepths, int Nrd, int mode, string Comp)
         {
 
             var TufLuk = false;
@@ -123,7 +123,7 @@ namespace Kraken.Calculation.Field
                 else if (modesInfo.NTot > 1)
                 {
                     var iz = ird[ir];
-                    PhiR[ir] = modesInfo.Phi[mode][iz] + W[ir] * (modesInfo.Phi[mode][iz + 1] - modesInfo.Phi[mode][iz]);
+                    PhiR[ir] = modesInfo.Phi[mode][iz] + w[ir] * (modesInfo.Phi[mode][iz + 1] - modesInfo.Phi[mode][iz]);
                 }
                 else
                 {
@@ -138,16 +138,16 @@ namespace Kraken.Calculation.Field
         private void Extract(CalculatedModesInfo modesInfo, string Comp)
         {
             int j = 1, k = 1;
-            for (var Medium = 1; Medium <= modesInfo.NMedia; Medium++)
+            for (var medium = 1; medium <= modesInfo.NMedia; medium++)
             {
-                for (var i = 1; i < modesInfo.N[Medium] + 1; i++)
+                for (var i = 1; i < modesInfo.N[medium] + 1; i++)
                 {
-                    if (modesInfo.Material[Medium] == "ACOUSTIC")
+                    if (modesInfo.Material[medium] == "ACOUSTIC")
                     {
                         modesInfo.Phi[j] = modesInfo.Phi[k];
                         k += 1;
                     }
-                    else if (modesInfo.Material[Medium] == "ELASTIC")
+                    else if (modesInfo.Material[medium] == "ELASTIC")
                     {
                         if (Comp == "H")
                         {
