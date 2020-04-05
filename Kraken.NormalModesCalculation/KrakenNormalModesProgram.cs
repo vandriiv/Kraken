@@ -347,9 +347,20 @@ namespace Kraken.Calculation
             modesInfo.NMat = NzTab;
 
             modesInfo.N = new List<int>(krakenModule.N);
-            modesInfo.Material = new List<string>(krakenModule.Material);
-            modesInfo.Depth = new List<double>(krakenModule.Depth);
-            modesInfo.Rho = new List<double>(krakenModule.Rho);
+
+            modesInfo.Material = Enumerable.Repeat("", krakenModule.Material.Count).ToList();        
+
+            modesInfo.Depth = Enumerable.Repeat(0d, krakenModule.Depth.Count).ToList();
+
+            modesInfo.Rho = Enumerable.Repeat(0d, krakenModule.Rho.Count).ToList();
+
+            for (var medium = krakenModule.FirstAcoustic; medium <= krakenModule.LastAcoustic; medium++)
+            {
+                modesInfo.Material[medium] = krakenModule.Material[medium];
+                modesInfo.Depth[medium] = krakenModule.Depth[medium];
+                modesInfo.Rho[medium] = krakenModule.Rho[krakenModule.Loc[medium] + 1];
+            }
+
             modesInfo.Frequency = krakenModule.Frequency;
             modesInfo.Z = new List<double>(zTab);
 
