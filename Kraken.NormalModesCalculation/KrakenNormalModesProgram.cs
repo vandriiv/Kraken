@@ -1,633 +1,619 @@
-﻿using System;
+﻿using Kraken.Calculation.Exceptions;
+using Kraken.Calculation.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace Kraken.NormalModesCalculation
+namespace Kraken.Calculation
 {
-    //need to take a good look at loops, arguments changing in methods, list init
-
-    /*
-    Input:
-  frq = frequency
-  nm = # modes
-  nl= no. layers, e.g., 2
-  note1 = text flags for modes, e.g., 'SVW'
-  b= NG,sigma,depth of each layer - stacked
-  ssp=depths, alphaR, betaR, rhoR, alphaI, betaI for layers 1,2 
-                   [  C       0    1.03     0      0  ]
-         matrix has each layer - stacked
-  note2 = text flag for bottom option
-  bsig=bottom sigma
-  clh= CLow, CHigh - spectral limits
-  rng = range (m); used for error estimate
-  nsr,zsr = # and source depths (m)
-  nrc,zrc = # and receiver depths (m)    
-         If nrc or nsr is greater than the number of depths given, kraken
-         will do an autointerpolation.  Thus if nrc is 500 with 
-         zrc's = [0 5000], 500 depths between 0 and 5000 will be used for 
-         the mode eigenvectors.
-
-Output:
-  cg = nm group speeds
-  cp = nm phase spees
-  zm = depths of mode functions
-  modes = nm mode functions at depths zm*/
     public class KrakenNormalModesProgram
     {
-        public ModesOut OceanAcousticNormalModes(int nm, double frq, int nl, string note1, List<List<double>> bb, int nc,
-                                             List<List<double>> ssp, string note2, double bsig, List<double> clh, double rng, int nsr, List<double> zsr,
-                                             int nrc, List<double> zrc, int nz, List<double> tahsp, List<double> tsp, List<double> bahsp, ref List<double> cg, ref List<double> cp,
-                                             ref List<double> zm, ref List<List<double>> modes, ref List<Complex> k, List<string> warnings)
+        public (KrakenResult, CalculatedModesInfo) CalculateNormalModes(KrakenInputProfile profile)
         {
-            var krakMod = new KrakMod();
-            krakMod.Init();
+            var krakenModule = new KrakenModule();
+            krakenModule.Init();
 
-            krakMod.NV = new List<int> { 0, 1, 2, 4, 8, 16 };
+            krakenModule.NV = new List<int> { 0, 1, 2, 4, 8, 16 };
 
-            krakMod.Freq = frq;
-            krakMod.NMedia = nl;
-            krakMod.TopOpt = note1.Substring(0, 3);
-            krakMod.BotOpt = note2[0].ToString();
+            krakenModule.Frequency = profile.Frequency;
+            krakenModule.NMedia = profile.NMedia;
+            krakenModule.BCTop = profile.Options.Substring(0, 3);
+            krakenModule.BCBottom = profile.BCBottom;
 
-            var sDRDRMod = new SDRDRMod();
-            var readinMod = new Readin(krakMod);
+            var rangedDataManager = new RangedDataManager();
+            var meshInitializer = new MeshInitializer(krakenModule);
 
-            krakMod.Depth[1] = 0;
-            for (var il = 1; il <= nl; il++)
+            krakenModule.Depth[1] = 0;
+            for (var media = 1; media <= profile.NMedia; media++)
             {
-                krakMod.NG[il] = (int)bb[il][1];
-                krakMod.SIGMA[il] = bb[il][2];
-                krakMod.Depth[il + 1] = bb[il][3];
+                krakenModule.NG[media] = (int)profile.MediumInfo[media][1];
+                krakenModule.Sigma[media] = profile.MediumInfo[media][2];
+                krakenModule.Depth[media + 1] = profile.MediumInfo[media][3];
             }
 
-            krakMod.SIGMA[nl + 1] = bsig;
-            readinMod.READIN(krakMod, nc, ssp, tahsp, tsp, bahsp);
+            krakenModule.Sigma[profile.NMedia + 1] = profile.BottomSigma;
+            meshInitializer.ProccedMesh(krakenModule, profile.SSP, profile.TopAcousticHSProperties, profile.TwerskyScatterParameters, profile.BottomAcousticHSProperties);
 
-            krakMod.CLow = clh[1];
-            krakMod.CHigh = clh[2];
+            krakenModule.CLow = profile.CLow;
+            krakenModule.CHigh = profile.CHigh;
 
-            krakMod.RMax = rng;
+            krakenModule.RMax = profile.RMax;
 
-            var ZMin = krakMod.Depth[1];
-            var ZMax = krakMod.Depth[krakMod.NMedia + 1];
-            sDRDRMod.Nsd = nsr;
-            sDRDRMod.Nrd = nrc;
+            var zMin = krakenModule.Depth[1];
+            var zMax = krakenModule.Depth[krakenModule.NMedia + 1];           
 
-            sDRDRMod.SDRD(ZMin, ZMax, sDRDRMod.Nsd, sDRDRMod.sd, sDRDRMod.Nrd, sDRDRMod.rd,
-                        zsr, zrc);
+            rangedDataManager.ProceedSourceAndReceiverDepths(zMin, zMax, profile.Nsd, profile.Nrd, profile.SourceDepths, profile.ReceiverDepths);
 
-            krakMod.Omega2 = Math.Pow((2.0 * Math.PI * krakMod.Freq), 2);
+            krakenModule.Omega2 = Math.Pow((2.0 * Math.PI * krakenModule.Frequency), 2);
 
             double error = 0;
             var isSuccess = false;
-            var modesOut = new ModesOut();
-            for (krakMod.ISet = 1; krakMod.ISet <= krakMod.NSets; krakMod.ISet++)
-            {
-                krakMod.N = krakMod.NG.Select(x => x * krakMod.NV[krakMod.ISet]).ToList();
-                for (var j = 1; j <= krakMod.NMedia; j++)
-                {
-                    krakMod.H[j] = (krakMod.Depth[j + 1] - krakMod.Depth[j]) / krakMod.N[j];
-                }
-                krakMod.HV[krakMod.ISet] = krakMod.H[1];
-                SOLVE(modesOut, krakMod, sDRDRMod, readinMod, ref error, nm, nz, ref zm, ref modes);
+            var modesInfo = new CalculatedModesInfo();
 
-                if (error * 1000.0 * krakMod.RMax < 1.0)
+            var zm = new List<double>();
+            var modes = new List<List<double>>();
+
+            for (krakenModule.ISet = 1; krakenModule.ISet <= krakenModule.NSets; krakenModule.ISet++)
+            {
+                krakenModule.N = krakenModule.NG.Select(x => x * krakenModule.NV[krakenModule.ISet]).ToList();
+                for (var j = 1; j <= krakenModule.NMedia; j++)
+                {
+                    krakenModule.H[j] = (krakenModule.Depth[j + 1] - krakenModule.Depth[j]) / krakenModule.N[j];
+                }
+                krakenModule.HV[krakenModule.ISet] = krakenModule.H[1];
+                Solve(modesInfo, krakenModule, rangedDataManager, meshInitializer, ref error, profile.NModes, ref zm, ref modes);
+
+                if (error * 1000.0 * krakenModule.RMax < 1.0)
                 {
                     isSuccess = true;
                     break;
                 }
             }
 
+            var result = new KrakenResult();
+
             if (isSuccess)
             {
-                var OMEGA = Math.Sqrt(krakMod.Omega2);
-                var minVal = krakMod.Extrap[1].GetRange(1, krakMod.M).Where(x => x > krakMod.Omega2 / Math.Pow(krakMod.CHigh, 2)).Min();
-                var Min_Loc = krakMod.Extrap[1].FindIndex(x => x == minVal);
-                krakMod.M = Min_Loc;
+                var omega = Math.Sqrt(krakenModule.Omega2);
+                var minVal = krakenModule.Extrap[1].GetRange(1, krakenModule.M).Where(x => x > krakenModule.Omega2 / Math.Pow(krakenModule.CHigh, 2)).Min();
+                var minLoc = krakenModule.Extrap[1].FindIndex(x => x == minVal);
+                krakenModule.M = minLoc;
 
-                for (var i = 1; i <= krakMod.M; i++)
+                for (var i = 1; i <= krakenModule.M; i++)
                 {
-                    krakMod.k[i] = Complex.Sqrt(krakMod.Extrap[1][i] + krakMod.k[i]);
+                    krakenModule.K[i] = Complex.Sqrt(krakenModule.Extrap[1][i] + krakenModule.K[i]);
                 }
 
-                var MMM = Math.Min(krakMod.M, nm);
-                modesOut.M = MMM;
-                modesOut.k = new List<Complex>(krakMod.k);
+                var MMM = Math.Min(krakenModule.M, profile.NModes);
+                modesInfo.ModesCount = MMM;
+                modesInfo.K = new List<Complex>(krakenModule.K);
 
-                cp = Enumerable.Repeat(0d, MMM + 1).ToList();
-                cg = Enumerable.Repeat(0d, MMM + 1).ToList();
-                k = Enumerable.Repeat(new Complex(), MMM + 1).ToList();
+                var cp = Enumerable.Repeat(0d, MMM + 1).ToList();
+                var cg = Enumerable.Repeat(0d, MMM + 1).ToList();
+                var k = Enumerable.Repeat(new Complex(), MMM + 1).ToList();
 
-                for (krakMod.Mode = 1; krakMod.Mode <= MMM; krakMod.Mode++)
+                for (krakenModule.Mode = 1; krakenModule.Mode <= MMM; krakenModule.Mode++)
                 {
-                    cp[krakMod.Mode] = (OMEGA / krakMod.k[krakMod.Mode]).Real;
-                    cg[krakMod.Mode] = krakMod.VG[krakMod.Mode];
-                    k[krakMod.Mode] = krakMod.k[krakMod.Mode];
+                    cp[krakenModule.Mode] = (omega / krakenModule.K[krakenModule.Mode]).Real;
+                    cg[krakenModule.Mode] = krakenModule.VG[krakenModule.Mode];
+                    k[krakenModule.Mode] = krakenModule.K[krakenModule.Mode];
                 }
+
+                result.GroupSpeed = cg;
+                result.PhaseSpeed = cp;
+                result.K = k;
+                result.ModesCount = MMM;
+                result.Modes = modes;
+                result.ZM = zm;
             }
 
-            warnings.AddRange(krakMod.Warnings);
+            result.Warnings.AddRange(krakenModule.Warnings);
 
-            return modesOut;
+            return (result,modesInfo);
         }
 
-        private void INIT(KrakMod krakMod, Readin readinMod)
+        private void Initialize(KrakenModule krakenModule, MeshInitializer meshInitializer)
         {
-            var ELFLAG = false;
-            double CP2 = 0.0, CS2 = 0.0;
+            var ElasticFlag = false;           
             var dummy = new List<List<double>>(7);
 
-            krakMod.CMin = double.MaxValue;
-            krakMod.FirstAcoustic = 0;
-            krakMod.LOC[1] = 0;
+            krakenModule.CMin = double.MaxValue;
+            krakenModule.FirstAcoustic = 0;
+            krakenModule.Loc[1] = 0;
 
-            var NPTS = krakMod.N.GetRange(1, krakMod.NMedia).Sum() + krakMod.NMedia;
+            var NPTS = krakenModule.N.GetRange(1, krakenModule.NMedia).Sum() + krakenModule.NMedia;
 
-            krakMod.B1 = Enumerable.Repeat(0d, NPTS + 1).ToList();
-            krakMod.B1C = Enumerable.Repeat(0d, NPTS + 1).ToList();
-            krakMod.B2 = Enumerable.Repeat(0d, NPTS + 1).ToList();
-            krakMod.B3 = Enumerable.Repeat(0d, NPTS + 1).ToList();
-            krakMod.B4 = Enumerable.Repeat(0d, NPTS + 1).ToList();
-            krakMod.RHO = Enumerable.Repeat(0d, NPTS + 1).ToList();
+            krakenModule.B1 = Enumerable.Repeat(0d, NPTS + 1).ToList();
+            krakenModule.B1C = Enumerable.Repeat(0d, NPTS + 1).ToList();
+            krakenModule.B2 = Enumerable.Repeat(0d, NPTS + 1).ToList();
+            krakenModule.B3 = Enumerable.Repeat(0d, NPTS + 1).ToList();
+            krakenModule.B4 = Enumerable.Repeat(0d, NPTS + 1).ToList();
+            krakenModule.Rho = Enumerable.Repeat(0d, NPTS + 1).ToList();
 
-            var CP = Enumerable.Repeat(new Complex(), NPTS + 1).ToList();
-            var CS = Enumerable.Repeat(new Complex(), NPTS + 1).ToList();
+            var cP = Enumerable.Repeat(new Complex(), NPTS + 1).ToList();
+            var cS = Enumerable.Repeat(new Complex(), NPTS + 1).ToList();
 
-            for (var Medium = 1; Medium <= krakMod.NMedia; Medium++)
+            for (var medium = 1; medium <= krakenModule.NMedia; medium++)
             {
-                if (Medium != 1)
+                if (medium != 1)
                 {
-                    krakMod.LOC[Medium] = krakMod.LOC[Medium - 1] + krakMod.N[Medium - 1] + 1;
+                    krakenModule.Loc[medium] = krakenModule.Loc[medium - 1] + krakenModule.N[medium - 1] + 1;
                 }
-                var N1 = krakMod.N[Medium] + 1;
-                var II = krakMod.LOC[Medium] + 1;
+                var N1 = krakenModule.N[medium] + 1;
+                var currentIdx = krakenModule.Loc[medium] + 1;
 
                 var TASK = "TAB";
-                readinMod.PROFIL(krakMod, krakMod.Depth, CP, CS, krakMod.RHO, Medium, ref N1, II, krakMod.Freq, krakMod.TopOpt[0].ToString(), krakMod.TopOpt.Substring(2), TASK, 1, dummy);
+                meshInitializer.EvaluateSSP(krakenModule, krakenModule.Depth, cP, cS, krakenModule.Rho, medium, ref N1,
+                                            currentIdx, krakenModule.Frequency, krakenModule.BCTop[0].ToString(),
+                                            krakenModule.BCTop.Substring(2), TASK, dummy);
 
-                if (CS[II].Real == 0)
+                if (cS[currentIdx].Real == 0)
                 {
-                    krakMod.Mater[Medium] = "ACOUSTIC";
-                    if (krakMod.FirstAcoustic == 0)
+                    krakenModule.Material[medium] = "ACOUSTIC";
+                    if (krakenModule.FirstAcoustic == 0)
                     {
-                        krakMod.FirstAcoustic = Medium;
+                        krakenModule.FirstAcoustic = medium;
                     }
-                    krakMod.LastAcoustic = Medium;
+                    krakenModule.LastAcoustic = medium;
 
-                    var CPMin = CP.GetRange(II, krakMod.N[Medium] + 1).Select(x => x.Real).Min();
-                    krakMod.CMin = Math.Min(krakMod.CMin, CPMin);
+                    var cPMin = cP.GetRange(currentIdx, krakenModule.N[medium] + 1).Select(x => x.Real).Min();
+                    krakenModule.CMin = Math.Min(krakenModule.CMin, cPMin);
 
-                    for (var i = II; i <= II + krakMod.N[Medium]; i++)
+                    for (var i = currentIdx; i <= currentIdx + krakenModule.N[medium]; i++)
                     {
-                        krakMod.B1[i] = -2.0 + Math.Pow(krakMod.H[Medium], 2) * (krakMod.Omega2 / Complex.Pow(CP[i], 2)).Real;
+                        krakenModule.B1[i] = -2.0 + Math.Pow(krakenModule.H[medium], 2) * (krakenModule.Omega2 / Complex.Pow(cP[i], 2)).Real;
                     }
 
-                    for (var i = II; i <= II + krakMod.N[Medium]; i++)
+                    for (var i = currentIdx; i <= currentIdx + krakenModule.N[medium]; i++)
                     {
-                        krakMod.B1C[i] = (krakMod.Omega2 / Complex.Pow(CP[i], 2)).Imaginary;
+                        krakenModule.B1C[i] = (krakenModule.Omega2 / Complex.Pow(cP[i], 2)).Imaginary;
                     }
                 }
                 else
                 {
-                    if (krakMod.SIGMA[Medium] != 0)
+                    if (krakenModule.Sigma[medium] != 0)
                     {
                         throw new KrakenException("Rough elastic interfaces are not allowed");
                     }
 
-                    krakMod.Mater[Medium] = "ELASTIC";
-                    ELFLAG = true;
-                    var TWOH = 2.0 * krakMod.H[Medium];
+                    krakenModule.Material[medium] = "ELASTIC";
+                    ElasticFlag = true;
+                    var twoH = 2.0 * krakenModule.H[medium];
 
-                    for (var J = II; J <= II + krakMod.N[Medium]; J++)
+                    for (var j = currentIdx; j <= currentIdx + krakenModule.N[medium]; j++)
                     {
-                        krakMod.CMin = Math.Min(CS[J].Real, krakMod.CMin);
+                        krakenModule.CMin = Math.Min(cS[j].Real, krakenModule.CMin);
 
-                        CP2 = Complex.Pow(CP[J], 2).Real;
-                        CS2 = Complex.Pow(CS[J], 2).Real;
+                        var cP2 = Complex.Pow(cP[j], 2).Real;
+                        var cS2 = Complex.Pow(cS[j], 2).Real;
 
-                        krakMod.B1[J] = TWOH / (krakMod.RHO[J] * CS2);
-                        krakMod.B2[J] = TWOH / (krakMod.RHO[J] * CP2);
-                        krakMod.B3[J] = 4.0 * TWOH * krakMod.RHO[J] * CS2 * (CP2 - CS2) / CP2;
-                        krakMod.B4[J] = TWOH * (CP2 - 2.0 * CS2) / CP2;
-                        krakMod.RHO[J] = TWOH * krakMod.Omega2 * krakMod.RHO[J];
+                        krakenModule.B1[j] = twoH / (krakenModule.Rho[j] * cS2);
+                        krakenModule.B2[j] = twoH / (krakenModule.Rho[j] * cP2);
+                        krakenModule.B3[j] = 4.0 * twoH * krakenModule.Rho[j] * cS2 * (cP2 - cS2) / cP2;
+                        krakenModule.B4[j] = twoH * (cP2 - 2.0 * cS2) / cP2;
+                        krakenModule.Rho[j] = twoH * krakenModule.Omega2 * krakenModule.Rho[j];
                     }
                 }
             }
 
-            if (krakMod.BotOpt[0] == 'A')
+            if (krakenModule.BCBottom[0] == 'A')
             {
-                if (krakMod.CSB.Real > 0.0)
+                if (krakenModule.CSBottom.Real > 0.0)
                 {
-                    ELFLAG = true;
-                    krakMod.CMin = Math.Min(krakMod.CMin, krakMod.CSB.Real);
-                    krakMod.CHigh = Math.Min(krakMod.CHigh, krakMod.CSB.Real);
+                    ElasticFlag = true;
+                    krakenModule.CMin = Math.Min(krakenModule.CMin, krakenModule.CSBottom.Real);
+                    krakenModule.CHigh = Math.Min(krakenModule.CHigh, krakenModule.CSBottom.Real);
                 }
                 else
                 {
-                    krakMod.CMin = Math.Min(krakMod.CMin, krakMod.CPB.Real);
-                    // krakMod.CHigh = Math.Min(krakMod.CHigh, krakMod.CPB.Real); //commented 27.03.2020
+                    krakenModule.CMin = Math.Min(krakenModule.CMin, krakenModule.CPBottom.Real);
+                    // krakenModule.CHigh = Math.Min(krakenModule.CHigh, krakenModule.CPBottom.Real); //commented 27.03.2020
                 }
             }
 
-            if (krakMod.TopOpt.Length > 1)
+            if (krakenModule.BCTop.Length > 1)
             {
-                if (krakMod.TopOpt[1] == 'A')
+                if (krakenModule.BCTop[1] == 'A')
                 {
-                    if (krakMod.CST.Real > 0.0)
+                    if (krakenModule.CSTop.Real > 0.0)
                     {
-                        ELFLAG = true;
-                        krakMod.CMin = Math.Min(krakMod.CMin, krakMod.CST.Real);
-                        krakMod.CHigh = Math.Min(krakMod.CHigh, krakMod.CST.Real);
+                        ElasticFlag = true;
+                        krakenModule.CMin = Math.Min(krakenModule.CMin, krakenModule.CSTop.Real);
+                        krakenModule.CHigh = Math.Min(krakenModule.CHigh, krakenModule.CSTop.Real);
                     }
                     else
                     {
-                        krakMod.CMin = Math.Min(krakMod.CMin, krakMod.CPT.Real);
-                        //krakMod.CHigh = Math.Min(krakMod.CHigh, krakMod.CPT.Real);//commented 27.03.2020
+                        krakenModule.CMin = Math.Min(krakenModule.CMin, krakenModule.CPTop.Real);
+                        //krakenModule.CHigh = Math.Min(krakenModule.CHigh, krakenModule.CPTop.Real);//commented 27.03.2020
                     }
                 }
             }
 
-            if (ELFLAG)
+            if (ElasticFlag)
             {
-                krakMod.CMin = 0.85 * krakMod.CMin;
+                krakenModule.CMin = 0.85 * krakenModule.CMin;
             }
 
-            krakMod.CLow = Math.Max(krakMod.CLow, krakMod.CMin);
+            krakenModule.CLow = Math.Max(krakenModule.CLow, krakenModule.CMin);
         }
 
-        private void SOLVE(ModesOut modesOut, KrakMod krakMod, SDRDRMod sDRDRMod, Readin readinMod, ref double error, int nm, int nz, ref List<double> zm, ref List<List<double>> modes)
+        private void Solve(CalculatedModesInfo modesInfo, KrakenModule krakenModule, RangedDataManager rangedDataManager, MeshInitializer meshInitializer, ref double error, int nm, ref List<double> zm, ref List<List<double>> modes)
         {
-            var NOMODES = 0;
+            var calculateModes = true;
 
-            INIT(krakMod, readinMod);
+            Initialize(krakenModule, meshInitializer);
 
-            if (krakMod.IProf > 1 && krakMod.ISet <= 2 && krakMod.TopOpt[3] == 'C')
+            if (krakenModule.IProf > 1 && krakenModule.ISet <= 2 && krakenModule.BCTop[3] == 'C')
             {
-                SOLVE3(krakMod);
+                Solve3(krakenModule);
             }
-            else if (krakMod.ISet <= 2 && krakMod.NMedia <= (krakMod.LastAcoustic - krakMod.FirstAcoustic + 1))
+            else if (krakenModule.ISet <= 2 && krakenModule.NMedia <= (krakenModule.LastAcoustic - krakenModule.FirstAcoustic + 1))
             {
-                SOLVE1(krakMod, nm);
+                Solve1(krakenModule, nm);
             }
             else
             {
-                SOLVE2(krakMod);
+                Solve2(krakenModule);
             }
 
-            for (var i = 1; i <= krakMod.M; i++)
+            for (var i = 1; i <= krakenModule.M; i++)
             {
-                krakMod.Extrap[krakMod.ISet][i] = krakMod.EVMat[krakMod.ISet][i];
+                krakenModule.Extrap[krakenModule.ISet][i] = krakenModule.EVMat[krakenModule.ISet][i];
             }
 
-            var minVal = krakMod.Extrap[1].GetRange(1, krakMod.M).Where(x => x > krakMod.Omega2 / Math.Pow(krakMod.CHigh, 2)).Min();
-            var Min_Loc = krakMod.Extrap[1].FindIndex(x => x == minVal);
-            krakMod.M = Min_Loc;
+            var minVal = krakenModule.Extrap[1].GetRange(1, krakenModule.M).Where(x => x > krakenModule.Omega2 / Math.Pow(krakenModule.CHigh, 2)).Min();
+            var minLoc = krakenModule.Extrap[1].FindIndex(x => x == minVal);
+            krakenModule.M = minLoc;
 
-            if (krakMod.ISet == 1 && NOMODES == 0)
+            if (krakenModule.ISet == 1 && calculateModes)
             {
-                VECTOR(modesOut, krakMod, sDRDRMod, nm, nz, ref zm, ref modes);
+                Vector(modesInfo, krakenModule, rangedDataManager, nm, ref zm, ref modes);
             }
 
             error = 10;
-            var KEY = 2 * krakMod.M / 3 + 1;
-            if (krakMod.ISet > 1)
+            var key = 2 * krakenModule.M / 3 + 1;
+            if (krakenModule.ISet > 1)
             {
-                var T1 = krakMod.Extrap[1][KEY];
+                var t1 = krakenModule.Extrap[1][key];
 
-                for (var J = krakMod.ISet - 1; J >= 1; J--)
+                for (var j = krakenModule.ISet - 1; j >= 1; j--)
                 {
-                    for (krakMod.Mode = 1; krakMod.Mode <= krakMod.M; krakMod.Mode++)
+                    for (krakenModule.Mode = 1; krakenModule.Mode <= krakenModule.M; krakenModule.Mode++)
                     {
-                        var X1 = Math.Pow(krakMod.NV[J], 2);
-                        var X2 = Math.Pow(krakMod.NV[krakMod.ISet], 2);
-                        var F1 = krakMod.Extrap[J][krakMod.Mode];
-                        var F2 = krakMod.Extrap[J + 1][krakMod.Mode];
-                        krakMod.Extrap[J][krakMod.Mode] = F2 - (F1 - F2) / (X2 / X1 - 1.0);
+                        var x1 = Math.Pow(krakenModule.NV[j], 2);
+                        var x2 = Math.Pow(krakenModule.NV[krakenModule.ISet], 2);
+                        var f1 = krakenModule.Extrap[j][krakenModule.Mode];
+                        var f2 = krakenModule.Extrap[j + 1][krakenModule.Mode];
+                        krakenModule.Extrap[j][krakenModule.Mode] = f2 - (f1 - f2) / (x2 / x1 - 1.0);
                     }
                 }
 
-                var T2 = krakMod.Extrap[1][KEY];
-                error = Math.Abs(T2 - T1);
+                var t2 = krakenModule.Extrap[1][key];
+                error = Math.Abs(t2 - t1);
             }
 
         }
 
-        private void VECTOR(ModesOut modesOut, KrakMod krakMod, SDRDRMod sDRDRMod, int nm, int nz, ref List<double> zm, ref List<List<double>> modes)
+        private void Vector(CalculatedModesInfo modesInfo, KrakenModule krakenModule, RangedDataManager rangedDataManager, int nm, ref List<double> zm, ref List<List<double>> modes)
         {
-            var BCTop = krakMod.TopOpt[1].ToString();
-            var BCBot = krakMod.BotOpt[0].ToString();
+            var BCTop = krakenModule.BCTop[1].ToString();
+            var BCBottom = krakenModule.BCBottom[0].ToString();
 
-            var NTot = krakMod.N.GetRange(krakMod.FirstAcoustic, krakMod.LastAcoustic - krakMod.FirstAcoustic + 1).Sum();
+            var NTot = krakenModule.N.GetRange(krakenModule.FirstAcoustic, krakenModule.LastAcoustic - krakenModule.FirstAcoustic + 1).Sum();
             var NTot1 = NTot + 1;
 
             //allocate
-            var Z = Enumerable.Repeat(0d, NTot1 + 1).ToList();
-            var E = Enumerable.Repeat(0d, NTot1 + 1 + 1).ToList();
-            var D = Enumerable.Repeat(0d, NTot1 + 1).ToList();
-            var PHI = Enumerable.Repeat(0d, NTot1 + 1).ToList();
-            var J = 1;
-            Z[1] = krakMod.Depth[krakMod.FirstAcoustic];
+            var z = Enumerable.Repeat(0d, NTot1 + 1).ToList();
+            var e = Enumerable.Repeat(0d, NTot1 + 1 + 1).ToList();
+            var d = Enumerable.Repeat(0d, NTot1 + 1).ToList();
+            var Phi = Enumerable.Repeat(0d, NTot1 + 1).ToList();
+            var j = 1;
+            z[1] = krakenModule.Depth[krakenModule.FirstAcoustic];
 
-            var Hrho = 0.0;
-            for (var Medium = krakMod.FirstAcoustic; Medium <= krakMod.LastAcoustic; Medium++)
+            var hRho = 0.0;
+            for (var medium = krakenModule.FirstAcoustic; medium <= krakenModule.LastAcoustic; medium++)
             {
-                Hrho = krakMod.H[Medium] * krakMod.RHO[krakMod.LOC[Medium] + 1];
+                hRho = krakenModule.H[medium] * krakenModule.Rho[krakenModule.Loc[medium] + 1];
 
                 var temp = 1;
-                for (var i = J + 1; i <= J + krakMod.N[Medium]; i++)
+                for (var i = j + 1; i <= j + krakenModule.N[medium]; i++)
                 {
-                    E[i] = 1.0 / Hrho;
-                    Z[i] = Z[J] + krakMod.H[Medium] * temp;
+                    e[i] = 1.0 / hRho;
+                    z[i] = z[j] + krakenModule.H[medium] * temp;
                     temp++;
                 }
 
-                J += krakMod.N[Medium];
+                j += krakenModule.N[medium];
             }
 
-            E[NTot1 + 1] = 1.0 / Hrho;
-            var mergevMod = new MergeVMod();
-            var ZTAB = Enumerable.Repeat(0d, sDRDRMod.Nrd + sDRDRMod.Nsd + 1).ToList();
-            var NZTAB = 0;
-            mergevMod.MERGEV(sDRDRMod.sd, sDRDRMod.Nsd, sDRDRMod.rd, sDRDRMod.Nrd, ZTAB, ref NZTAB);
+            e[NTot1 + 1] = 1.0 / hRho;
+            var vectorsManager = new VectorsManager();
+            var (zTab, NzTab) = vectorsManager.MergeVectors(rangedDataManager.SourceDepths, rangedDataManager.Nsd, rangedDataManager.ReceiverDepths, rangedDataManager.Nrd);
 
-            var WTS = Enumerable.Repeat(0d, NZTAB + 1).ToList();
-            var IZTAB = Enumerable.Repeat(0, NZTAB + 1).ToList();
-            var PHITAB = Enumerable.Repeat(new Complex(), NZTAB + 1).ToList();
+            var PhiTab = Enumerable.Repeat(new Complex(), NzTab + 1).ToList();
 
-            var weightMod = new WeightMod();
-            weightMod.WEIGHT(Z, NTot1, ZTAB, NZTAB, WTS, IZTAB);
+            var weightsCalculator = new WeightsCalculator();
+            var (weights,indicesTab) = weightsCalculator.CalculateWeightsAndIndices(z, NTot1, zTab, NzTab);
 
-            var modesave = new List<List<double>>(NZTAB + 1);
-            for (var i = 0; i <= NZTAB + 1; i++)
+            var modesave = new List<List<double>>(NzTab + 1);
+            for (var i = 0; i <= NzTab + 1; i++)
             {
-                modesave.Add(Enumerable.Repeat(0d, krakMod.M + 1).ToList());
+                modesave.Add(Enumerable.Repeat(0d, krakenModule.M + 1).ToList());
+            }
+                     
+            modesInfo.NMedia = krakenModule.LastAcoustic - krakenModule.FirstAcoustic + 1;
+            modesInfo.NTot = NzTab;
+            modesInfo.NMat = NzTab;
+
+            modesInfo.N = new List<int>(krakenModule.N);
+
+            modesInfo.Material = Enumerable.Repeat("", krakenModule.Material.Count).ToList();        
+
+            modesInfo.Depth = Enumerable.Repeat(0d, krakenModule.Depth.Count).ToList();
+
+            modesInfo.Rho = Enumerable.Repeat(0d, krakenModule.Rho.Count).ToList();
+
+            for (var medium = krakenModule.FirstAcoustic; medium <= krakenModule.LastAcoustic; medium++)
+            {
+                modesInfo.Material[medium] = krakenModule.Material[medium];
+                modesInfo.Depth[medium] = krakenModule.Depth[medium];
+                modesInfo.Rho[medium] = krakenModule.Rho[krakenModule.Loc[medium] + 1];
             }
 
-            modesOut.LRecL = 32;
-            modesOut.Title = "Dummy title";
-            modesOut.NFreq = 1;
-            modesOut.NMedia = krakMod.LastAcoustic - krakMod.FirstAcoustic + 1;
-            modesOut.NTot = NZTAB;
-            modesOut.NMat = NZTAB;
+            modesInfo.Frequency = krakenModule.Frequency;
+            modesInfo.Z = new List<double>(zTab);
 
-            modesOut.N = new List<int>(krakMod.N);
-            modesOut.Material = new List<string>(krakMod.Mater);
-            modesOut.Depth = new List<double>(krakMod.Depth);
-            modesOut.rho = new List<double>(krakMod.RHO);
-            modesOut.freqVec = new List<double> { 0, krakMod.Freq };
-            modesOut.Z = new List<double>(ZTAB);
+            modesInfo.BCTop = krakenModule.BCTop[1].ToString();
+            modesInfo.CPTop = krakenModule.CPTop;
+            modesInfo.CSTop = krakenModule.CSTop;
+            modesInfo.RhoTop = krakenModule.RhoTop;
+            modesInfo.DepthTop = krakenModule.Depth[1];
 
-            modesOut.BCTop = krakMod.TopOpt[1].ToString();//changed
-            modesOut.cPT = krakMod.CPT;
-            modesOut.cST = krakMod.CST;
-            modesOut.rhoT = krakMod.rhoT;
-            modesOut.DepthT = krakMod.Depth[1];
+            modesInfo.BCBottom = krakenModule.BCBottom[0].ToString();
+            modesInfo.CPBottom = krakenModule.CPBottom;
+            modesInfo.CSBottom = krakenModule.CSBottom;
+            modesInfo.RhoBottom = krakenModule.RhoBottom;
+            modesInfo.DepthBottom = krakenModule.Depth[krakenModule.NMedia + 1];
 
-            modesOut.BCBot = krakMod.BotOpt[0].ToString();
-            modesOut.cPB = krakMod.CPB;
-            modesOut.cSB = krakMod.CSB;
-            modesOut.rhoB = krakMod.rhoB;
-            modesOut.DepthB = krakMod.Depth[krakMod.NMedia + 1];
-
-            var F = 0.0;
-            var G = 0.0;
-            var IPower = 0;
-            modesOut.Phi.Add(new List<Complex>());
-            for (krakMod.Mode = 1; krakMod.Mode <= krakMod.M; krakMod.Mode++)
+            var f = 0.0;
+            var g = 0.0;
+            var iPower = 0;
+            modesInfo.Phi.Add(new List<Complex>());
+            for (krakenModule.Mode = 1; krakenModule.Mode <= krakenModule.M; krakenModule.Mode++)
             {
-                var X = krakMod.EVMat[1][krakMod.Mode];
-                var bcimpMod = new BCIMPMod();
-                bcimpMod.BCIMP(krakMod, X, BCTop, "TOP", krakMod.CPT, krakMod.CST, krakMod.rhoT, ref F, ref G, ref IPower);
+                var x = krakenModule.EVMat[1][krakenModule.Mode];
+                var bcimpSolver = new BCImpedanceSolver();
+                bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x, BCTop, "TOP", krakenModule.CPTop, krakenModule.CSTop, krakenModule.RhoTop, ref f, ref g, ref iPower);
 
-                int L;
-                double XH2;
-                if (G == 0.0)
+                int l;
+                double xH2;
+                if (g == 0.0)
                 {
-                    D[1] = 1.0;
-                    E[2] = 2.220446049250313 / Math.Pow(10, 16);
+                    d[1] = 1.0;
+                    e[2] = 2.220446049250313 / Math.Pow(10, 16);
                 }
                 else
                 {
-                    L = krakMod.LOC[krakMod.FirstAcoustic] + 1;
-                    XH2 = X * krakMod.H[krakMod.FirstAcoustic] * krakMod.H[krakMod.FirstAcoustic];
-                    Hrho = krakMod.H[krakMod.FirstAcoustic] * krakMod.RHO[L];
-                    D[1] = (krakMod.B1[L] - XH2) / Hrho / 2.0 + F / G;
+                    l = krakenModule.Loc[krakenModule.FirstAcoustic] + 1;
+                    xH2 = x * krakenModule.H[krakenModule.FirstAcoustic] * krakenModule.H[krakenModule.FirstAcoustic];
+                    hRho = krakenModule.H[krakenModule.FirstAcoustic] * krakenModule.Rho[l];
+                    d[1] = (krakenModule.B1[l] - xH2) / hRho / 2.0 + f / g;
                 }
 
-                var ITP = NTot;
-                J = 1;
-                L = krakMod.LOC[krakMod.FirstAcoustic] + 1;
+                var iTP = NTot;
+                j = 1;
+                l = krakenModule.Loc[krakenModule.FirstAcoustic] + 1;
 
-                for (var Medium = krakMod.FirstAcoustic; Medium <= krakMod.LastAcoustic; Medium++)
+                for (var medium = krakenModule.FirstAcoustic; medium <= krakenModule.LastAcoustic; medium++)
                 {
-                    XH2 = X * Math.Pow(krakMod.H[Medium], 2);
-                    Hrho = krakMod.H[Medium] * krakMod.RHO[krakMod.LOC[Medium] + 1];
+                    xH2 = x * Math.Pow(krakenModule.H[medium], 2);
+                    hRho = krakenModule.H[medium] * krakenModule.Rho[krakenModule.Loc[medium] + 1];
 
-                    if (Medium >= krakMod.FirstAcoustic + 1)
+                    if (medium >= krakenModule.FirstAcoustic + 1)
                     {
-                        L += 1;
-                        D[J] = (D[J] + (krakMod.B1[L] - XH2) / Hrho) / 2.0;
+                        l += 1;
+                        d[j] = (d[j] + (krakenModule.B1[l] - xH2) / hRho) / 2.0;
                     }
 
-                    for (var ii = 1; ii <= krakMod.N[Medium]; ii++)
+                    for (var ii = 1; ii <= krakenModule.N[medium]; ii++)
                     {                        
-                        J += 1;
-                        L += 1;
-                        D[J] = (krakMod.B1[L] - XH2) / Hrho;
+                        j += 1;
+                        l += 1;
+                        d[j] = (krakenModule.B1[l] - xH2) / hRho;
 
-                        if (krakMod.B1[L] - XH2 + 2.0 > 0.0)
+                        if (krakenModule.B1[l] - xH2 + 2.0 > 0.0)
                         {
-                            ITP = Math.Min(J, ITP);
+                            iTP = Math.Min(j, iTP);
                         }
                     }
                 }
                 
-                bcimpMod.BCIMP(krakMod, X, BCBot, "BOT", krakMod.CPB, krakMod.CSB, krakMod.rhoB, ref F, ref G, ref IPower);
-                if (G == 0.0)
+                bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x, BCBottom, "BOT", krakenModule.CPBottom, krakenModule.CSBottom, krakenModule.RhoBottom, ref f, ref g, ref iPower);
+                if (g == 0.0)
                 {
-                    D[NTot1] = 1.0;
-                    E[NTot1] = 2.220446049250313 / Math.Pow(10, 16);
+                    d[NTot1] = 1.0;
+                    e[NTot1] = 2.220446049250313 / Math.Pow(10, 16);
                 }
                 else
                 {
-                    D[NTot1] = D[NTot1] / 2.0 - F / G;
+                    d[NTot1] = d[NTot1] / 2.0 - f / g;
                 }
 
-                var IERR = 0;
-                var sinvitMod = new SinvitdMod();
-                sinvitMod.SINVIT(NTot1, D, E, ref IERR, PHI);
+                var errorFlag = 0;
+                var sinvitMod = new EigenvectorFinder();
+                sinvitMod.FindEigenvectorUsingInverseIteration(NTot1, d, e,Phi, ref errorFlag);
 
-                if (IERR != 0)
+                if (errorFlag != 0)
                 {
-                    krakMod.Warnings.Add($"Inverse iteration failed to converge. Mode = {krakMod.Mode}");
-                    PHI = PHI.Select(x => 0d).ToList();
+                    krakenModule.Warnings.Add($"Inverse iteration failed to converge. Mode = {krakenModule.Mode}");
+                    Phi = Phi.Select(p => 0d).ToList();
                 }
                 else
                 {
-                    NORMIZ(krakMod, PHI, ITP, NTot1, X);
+                    NormalizeEigenvector(krakenModule, Phi, iTP, NTot1, x);
                 }
 
-                for (var i = 1; i <= NZTAB; i++)
+                for (var i = 1; i <= NzTab; i++)
                 {
-                    PHITAB[i] = PHI[IZTAB[i]] + WTS[i] * (PHI[IZTAB[i] + 1] - PHI[IZTAB[i]]);
+                    PhiTab[i] = Phi[indicesTab[i]] + weights[i] * (Phi[indicesTab[i] + 1] - Phi[indicesTab[i]]);
                 }
 
-                modesOut.Phi.Add(new List<Complex>(PHITAB));
+                modesInfo.Phi.Add(new List<Complex>(PhiTab));
 
-                for (var i = 1; i <= NZTAB; i++)
+                for (var i = 1; i <= NzTab; i++)
                 {
-                    modesave[i][krakMod.Mode] = PHITAB[i].Real;
+                    modesave[i][krakenModule.Mode] = PhiTab[i].Real;
                 }
             }
 
-            var MMM = Math.Min(krakMod.M, nm);
-            modes = new List<List<double>>(NZTAB + 1);
-            for (var i = 0; i <= NZTAB; i++)
+            var MMM = Math.Min(krakenModule.M, nm);
+            modes = new List<List<double>>(NzTab + 1);
+            for (var i = 0; i <= NzTab; i++)
             {
                 modes.Add(Enumerable.Repeat(0d, MMM + 1).ToList());
             }
-            zm = Enumerable.Repeat(0d, NZTAB + 1).ToList();
+            zm = Enumerable.Repeat(0d, NzTab + 1).ToList();
             
-            for (var MZ = 1; MZ <= NZTAB; MZ++)
+            for (var MZ = 1; MZ <= NzTab; MZ++)
             {
-                for (krakMod.Mode = 1; krakMod.Mode <= MMM; krakMod.Mode++)
+                for (krakenModule.Mode = 1; krakenModule.Mode <= MMM; krakenModule.Mode++)
                 {
-                    modes[MZ][krakMod.Mode] = modesave[MZ][krakMod.Mode];
+                    modes[MZ][krakenModule.Mode] = modesave[MZ][krakenModule.Mode];
                 }
-                zm[MZ] = ZTAB[MZ];
+                zm[MZ] = zTab[MZ];
             }
         }
 
-        private void SOLVE1(KrakMod krakMod, int nm)
+        private void Solve1(KrakenModule krakenModule, int nm)
         {
-            var XMin = 1.00001 * krakMod.Omega2 / Math.Pow(krakMod.CHigh, 2);
-            var DELTA = 0.0;
-            var IPower = 0;
-            FUNCT(krakMod, XMin, ref DELTA, ref IPower);
-            krakMod.M = krakMod.ModeCount;
+            var xMin = 1.00001 * krakenModule.Omega2 / Math.Pow(krakenModule.CHigh, 2);
+            var delta = 0.0;
+            var iPower = 0;
+            Funct(krakenModule, xMin, ref delta, ref iPower);
+            krakenModule.M = krakenModule.ModeCount;
 
-            var XL = Enumerable.Repeat(0d, krakMod.M + 1).ToList();
-            var XR = Enumerable.Repeat(0d, krakMod.M + 1).ToList();
+            var xL = Enumerable.Repeat(0d, krakenModule.M + 1).ToList();
+            var xR = Enumerable.Repeat(0d, krakenModule.M + 1).ToList();
 
-            if (krakMod.ISet == 1)
-            {//check
-                krakMod.EVMat = new List<List<double>>(krakMod.NSets + 1);
-                for (var i = 0; i <= krakMod.NSets; i++)
+            if (krakenModule.ISet == 1)
+            {
+                krakenModule.EVMat = new List<List<double>>(krakenModule.NSets + 1);
+                for (var i = 0; i <= krakenModule.NSets; i++)
                 {
-                    krakMod.EVMat.Add(Enumerable.Repeat(0d, krakMod.M + 1).ToList());
+                    krakenModule.EVMat.Add(Enumerable.Repeat(0d, krakenModule.M + 1).ToList());
                 }
 
-                krakMod.Extrap = new List<List<double>>(krakMod.NSets + 1);
-                for (var i = 0; i <= krakMod.NSets; i++)
+                krakenModule.Extrap = new List<List<double>>(krakenModule.NSets + 1);
+                for (var i = 0; i <= krakenModule.NSets; i++)
                 {
-                    krakMod.Extrap.Add(Enumerable.Repeat(0d, krakMod.M + 1).ToList());
+                    krakenModule.Extrap.Add(Enumerable.Repeat(0d, krakenModule.M + 1).ToList());
                 }
 
-                krakMod.k = Enumerable.Repeat(new Complex(), krakMod.M + 1).ToList();
-                krakMod.VG = Enumerable.Repeat(0d, krakMod.M + 1).ToList();
+                krakenModule.K = Enumerable.Repeat(new Complex(), krakenModule.M + 1).ToList();
+                krakenModule.VG = Enumerable.Repeat(0d, krakenModule.M + 1).ToList();
             }
 
-            var XMax = krakMod.Omega2 / Math.Pow(krakMod.CLow, 2);
-            FUNCT(krakMod, XMax, ref DELTA, ref IPower);
-            krakMod.M -= krakMod.ModeCount;
-            krakMod.M = Math.Min(krakMod.M, nm + 1);
+            var xMax = krakenModule.Omega2 / Math.Pow(krakenModule.CLow, 2);
+            Funct(krakenModule, xMax, ref delta, ref iPower);
+            krakenModule.M -= krakenModule.ModeCount;
+            krakenModule.M = Math.Min(krakenModule.M, nm + 1);
 
-            var NTot = krakMod.N.GetRange(krakMod.FirstAcoustic, krakMod.LastAcoustic - krakMod.FirstAcoustic + 1).Sum();
-            if (krakMod.M > NTot / 5)
+            var NTot = krakenModule.N.GetRange(krakenModule.FirstAcoustic, krakenModule.LastAcoustic - krakenModule.FirstAcoustic + 1).Sum();
+            if (krakenModule.M > NTot / 5)
             {
-                krakMod.Warnings.Add("Mesh too coarse to sample the modes adequately");
+                krakenModule.Warnings.Add("Mesh too coarse to sample the modes adequately");
             }
 
-            BISECT(krakMod, XMin, XMax, ref XL, ref XR);
+            Bisection(krakenModule, xMin, xMax, ref xL, ref xR);
 
-            krakMod.M = Math.Min(krakMod.M, nm);
-            var X = 0.0;
-            for (krakMod.Mode = 1; krakMod.Mode <= krakMod.M; krakMod.Mode++)
+            krakenModule.M = Math.Min(krakenModule.M, nm);
+            var x = 0.0;
+            for (krakenModule.Mode = 1; krakenModule.Mode <= krakenModule.M; krakenModule.Mode++)
             {
-                var X1 = XL[krakMod.Mode];
-                var X2 = XR[krakMod.Mode];
-                var EPS = Math.Abs(X2) * 10 * Math.Pow(0.1, 14);
+                var x1 = xL[krakenModule.Mode];
+                var x2 = xR[krakenModule.Mode];
+                var eps = Math.Abs(x2) * 10 * Math.Pow(0.1, 14);
 
-                var errorMsg = "";
-                ZBRENTX(krakMod, ref X, ref X1, ref X2, EPS,errorMsg);
-                if (errorMsg != "")
+                var errorFlag = 0;
+                CalculateZeroXOfFunction(krakenModule, ref x, ref x1, ref x2, eps, ref errorFlag);
+                if (errorFlag != 0)
                 {
-                    krakMod.Warnings.Add(errorMsg);
+                    krakenModule.Warnings.Add("Function sign is the same at the interval endpoints");
                 }               
 
-                krakMod.EVMat[krakMod.ISet][krakMod.Mode] = X;
+                krakenModule.EVMat[krakenModule.ISet][krakenModule.Mode] = x;
             }
 
         }
 
-        private void SOLVE2(KrakMod krakMod)
+        private void Solve2(KrakenModule krakenModule)
         {
-            var X = krakMod.Omega2 / Math.Pow(krakMod.CLow, 2);
-            var MaxIT = 1500;
-            var P = Enumerable.Repeat(0d, 11).ToList();
+            var x = krakenModule.Omega2 / Math.Pow(krakenModule.CLow, 2);
+            var maxIteration = 1500;
+            var p = Enumerable.Repeat(0d, 11).ToList();
 
-            if (krakMod.k == null)
+            if (krakenModule.K == null)
             {
-                krakMod.M = 3000;
-                krakMod.EVMat = new List<List<double>>(krakMod.NSets + 1);
-                for (var i = 0; i <= krakMod.NSets; i++)
+                krakenModule.M = 3000;
+                krakenModule.EVMat = new List<List<double>>(krakenModule.NSets + 1);
+                for (var i = 0; i <= krakenModule.NSets; i++)
                 {
-                    krakMod.EVMat.Add(Enumerable.Repeat(0d, krakMod.M + 1).ToList());
+                    krakenModule.EVMat.Add(Enumerable.Repeat(0d, krakenModule.M + 1).ToList());
                 }
 
-                krakMod.Extrap = new List<List<double>>(krakMod.NSets + 1);
-                for (var i = 0; i <= krakMod.NSets; i++)
+                krakenModule.Extrap = new List<List<double>>(krakenModule.NSets + 1);
+                for (var i = 0; i <= krakenModule.NSets; i++)
                 {
-                    krakMod.Extrap.Add(Enumerable.Repeat(0d, krakMod.M + 1).ToList());
+                    krakenModule.Extrap.Add(Enumerable.Repeat(0d, krakenModule.M + 1).ToList());
                 }
 
-                krakMod.k = Enumerable.Repeat(new Complex(), krakMod.M + 1).ToList();
-                krakMod.VG = Enumerable.Repeat(0d, krakMod.M + 1).ToList();
+                krakenModule.K = Enumerable.Repeat(new Complex(), krakenModule.M + 1).ToList();
+                krakenModule.VG = Enumerable.Repeat(0d, krakenModule.M + 1).ToList();
             }
 
-            for (krakMod.Mode = 1; krakMod.Mode <= krakMod.M; krakMod.Mode++)
+            for (krakenModule.Mode = 1; krakenModule.Mode <= krakenModule.M; krakenModule.Mode++)
             {
-                X = 1.00001 * X;
-                if (krakMod.ISet >= 2)
+                x = 1.00001 * x;
+                if (krakenModule.ISet >= 2)
                 {
-                    for (var i = 1; i <= krakMod.ISet - 1; i++)
+                    for (var i = 1; i <= krakenModule.ISet - 1; i++)
                     {
-                        P[i] = krakMod.EVMat[i][krakMod.Mode];
+                        p[i] = krakenModule.EVMat[i][krakenModule.Mode];
                     }
 
-                    if (krakMod.ISet >= 3)
+                    if (krakenModule.ISet >= 3)
                     {
-                        for (var II = 1; II <= krakMod.ISet - 2; II++)
+                        for (var II = 1; II <= krakenModule.ISet - 2; II++)
                         {
-                            for (var J = 1; J <= krakMod.ISet - II - 1; J++)
+                            for (var j = 1; j <= krakenModule.ISet - II - 1; j++)
                             {
-                                var X1 = Math.Pow(krakMod.HV[J], 2);
-                                var X2 = Math.Pow(krakMod.HV[J + II], 2);
+                                var x1 = Math.Pow(krakenModule.HV[j], 2);
+                                var x2 = Math.Pow(krakenModule.HV[j + II], 2);
 
-                                P[J] = ((Math.Pow(krakMod.HV[krakMod.ISet], 2) - X2) * P[J] -
-                                        (Math.Pow(krakMod.HV[krakMod.ISet], 2) - X1) * P[J + 1]) / (X1 - X2);
+                                p[j] = ((Math.Pow(krakenModule.HV[krakenModule.ISet], 2) - x2) * p[j] -
+                                        (Math.Pow(krakenModule.HV[krakenModule.ISet], 2) - x1) * p[j + 1]) / (x1 - x2);
                             }
                         }
-                        X = P[1];
+                        x = p[1];
                     }
                 }
-                var IERR = 0;
-                //var TOL = Math.Abs(X) * 10 * Math.Pow(0.1, 11);
-                var TOL = Math.Abs(X) * (krakMod.B1.Count - 1) * Math.Pow(0.1, 15);
+                var errorFlag = 0;  
+                
+                var tolerance = Math.Abs(x) * (krakenModule.B1.Count - 1) * Math.Pow(0.1, 15);
                
-                ZSCEX(krakMod, ref X, TOL, MaxIT,ref IERR);
-                if (IERR == -1)
+                RootFinderSecant(krakenModule, ref x, tolerance, maxIteration,ref errorFlag);
+                if (errorFlag == -1)
                 {
-                    krakMod.Warnings.Add("Root finder secant failure to converge.");
-                    X = 1 / double.MaxValue;
+                    krakenModule.Warnings.Add("Root finder secant failure to converge.");
+                    x = 1 / double.MaxValue;
                 }
 
-                krakMod.EVMat[krakMod.ISet][krakMod.Mode] = X;
+                krakenModule.EVMat[krakenModule.ISet][krakenModule.Mode] = x;
 
-                if (krakMod.Omega2 / X > Math.Pow(krakMod.CHigh, 2))
+                if (krakenModule.Omega2 / x > Math.Pow(krakenModule.CHigh, 2))
                 {
-                    krakMod.M = krakMod.Mode - 1;
+                    krakenModule.M = krakenModule.Mode - 1;
                     return;
                 }
             }
@@ -635,183 +621,183 @@ Output:
 
         }
 
-        private void SOLVE3(KrakMod krakMod)
+        private void Solve3(KrakenModule krakenModule)
         {
-            var MaxIT = 500;
-            var XMin = 1.00001 * krakMod.Omega2 / Math.Pow(krakMod.CHigh, 2);
-            var DELTA = 0.0;
-            var IPower = 0;           
+            var maxIteration = 500;
+            var xMin = 1.00001 * krakenModule.Omega2 / Math.Pow(krakenModule.CHigh, 2);
+            var delta = 0.0;
+            var iPower = 0;           
 
-            FUNCT(krakMod, XMin, ref DELTA, ref IPower);
-            krakMod.M = krakMod.ModeCount;
+            Funct(krakenModule, xMin, ref delta, ref iPower);
+            krakenModule.M = krakenModule.ModeCount;
 
-            for (krakMod.Mode = 1; krakMod.Mode <= krakMod.M; krakMod.Mode++)
+            for (krakenModule.Mode = 1; krakenModule.Mode <= krakenModule.M; krakenModule.Mode++)
             {
-                var X = krakMod.EVMat[krakMod.ISet][krakMod.Mode];
-                var TOL = Math.Abs(X) * Math.Pow(10, (2.0 - 15));
+                var x = krakenModule.EVMat[krakenModule.ISet][krakenModule.Mode];
+                var tolerance = Math.Abs(x) * Math.Pow(10, (2.0 - 15));
 
-                var IERR = 0;
+                var errorFlag = 0;
 
-                ZSCEX(krakMod, ref X, TOL,MaxIT,ref IERR);
-                if (IERR == -1)
+                RootFinderSecant(krakenModule, ref x, tolerance,maxIteration,ref errorFlag);
+                if (errorFlag == -1)
                 {
-                    krakMod.Warnings.Add("Root finder secant failure to converge.");
-                    X = 1 / double.MaxValue;
+                    krakenModule.Warnings.Add("Root finder secant failure to converge.");
+                    x = 1 / double.MaxValue;
                 }
 
-                krakMod.EVMat[krakMod.ISet][krakMod.Mode] = X;
-                if (krakMod.Omega2 / X > Math.Pow(krakMod.CHigh, 2))
+                krakenModule.EVMat[krakenModule.ISet][krakenModule.Mode] = x;
+                if (krakenModule.Omega2 / x > Math.Pow(krakenModule.CHigh, 2))
                 {
-                    krakMod.M = krakMod.Mode - 1;
+                    krakenModule.M = krakenModule.Mode - 1;
                     return;
                 }
             }
         }
 
-        private void FUNCT(KrakMod krakMod, double X, ref double DELTA, ref int IPower)
+        private void Funct(KrakenModule krakenModule, double x, ref double delta, ref int iPower)
         {
-            double Roof = Math.Pow(10, 50);
-            double Floor = Math.Pow(0.1, 50);
-            int IPowerR = 50;
-            int IPowerF = -50;
+            double roof = Math.Pow(10, 50);
+            double floor = Math.Pow(0.1, 50);
+            int iPowerR = 50;
+            int iPowerF = -50;
 
-            double F = 0.0, G = 0.0, F1 = 0.0, G1 = 0.0;
-            int IPower1 = 0;
+            double f = 0.0, g = 0.0, f1 = 0.0, G1 = 0.0;
+            int iPower1 = 0;
 
-            var bcimpMod = new BCIMPMod();
+            var bcimpSolver = new BCImpedanceSolver();
 
-            if (X <= krakMod.Omega2 / Math.Pow(krakMod.CHigh, 2))
+            if (x <= krakenModule.Omega2 / Math.Pow(krakenModule.CHigh, 2))
             {
-                DELTA = 0.0;
-                IPower = 0;
+                delta = 0.0;
+                iPower = 0;
                 return;
             }
 
-            krakMod.ModeCount = 0;
-            var BCType = krakMod.BotOpt[0].ToString();
-            bcimpMod.BCIMP(krakMod, X, BCType, "BOT", krakMod.CPB, krakMod.CSB, krakMod.rhoB, ref F, ref G, ref IPower);
+            krakenModule.ModeCount = 0;
+            var BCType = krakenModule.BCBottom[0].ToString();
+            bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x, BCType, "BOT", krakenModule.CPBottom, krakenModule.CSBottom, krakenModule.RhoBottom, ref f, ref g, ref iPower);
 
-            ACOUST(krakMod, X, ref F, ref G, ref IPower);
-            BCType = krakMod.TopOpt[1].ToString();
-            bcimpMod.BCIMP(krakMod, X, BCType, "TOP", krakMod.CPT, krakMod.CST, krakMod.rhoT, ref F1, ref G1, ref IPower1);
+            AcousticLayers(krakenModule, x, ref f, ref g, ref iPower);
+            BCType = krakenModule.BCTop[1].ToString();
+            bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x, BCType, "TOP", krakenModule.CPTop, krakenModule.CSTop, krakenModule.RhoTop, ref f1, ref G1, ref iPower1);
 
-            DELTA = F * G1 - G * F1;
-            if (G * DELTA > 0.0)
+            delta = f * G1 - g * f1;
+            if (g * delta > 0.0)
             {
-                krakMod.ModeCount++;
+                krakenModule.ModeCount++;
             }
 
-            if (krakMod.Mode > 1 && krakMod.NMedia > (krakMod.LastAcoustic - krakMod.FirstAcoustic + 1))
+            if (krakenModule.Mode > 1 && krakenModule.NMedia > (krakenModule.LastAcoustic - krakenModule.FirstAcoustic + 1))
             {
-                for (var J = 1; J <= krakMod.Mode - 1; J++)
+                for (var j = 1; j <= krakenModule.Mode - 1; j++)
                 {
-                    DELTA /= (X - krakMod.EVMat[krakMod.ISet][J]);
+                    delta /= (x - krakenModule.EVMat[krakenModule.ISet][j]);
 
-                    while (Math.Abs(DELTA) < Floor && Math.Abs(DELTA) > 0.0)
+                    while (Math.Abs(delta) < floor && Math.Abs(delta) > 0.0)
                     {
-                        DELTA = Roof * DELTA;
-                        IPower -= IPowerR;
+                        delta = roof * delta;
+                        iPower -= iPowerR;
                     }
 
-                    while (Math.Abs(DELTA) > Roof)
+                    while (Math.Abs(delta) > roof)
                     {
-                        DELTA = Floor * DELTA;
-                        IPower -= IPowerF;
+                        delta = floor * delta;
+                        iPower -= iPowerF;
                     }
                 }
             }
         }
 
-        private void ACOUST(KrakMod krakMod, double X, ref double F, ref double G, ref int IPower)
+        private void AcousticLayers(KrakenModule krakenModule, double x, ref double f, ref double g, ref int iPower)
         {
-            var Roof = Math.Pow(10, 50);
-            var Floor = Math.Pow(0.1, 50);
-            var IPowerF = -50;
+            var roof = Math.Pow(10, 50);
+            var floor = Math.Pow(0.1, 50);
+            var iPowerF = -50;
 
-            if (krakMod.FirstAcoustic == 0)
+            if (krakenModule.FirstAcoustic == 0)
             {
                 return;
             }
 
-            for (var Medium = krakMod.LastAcoustic; Medium >= krakMod.FirstAcoustic; Medium--)
+            for (var medium = krakenModule.LastAcoustic; medium >= krakenModule.FirstAcoustic; medium--)
             {
-                var H2K2 = Math.Pow(krakMod.H[Medium], 2) * X;
-                var ii = krakMod.LOC[Medium] + krakMod.N[Medium] + 1;
-                var rhoM = krakMod.RHO[krakMod.LOC[Medium] + 1];
-                var P1 = -2.0 * G;
-                var P2 = (krakMod.B1[ii] - H2K2) * G - 2.0 * krakMod.H[Medium] * F * rhoM;
+                var h2k2 = Math.Pow(krakenModule.H[medium], 2) * x;
+                var ii = krakenModule.Loc[medium] + krakenModule.N[medium] + 1;
+                var rhoM = krakenModule.Rho[krakenModule.Loc[medium] + 1];
+                var p1 = -2.0 * g;
+                var p2 = (krakenModule.B1[ii] - h2k2) * g - 2.0 * krakenModule.H[medium] * f * rhoM;
 
-                var P0 = 0.0;
-                for (ii = krakMod.LOC[Medium] + krakMod.N[Medium]; ii >= krakMod.LOC[Medium] + 1; ii--)
+                var p0 = 0.0;
+                for (ii = krakenModule.Loc[medium] + krakenModule.N[medium]; ii >= krakenModule.Loc[medium] + 1; ii--)
                 {
-                    P0 = P1;
-                    P1 = P2;
-                    P2 = (H2K2 - krakMod.B1[ii]) * P1 - P0;
+                    p0 = p1;
+                    p1 = p2;
+                    p2 = (h2k2 - krakenModule.B1[ii]) * p1 - p0;
 
-                    if (P0 * P1 <= 0.0)
+                    if (p0 * p1 <= 0.0)
                     {
-                        krakMod.ModeCount++;
+                        krakenModule.ModeCount++;
                     }
 
-                    if(Math.Abs(P2) > Roof)
+                    if(Math.Abs(p2) > roof)
                     {
-                        P0 = Floor * P0;
-                        P1 = Floor * P1;
-                        P2 = Floor * P2;
-                        IPower -= IPowerF;
+                        p0 = floor * p0;
+                        p1 = floor * p1;
+                        p2 = floor * p2;
+                        iPower -= iPowerF;
                     }
                 }
 
-                rhoM = krakMod.RHO[krakMod.LOC[Medium] + 1];
-                F = -(P2 - P0) / (2.0 * krakMod.H[Medium]) / rhoM;
-                G = -P1;
+                rhoM = krakenModule.Rho[krakenModule.Loc[medium] + 1];
+                f = -(p2 - p0) / (2.0 * krakenModule.H[medium]) / rhoM;
+                g = -p1;
             }
         }
 
-        private void NORMIZ(KrakMod krakMod, List<double> PHI, int ITP, int NTot1, double X)
+        private void NormalizeEigenvector(KrakenModule krakenModule, List<double> Phi, int iTP, int NTot1, double x)
         {
-            Complex PERK = new Complex(0.0, 0.0);
-            Complex DEL = new Complex();
+            Complex pertubationK = new Complex(0.0, 0.0);
+            Complex del = new Complex();
 
-            double SLOW, SQNRM;
-            SQNRM = 0.0;
-            SLOW = 0.0;
+            double slow, sqNorm;
+            sqNorm = 0.0;
+            slow = 0.0;
 
-            if (krakMod.TopOpt[1] == 'A')
+            if (krakenModule.BCTop[1] == 'A')
             {
-                DEL = -0.5 * (krakMod.Omega2 / Complex.Pow(krakMod.CPT, 2) - (krakMod.Omega2 / Complex.Pow(krakMod.CPT, 2)).Real /
-                            Math.Sqrt(X - (krakMod.Omega2 / Complex.Pow(krakMod.CPT, 2)).Real));
-                /*DEL = krakMod.i * Complex.Sqrt(X - krakMod.Omega2/(Complex.Pow(krakMod.CPT,2)));*/
-                PERK -= DEL * Math.Pow(PHI[1], 2) / krakMod.rhoT;
-                SLOW += Math.Pow(PHI[1], 2) / (2 * Math.Sqrt(X - (krakMod.Omega2 / Complex.Pow(krakMod.CPT, 2)).Real))
-                        / (krakMod.rhoT * Math.Pow(krakMod.CPT.Real, 2));
+                /*del = -0.5 * (krakenModule.Omega2 / Complex.Pow(krakenModule.CPTop, 2) - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPTop, 2)).Real /
+                            Math.Sqrt(x - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPTop, 2)).Real));*/
+                del = krakenModule.i * Complex.Sqrt(x - krakenModule.Omega2/(Complex.Pow(krakenModule.CPTop,2))).Imaginary;
+                pertubationK -= del * Math.Pow(Phi[1], 2) / krakenModule.RhoTop;
+                slow += Math.Pow(Phi[1], 2) / (2 * Math.Sqrt(x - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPTop, 2)).Real))
+                        / (krakenModule.RhoTop * Math.Pow(krakenModule.CPTop.Real, 2));
             }
 
-            var L = krakMod.LOC[krakMod.FirstAcoustic];
-            var J = 1;
+            var l = krakenModule.Loc[krakenModule.FirstAcoustic];
+            var j = 1;
 
-            for (var Medium = krakMod.FirstAcoustic; Medium <= krakMod.LastAcoustic; Medium++)
+            for (var medium = krakenModule.FirstAcoustic; medium <= krakenModule.LastAcoustic; medium++)
             {
-                L += 1;
-                var rhoM = krakMod.RHO[L];
-                var rhoOMH2 = rhoM * krakMod.Omega2 * Math.Pow(krakMod.H[Medium], 2);
+                l += 1;
+                var rhoM = krakenModule.Rho[l];
+                var rhoOmH2 = rhoM * krakenModule.Omega2 * Math.Pow(krakenModule.H[medium], 2);
 
-                SQNRM += 0.5 * krakMod.H[Medium] * Math.Pow(PHI[J], 2) / rhoM;
-                PERK += 0.5 * krakMod.H[Medium] * krakMod.i * krakMod.B1C[L] * Math.Pow(PHI[J], 2) / rhoM;
-                SLOW += 0.5 * krakMod.H[Medium] * (krakMod.B1[L] + 2) * Math.Pow(PHI[J], 2) / rhoOMH2;
+                sqNorm += 0.5 * krakenModule.H[medium] * Math.Pow(Phi[j], 2) / rhoM;
+                pertubationK += 0.5 * krakenModule.H[medium] * krakenModule.i * krakenModule.B1C[l] * Math.Pow(Phi[j], 2) / rhoM;
+                slow += 0.5 * krakenModule.H[medium] * (krakenModule.B1[l] + 2) * Math.Pow(Phi[j], 2) / rhoOmH2;
 
-                var L1 = L + 1;
-                L = L + krakMod.N[Medium] - 1;
-                var J1 = J + 1;
-                J = J + krakMod.N[Medium] - 1;
+                var L1 = l + 1;
+                l = l + krakenModule.N[medium] - 1;
+                var J1 = j + 1;
+                j = j + krakenModule.N[medium] - 1;
 
-                var phiPowRange = PHI.GetRange(J1, J - J1 + 1).Select(x => x * x).ToList();
+                var phiPowRange = Phi.GetRange(J1, j - J1 + 1).Select(p => p * p).ToList();
                 phiPowRange.Insert(0, 0);
 
-                var b1Range = krakMod.B1.GetRange(L1, L - L1 + 1).Select(x => x + 2).ToList();
+                var b1Range = krakenModule.B1.GetRange(L1, l - L1 + 1).Select(p => p + 2).ToList();
                 b1Range.Insert(0, 0);
 
-                var b1CRange = krakMod.B1C.GetRange(L1, L - L1 + 1).ToList();
+                var b1CRange = krakenModule.B1C.GetRange(L1, l - L1 + 1).ToList();
                 b1CRange.Insert(0, 0);
 
                 var phiPowSum = 0.0;
@@ -824,156 +810,171 @@ Output:
                     b1CPhiSum += b1CRange[i] * phiPowRange[i];
                 }
 
-                SQNRM += krakMod.H[Medium] * phiPowSum / rhoM;
-                PERK += krakMod.H[Medium] * krakMod.i * b1CPhiSum / rhoM;
-                SLOW += krakMod.H[Medium] * b1PhiSum / rhoOMH2;
+                sqNorm += krakenModule.H[medium] * phiPowSum / rhoM;
+                pertubationK += krakenModule.H[medium] * krakenModule.i * b1CPhiSum / rhoM;
+                slow += krakenModule.H[medium] * b1PhiSum / rhoOmH2;
 
-                L += 1;
-                J += 1;
-                SQNRM += 0.5 * krakMod.H[Medium] * Math.Pow(PHI[J], 2) / rhoM;
-                PERK += 0.5 * krakMod.H[Medium] * krakMod.i * krakMod.B1C[L] * Math.Pow(PHI[J], 2) / rhoM;
-                SLOW += 0.5 * krakMod.H[Medium] * (krakMod.B1[L] + 2) * Math.Pow(PHI[J], 2) / rhoOMH2;
+                l += 1;
+                j += 1;
+                sqNorm += 0.5 * krakenModule.H[medium] * Math.Pow(Phi[j], 2) / rhoM;
+                pertubationK += 0.5 * krakenModule.H[medium] * krakenModule.i * krakenModule.B1C[l] * Math.Pow(Phi[j], 2) / rhoM;
+                slow += 0.5 * krakenModule.H[medium] * (krakenModule.B1[l] + 2) * Math.Pow(Phi[j], 2) / rhoOmH2;
             }
 
-            if (krakMod.BotOpt[0] == 'A')
+            /* if (krakenModule.BCBottom[0] == 'A')
+             {
+                 del = -0.5 * (krakenModule.Omega2 / Complex.Pow(krakenModule.CPBottom, 2) - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPBottom, 2)).Real /
+                             Complex.Sqrt(x - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPBottom, 2))).Real);
+                 pertubationK -= del * Math.Pow(Phi[j], 2) / krakenModule.RhoBottom;
+                 slow += Complex.Pow(Phi[j], 2).Real / (2 * Complex.Sqrt(x - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPBottom, 2)))).Real
+                         / (krakenModule.RhoBottom * Complex.Pow(krakenModule.CPBottom, 2)).Real;
+             }*/
+
+            var bcimpSolver = new BCImpedanceSolver();
+
+            double f1 = 0.0, G1 = 0.01, f2 = 0.0, G2 = 0.0;
+            var BCType = krakenModule.BCBottom[0].ToString();
+            int iPower = 0;
+
+            if (krakenModule.BCBottom[0] == 'A')
             {
-                DEL = -0.5 * (krakMod.Omega2 / Complex.Pow(krakMod.CPB, 2) - (krakMod.Omega2 / Complex.Pow(krakMod.CPB, 2)).Real /
-                            Complex.Sqrt(X - (krakMod.Omega2 / Complex.Pow(krakMod.CPB, 2))).Real);
-                PERK -= DEL * Math.Pow(PHI[J], 2) / krakMod.rhoB;
-                SLOW += Complex.Pow(PHI[J], 2).Real / (2 * Complex.Sqrt(X - (krakMod.Omega2 / Complex.Pow(krakMod.CPB, 2)))).Real
-                        / (krakMod.rhoB * Complex.Pow(krakMod.CPB, 2)).Real;
+                Complex fBot2, gBot2;
+                double fBot1 = 0, gBot1= 0;
+                bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x, BCType, "BOT", krakenModule.CPBottom, krakenModule.CSBottom, krakenModule.RhoBottom, ref fBot1, ref gBot1, ref iPower);
+                bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x, BCType, "BOT", krakenModule.CPBottom, krakenModule.CSBottom, krakenModule.RhoBottom, ref fBot2, ref gBot2, ref iPower);
+
+                del = fBot2 / gBot2 - fBot1 / gBot1;
+                pertubationK -= del * Complex.Pow(Phi[j],2);
             }
 
-            var X1 = 0.9999999 * X;
-            var X2 = 1.0000001 * X;
+            var x1 = 0.9999999 * x;
+            var x2 = 1.0000001 * x;
 
-            var BCType = krakMod.TopOpt[1].ToString();
-            double F1 = 0.0, G1 = 0.01, F2 = 0.0, G2 = 0.0;
-            int IPower = 0;
-            var bcimpMod = new BCIMPMod();
-            bcimpMod.BCIMP(krakMod, X1, BCType, "TOP", krakMod.CPT, krakMod.CST, krakMod.rhoT, ref F1, ref G1, ref IPower);
-            bcimpMod.BCIMP(krakMod, X2, BCType, "TOP", krakMod.CPT, krakMod.CST, krakMod.rhoT, ref F2, ref G2, ref IPower);
-            var DrhoDX = 0.0;
+            BCType = krakenModule.BCTop[1].ToString();           
+            
+            
+            bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x1, BCType, "TOP", krakenModule.CPTop, krakenModule.CSTop, krakenModule.RhoTop, ref f1, ref G1, ref iPower);
+            bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x2, BCType, "TOP", krakenModule.CPTop, krakenModule.CSTop, krakenModule.RhoTop, ref f2, ref G2, ref iPower);
+            var dRhoDx = 0.0;
             if (G1 != 0)
             {
-                DrhoDX = -(F2 / G2 - F1 / G1) / (X2 - X1);
+                dRhoDx = -(f2 / G2 - f1 / G1) / (x2 - x1);
             }
-
-            BCType = krakMod.BotOpt[0].ToString();
-            bcimpMod.BCIMP(krakMod, X1, BCType, "BOT", krakMod.CPB, krakMod.CSB, krakMod.rhoB, ref F1, ref G1, ref IPower);
-            bcimpMod.BCIMP(krakMod, X2, BCType, "BOT", krakMod.CPB, krakMod.CSB, krakMod.rhoB, ref F2, ref G2, ref IPower);
-            var DetaDX = 0.0;
+            
+            bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x1, BCType, "BOT", krakenModule.CPBottom, krakenModule.CSBottom, krakenModule.RhoBottom, ref f1, ref G1, ref iPower);
+            bcimpSolver.ComputeBoundaryConditionImpedance(krakenModule, x2, BCType, "BOT", krakenModule.CPBottom, krakenModule.CSBottom, krakenModule.RhoBottom, ref f2, ref G2, ref iPower);
+            var deltaDx = 0.0;
             if (G1 != 0)
             {
-                DrhoDX = -(F2 / G2 - F1 / G1) / (X2 - X1);
+                dRhoDx = -(f2 / G2 - f1 / G1) / (x2 - x1);
             }
 
-            var RN = SQNRM - DrhoDX * Math.Pow(PHI[1], 2) + DetaDX * Math.Pow(PHI[NTot1], 2);
+            var rN = sqNorm - dRhoDx * Math.Pow(Phi[1], 2) + deltaDx * Math.Pow(Phi[NTot1], 2);
 
-            if (RN <= 0.0)
+            if (rN <= 0.0)
             {
-                RN = -RN;
-                krakMod.Warnings.Add($"Mode = {krakMod.Mode}. Normalization constant non-positive; suggests grid too coarse");
+                rN = -rN;
+                krakenModule.Warnings.Add($"Mode = {krakenModule.Mode}. Normalization constant non-positive; suggests grid too coarse");
             }
 
-            var SCALEF = 1.0 / Math.Sqrt(RN);
-            if (PHI[ITP] < 0.0)
+            var scaleFactor = 1.0 / Math.Sqrt(rN);
+            if (Phi[iTP] < 0.0)
             {
-                SCALEF = -SCALEF;
+                scaleFactor = -scaleFactor;
             }
 
             for (var i = 1; i <= NTot1; i++)
             {
-                PHI[i] = SCALEF * PHI[i];
+                Phi[i] = scaleFactor * Phi[i];
             }
 
 
-            PERK = Math.Pow(SCALEF, 2) * PERK;
-            SLOW = Math.Pow(SCALEF, 2) * SLOW * Math.Sqrt(krakMod.Omega2 / X);
-            krakMod.VG[krakMod.Mode] = 1 / SLOW;
+            pertubationK = Math.Pow(scaleFactor, 2) * pertubationK;
+            slow = Math.Pow(scaleFactor, 2) * slow * Math.Sqrt(krakenModule.Omega2 / x);
+            krakenModule.VG[krakenModule.Mode] = 1 / slow;
 
-            SCAT(krakMod, ref PERK, PHI, X);
+            FigureScatterLoss(krakenModule, ref pertubationK, Phi, x);
         }
 
-        private void SCAT(KrakMod krakMod, ref Complex PERK, List<double> PHI, double X)
+        private void FigureScatterLoss(KrakenModule krakenModule, ref Complex pertubationK, List<double> Phi, double x)
         {
-            var OMEGA = Math.Sqrt(krakMod.Omega2);
-            var KX = Math.Sqrt(X);
+            var omega = Math.Sqrt(krakenModule.Omega2);
+            var kx = Math.Sqrt(x);
             double rho1 = 0.0, rho2 = 0.0, eta1SQ = 0.0, eta2SQ = 0.0,
-                U = 0.0;
+                u = 0.0;
 
-            var BCType = krakMod.TopOpt[1].ToString();
-            double rhoINS;
+            var BCType = krakenModule.BCTop[1].ToString();
+            double rhoInside;
             if (BCType == "S" || BCType == "H" || BCType == "T" || BCType == "I")
             {
-                var Itop = krakMod.LOC[krakMod.FirstAcoustic] + krakMod.N[krakMod.FirstAcoustic] + 1;
-                rhoINS = krakMod.RHO[Itop];
-                var CINS = Math.Sqrt(krakMod.Omega2 * Math.Pow(krakMod.H[krakMod.FirstAcoustic], 2) / (2.0 + krakMod.B1[krakMod.FirstAcoustic]));
-                var CImped = TWERSK(BCType[0], OMEGA, krakMod.BumDen, krakMod.xi, krakMod.eta, KX, rhoINS, CINS);
-                CImped /= (-krakMod.i * OMEGA * rhoINS);
-                var DPHIDZ = PHI[2] / krakMod.H[krakMod.FirstAcoustic];
-                PERK -= CImped * Math.Pow(DPHIDZ, 2);
+                var iTop = krakenModule.Loc[krakenModule.FirstAcoustic] + krakenModule.N[krakenModule.FirstAcoustic] + 1;
+                rhoInside = krakenModule.Rho[iTop];
+                var cInside = Math.Sqrt(krakenModule.Omega2 * Math.Pow(krakenModule.H[krakenModule.FirstAcoustic], 2) / (2.0 + krakenModule.B1[krakenModule.FirstAcoustic]));
+                var cImped = Twersky(BCType[0], omega, krakenModule.BumpDensity, krakenModule.Xi, krakenModule.Eta, kx, rhoInside, cInside);
+                cImped /= (-krakenModule.i * omega * rhoInside);
+                var dPhiDz = Phi[2] / krakenModule.H[krakenModule.FirstAcoustic];
+                pertubationK -= cImped * Math.Pow(dPhiDz, 2);
             }
 
-            BCType = krakMod.BotOpt;
+            BCType = krakenModule.BCBottom;
             if (BCType == "S" || BCType == "H" || BCType == "T" || BCType == "I")
             {
-                var Ibot = krakMod.LOC[krakMod.FirstAcoustic] + krakMod.N[krakMod.FirstAcoustic] + 1;
-                rhoINS = krakMod.RHO[Ibot];
-                var CINS = Math.Sqrt(krakMod.Omega2 * Math.Pow(krakMod.H[krakMod.LastAcoustic], 2) / (2.0 + krakMod.B1[krakMod.LastAcoustic]));
-                var CImped = TWERSK(BCType[0], OMEGA, krakMod.BumDen, krakMod.xi, krakMod.eta, KX, rhoINS, CINS);
-                CImped /= (-krakMod.i * OMEGA * rhoINS);
-                var DPHIDZ = PHI[2] / krakMod.H[krakMod.FirstAcoustic];
-                PERK -= CImped * Math.Pow(DPHIDZ, 2);
+                var iBottom = krakenModule.Loc[krakenModule.FirstAcoustic] + krakenModule.N[krakenModule.FirstAcoustic] + 1;
+                rhoInside = krakenModule.Rho[iBottom];
+                var cInside = Math.Sqrt(krakenModule.Omega2 * Math.Pow(krakenModule.H[krakenModule.LastAcoustic], 2) / (2.0 + krakenModule.B1[krakenModule.LastAcoustic]));
+                var cImped = Twersky(BCType[0], omega, krakenModule.BumpDensity, krakenModule.Xi, krakenModule.Eta, kx, rhoInside, cInside);
+                cImped /= (-krakenModule.i * omega * rhoInside);
+                var dPhiDz = Phi[2] / krakenModule.H[krakenModule.FirstAcoustic];
+                pertubationK -= cImped * Math.Pow(dPhiDz, 2);
             }
 
-            var J = 1;
-            var L = krakMod.LOC[krakMod.FirstAcoustic];
+            var j = 1;
+            var l = krakenModule.Loc[krakenModule.FirstAcoustic];
 
-            for (var Medium = krakMod.FirstAcoustic - 1; Medium <= krakMod.LastAcoustic; Medium++)
+            for (var medium = krakenModule.FirstAcoustic - 1; medium <= krakenModule.LastAcoustic; medium++)
             {
-                if (Medium == krakMod.FirstAcoustic - 1)
+                if (medium == krakenModule.FirstAcoustic - 1)
                 {
-                    BCType = krakMod.TopOpt[1].ToString();
+                    BCType = krakenModule.BCTop[1].ToString();
                     switch (BCType)
                     {
                         case "A":
-                            rho1 = krakMod.rhoT;
-                            eta1SQ = X - (krakMod.Omega2 / Complex.Pow(krakMod.CPT, 2)).Real;
-                            U = Math.Sqrt(eta1SQ) * PHI[1] / krakMod.rhoT;
+                            rho1 = krakenModule.RhoTop;
+                            eta1SQ = x - (krakenModule.Omega2 / Complex.Pow(krakenModule.CPTop, 2)).Real;
+                            u = Math.Sqrt(eta1SQ) * Phi[1] / krakenModule.RhoTop;
                             break;
                         case "V":
                             rho1 = Math.Pow(0.1, 9);
                             eta1SQ = 1.0;
-                            rhoINS = krakMod.RHO[krakMod.LOC[krakMod.FirstAcoustic] + 1];
-                            U = PHI[2] / krakMod.H[krakMod.FirstAcoustic] / rhoINS;
+                            rhoInside = krakenModule.Rho[krakenModule.Loc[krakenModule.FirstAcoustic] + 1];
+                            u = Phi[2] / krakenModule.H[krakenModule.FirstAcoustic] / rhoInside;
                             break;
                         case "R":
                             rho1 = Math.Pow(10, 9);
                             eta1SQ = 1.0;
-                            U = 0.0;
+                            u = 0.0;
                             break;
                     }
                 }
                 else
                 {
-                    var H2 = Math.Pow(krakMod.H[Medium], 2);
-                    J += krakMod.N[Medium];
-                    L = krakMod.LOC[Medium] + krakMod.N[Medium] + 1;
+                    var h2 = Math.Pow(krakenModule.H[medium], 2);
+                    j += krakenModule.N[medium];
+                    l = krakenModule.Loc[medium] + krakenModule.N[medium] + 1;
 
-                    rho1 = krakMod.RHO[L];
-                    eta1SQ = (2.0 + krakMod.B1[L]) / H2 - X;
-                    U = (-PHI[J - 1] - 0.5 * (krakMod.B1[L] - H2 * X) * PHI[J]) / (krakMod.H[Medium] * rho1);
+                    rho1 = krakenModule.Rho[l];
+                    eta1SQ = (2.0 + krakenModule.B1[l]) / h2 - x;
+                    u = (-Phi[j - 1] - 0.5 * (krakenModule.B1[l] - h2 * x) * Phi[j]) / (krakenModule.H[medium] * rho1);
                 }
 
-                if (Medium == krakMod.LastAcoustic)
+                if (medium == krakenModule.LastAcoustic)
                 {
-                    BCType = krakMod.BotOpt[0].ToString();
+                    BCType = krakenModule.BCBottom[0].ToString();
                     switch (BCType)
                     {
                         case "A":
-                            rho2 = krakMod.rhoB;
-                            eta2SQ = (krakMod.Omega2 / Complex.Pow(krakMod.CPB, 2)).Real - X;
+                            rho2 = krakenModule.RhoBottom;
+                            eta2SQ = (krakenModule.Omega2 / Complex.Pow(krakenModule.CPBottom, 2)).Real - x;
                             break;
                         case "V":
                             rho2 = Math.Pow(0.1, 9);
@@ -987,71 +988,71 @@ Output:
                 }
                 else
                 {
-                    rho2 = krakMod.RHO[L + 1];
-                    eta2SQ = (2.0 + krakMod.B1[L + 1]) / Math.Pow(krakMod.H[Medium + 1], 2) - X;
+                    rho2 = krakenModule.Rho[l + 1];
+                    eta2SQ = (2.0 + krakenModule.B1[l + 1]) / Math.Pow(krakenModule.H[medium + 1], 2) - x;
                 }
 
-                var PHIC = new Complex(PHI[J], 0.0);
-                var kupingMod = new KupingMod();
-                PERK += kupingMod.KUPING(krakMod.SIGMA[Medium + 1], eta1SQ, rho1, eta2SQ, rho2, PHIC, U);
+                var PhiComplex = new Complex(Phi[j], 0.0);
+                var kupIngFormulation = new KupermanIngenitoFormulation();
+                pertubationK += kupIngFormulation.EvaluateImaginaryPerturbation(krakenModule.Sigma[medium + 1], eta1SQ, rho1, eta2SQ, rho2, PhiComplex, u);
             }
 
-            krakMod.k[krakMod.Mode] = PERK;
+            krakenModule.K[krakenModule.Mode] = pertubationK;
         }
 
-        private void BISECT(KrakMod krakMod, double XMin, double XMax, ref List<double> XL, ref List<double> XR)
+        private void Bisection(KrakenModule krakenModule, double xMin, double xMax, ref List<double> xL, ref List<double> xR)
         {
-            int MaxBis = 50;
-            for (var i = 0; i < XL.Count; i++)
+            int maxBisection = 50;
+            for (var i = 0; i < xL.Count; i++)
             {
-                XL[i] = XMin;
-                XR[i] = XMax;
+                xL[i] = xMin;
+                xR[i] = xMax;
             }
 
-            double DELTA = 0;
-            int IPower = 0;
+            double delta = 0;
+            int iPower = 0;
 
-            FUNCT(krakMod, XMax, ref DELTA, ref IPower);
-            var NZER1 = krakMod.ModeCount;
+            Funct(krakenModule, xMax, ref delta, ref iPower);
+            var nZer1 = krakenModule.ModeCount;
 
-            if (krakMod.M == 1)
+            if (krakenModule.M == 1)
             {
                 return;
             }
 
-            for (krakMod.Mode = 1; krakMod.Mode <= krakMod.M - 1; krakMod.Mode++)
+            for (krakenModule.Mode = 1; krakenModule.Mode <= krakenModule.M - 1; krakenModule.Mode++)
             {
-                if (XL[krakMod.Mode] == XMin)
+                if (xL[krakenModule.Mode] == xMin)
                 {
-                    double X2 = XR[krakMod.Mode];
-                    var max = XL.GetRange(krakMod.Mode + 1, krakMod.M - krakMod.Mode).Max();
-                    double X1 = Math.Max(max, XMin);
+                    double x2 = xR[krakenModule.Mode];
+                    var max = xL.GetRange(krakenModule.Mode + 1, krakenModule.M - krakenModule.Mode).Max();
+                    double x1 = Math.Max(max, xMin);
 
-                    for (var J = 1; J <= MaxBis; J++)
+                    for (var j = 1; j <= maxBisection; j++)
                     {
-                        double X = X1 + (X2 - X1) / 2;
-                        FUNCT(krakMod, X, ref DELTA, ref IPower);
-                        var NZeros = krakMod.ModeCount - NZER1;
+                        double x = x1 + (x2 - x1) / 2;
+                        Funct(krakenModule, x, ref delta, ref iPower);
+                        var nZeros = krakenModule.ModeCount - nZer1;
 
-                        if (NZeros < krakMod.Mode)
+                        if (nZeros < krakenModule.Mode)
                         {
-                            X2 = X;
-                            XR[krakMod.Mode] = X;
+                            x2 = x;
+                            xR[krakenModule.Mode] = x;
                         }
                         else
                         {
-                            X1 = X;
-                            if (XR[NZeros + 1] >= X)
+                            x1 = x;
+                            if (xR[nZeros + 1] >= x)
                             {
-                                XR[NZeros + 1] = X;
+                                xR[nZeros + 1] = x;
                             }
-                            if (XL[NZeros] <= X)
+                            if (xL[nZeros] <= x)
                             {
-                                XL[NZeros] = X;
+                                xL[nZeros] = x;
                             }
                         }
 
-                        if (XL[krakMod.Mode] != XMin)
+                        if (xL[krakenModule.Mode] != xMin)
                         {
                             break;
                         }
@@ -1060,189 +1061,189 @@ Output:
             }
         }
 
-        private void ZSCEX(KrakMod krakMod, ref double x2, double TOL, int MAXIteration, ref int IERR)
+        private void RootFinderSecant(KrakenModule krakenModule, ref double x2, double tolerance, int MAXIteration, ref int errorFlag)
         {
-            var x1 = x2 + 10.0 * TOL;
-            double F1 = 0;
-            int IPower1 = 1;
-            if(krakMod.Mode >= 40)
-            {
+            var x1 = x2 + 10.0 * tolerance;
+            double f1 = 0;
+            int iPower1 = 1;       
 
-            }
+            Funct(krakenModule, x1, ref f1, ref iPower1);
 
-            FUNCT(krakMod, x1, ref F1, ref IPower1);
-
-            for (var Iteration = 1; Iteration <= MAXIteration; Iteration++)
+            for (var iteration = 1; iteration <= MAXIteration; iteration++)
             {
                 double x0 = x1;
-                double F0 = F1;
-                int IPower0 = IPower1;
+                double F0 = f1;
+                int iPower0 = iPower1;
                 x1 = x2;
                 double shift;
 
-                FUNCT(krakMod, x1, ref F1, ref IPower1);
-                if (F1 == 0.0)
+                Funct(krakenModule, x1, ref f1, ref iPower1);
+                if (f1 == 0.0)
                 {
                     shift = 0.0;
                 }
                 else
                 {
-                    shift = (x1 - x0) / (1.0 - F0 / F1 * Math.Pow(10.0, (IPower0 - IPower1)));
+                    shift = (x1 - x0) / (1.0 - F0 / f1 * Math.Pow(10.0, (iPower0 - iPower1)));
                 }
 
                 x2 = x1 - shift;
-                if (Math.Abs(x2 - x1) < TOL || Math.Abs(x2 - x0) < TOL)
+                if (Math.Abs(x2 - x1) < tolerance || Math.Abs(x2 - x0) < tolerance)
                 {
                     return;
                 }
             }
 
-            IERR = -1;
+            errorFlag = -1;
         }
 
-        private void ZBRENTX(KrakMod krakMod, ref double X, ref double A, ref double B, double T, string errorMessage)
-        {
-            double MACHEP = 1 / Math.Pow(10, 15);
-            double TEN = 10.0;
-            double FA = 0.0, FB = 0.0;
-            int IEXPA = 0, IEXPB = 0;
+        /// <summary>
+        /// legacy algol procedure
+        /// </summary>        
+        private void CalculateZeroXOfFunction(KrakenModule krakenModule, ref double x, ref double a, ref double b, double t, ref int errorFlag)
+        {          
 
-            FUNCT(krakMod, A, ref FA, ref IEXPA);
-            FUNCT(krakMod, B, ref FB, ref IEXPB);
+            double relativePrecision = Math.Pow(10, -16);
+            double ten = 10.0;
+            double fa = 0.0, fb = 0.0;
+            int iExpA = 0, iExpB = 0;
 
-            if ((FA > 0.0 && FB > 0.0) || (FA < 0.0 && FB < 0.0))
+            Funct(krakenModule, a, ref fa, ref iExpA);
+            Funct(krakenModule, b, ref fb, ref iExpB);
+
+            if ((fa > 0.0 && fb > 0.0) || (fa < 0.0 && fb < 0.0))
             {
-                errorMessage = "Function sign is the same at the interval endpoints";
+                errorFlag = -1;
                 return;
             }
         Mark2000:
-            double C = A;
-            double FC = FA;
-            int IEXPC = IEXPA;
-            double E = B - A;
-            double D = E;
-            double F1;
-            double F2;
-            if (IEXPA < IEXPB)
+            double c = a;
+            double fc = fa;
+            int iExpC = iExpA;
+            double e = b - a;
+            double d = e;
+            double f1;
+            double f2;
+            if (iExpA < iExpB)
             {
-                F1 = FC * Math.Pow(TEN, (IEXPC - IEXPB));
-                F2 = FB;
+                f1 = fc * Math.Pow(ten, (iExpC - iExpB));
+                f2 = fb;
             }
             else
             {
-                F1 = FC;
-                F2 = FB * Math.Pow(TEN, (IEXPB - IEXPC));
+                f1 = fc;
+                f2 = fb * Math.Pow(ten, (iExpB - iExpC));
             }
         Mark3000:
-            if (Math.Abs(F1) < Math.Abs(F2))
+            if (Math.Abs(f1) < Math.Abs(f2))
             {
-                A = B;
-                B = C;
-                C = A;
-                FA = FB;
-                IEXPA = IEXPB;
-                FB = FC;
-                IEXPB = IEXPC;
-                FC = FA;
-                IEXPC = IEXPA;
+                a = b;
+                b = c;
+                c = a;
+                fa = fb;
+                iExpA = iExpB;
+                fb = fc;
+                iExpB = iExpC;
+                fc = fa;
+                iExpC = iExpA;
             }
 
-            double TOL = 2.0 * MACHEP * Math.Abs(B) + T;
-            double M = 0.5 * (C - B);
-            if (Math.Abs(M) > TOL && FB != 0)
+            double tolerance = 2.0 * relativePrecision * Math.Abs(b) + t;
+            double m = 0.5 * (c - b);
+            if (Math.Abs(m) > tolerance && fb != 0)
             {
 
-                if (IEXPA < IEXPB)
+                if (iExpA < iExpB)
                 {
-                    F1 = FA * Math.Pow(TEN, (IEXPA - IEXPB));
-                    F2 = FB;
+                    f1 = fa * Math.Pow(ten, (iExpA - iExpB));
+                    f2 = fb;
                 }
                 else
                 {
-                    F1 = FA;
-                    F2 = FB * Math.Pow(TEN, (IEXPB - IEXPA));
+                    f1 = fa;
+                    f2 = fb * Math.Pow(ten, (iExpB - iExpA));
                 }
 
-                if (Math.Abs(E) < TOL || Math.Abs(F1) <= Math.Abs(F2))
+                if (Math.Abs(e) < tolerance || Math.Abs(f1) <= Math.Abs(f2))
                 {
-                    E = M;
-                    D = E;
+                    e = m;
+                    d = e;
                 }
                 else
                 {
-                    double S = FB / FA * Math.Pow(TEN, (IEXPB - IEXPA));
-                    double P;
-                    double Q;
-                    if (A == C)
+                    double S = fb / fa * Math.Pow(ten, (iExpB - iExpA));
+                    double p;
+                    double q;
+                    if (a == c)
                     {
-                        P = 2.0 * M * S;
-                        Q = 1.0 - S;
+                        p = 2.0 * m * S;
+                        q = 1.0 - S;
                     }
                     else
                     {
-                        Q = FA / FC * Math.Pow(TEN, (IEXPA - IEXPC));
-                        double R = FB / FC * Math.Pow(TEN, (IEXPB - IEXPC));
-                        P = S * (2.0 * M * Q * (Q - R) - (B - A) * (R - 1.0));
-                        Q = (Q - 1.0) * (R - 1.0) * (S - 1.0);
+                        q = fa / fc * Math.Pow(ten, (iExpA - iExpC));
+                        double R = fb / fc * Math.Pow(ten, (iExpB - iExpC));
+                        p = S * (2.0 * m * q * (q - R) - (b - a) * (R - 1.0));
+                        q = (q - 1.0) * (R - 1.0) * (S - 1.0);
                     }
-                    if (P > 0.0)
+                    if (p > 0.0)
                     {
-                        Q = -Q;
+                        q = -q;
                     }
                     else
                     {
-                        P = -P;
+                        p = -p;
                     }
 
-                    S = E;
-                    E = D;
+                    S = e;
+                    e = d;
 
-                    if ((2.0 * P < 3.0 * M * Q - Math.Abs(TOL * Q)) && (P < Math.Abs(0.5 * S * Q)))
+                    if ((2.0 * p < 3.0 * m * q - Math.Abs(tolerance * q)) && (p < Math.Abs(0.5 * S * q)))
                     {
-                        D = P / Q;
+                        d = p / q;
                     }
                     else
                     {
-                        E = M;
-                        D = E;
+                        e = m;
+                        d = e;
                     }
                 }
 
-                A = B;
-                FA = FB;
-                IEXPA = IEXPB;
+                a = b;
+                fa = fb;
+                iExpA = iExpB;
 
-                if (Math.Abs(D) > TOL)
+                if (Math.Abs(d) > tolerance)
                 {
-                    B += D;
+                    b += d;
                 }
                 else
                 {
-                    if (M > 0.0)
+                    if (m > 0.0)
                     {
-                        B += TOL;
+                        b += tolerance;
                     }
                     else
                     {
-                        B -= TOL;
+                        b -= tolerance;
                     }
                 }
 
-                FUNCT(krakMod, B, ref FB, ref IEXPB);
-                if (FB > 0 == FC > 0) goto Mark2000;
+                Funct(krakenModule, b, ref fb, ref iExpB);
+                if (fb > 0 == fc > 0) goto Mark2000;
                 goto Mark3000;
             }
 
-            X = B;
+            x = b;
         }
 
-        private Complex TWERSK(char OPT, double OMEGA, double BUMDEN, double XI, double ETA,
-                                 double KX, double RHO0, double C0)
+        private Complex Twersky(char OPT, double omega, double BUMDEN, double XI, double ETA,
+                                 double kx, double RHO0, double C0)
         {
-            double C1 = 0, C2 = 0;
-            //call twersky
-
-            return new Complex(C1, C2);
+            double c1 = 0, c2= 0;
+            //dummy version
+            
+            return new Complex(c1, c2);
         }
     }
 }

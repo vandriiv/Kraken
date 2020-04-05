@@ -1,7 +1,8 @@
+using Kraken.Application.Models.Mappers;
 using Kraken.Application.Services.Implementation;
 using Kraken.Application.Services.Interfaces;
-using Kraken.NormalModesCalculation;
-using Kraken.NormalModesCalculation.Field;
+using Kraken.Calculation;
+using Kraken.Calculation.Field;
 using Kraken.WebUI.Models.Mappers;
 using Kraken.WebUI.Models.Validators;
 using Microsoft.AspNetCore.Builder;
@@ -33,10 +34,12 @@ namespace Kraken.WebUI
             services.AddTransient<KrakenInputModelValidator>();
 
             services.AddTransient<IKrakenService, KrakenService>();
-            services.AddTransient<KrakenNormalModesProgram>();
-            services.AddTransient<FieldModel>();
+            services.AddTransient<AcousticProblemDataMapper>();
+            services.AddTransient<KrakenComputingResultMapper>();
 
-            // In production, the React files will be served from this directory
+            services.AddTransient<KrakenNormalModesProgram>();
+            services.AddTransient<FieldProgram>();           
+
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/build";

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kraken.NormalModesCalculation
+namespace Kraken.Calculation.Exceptions
 {
     public class KrakenException : Exception
     {

@@ -18,6 +18,6 @@ namespace Kraken.Application.Models
         public List<double> ReceiverDepths { get; set; }
         public List<List<List<double>>> TransmissionLoss { get; set; }
 
-        public List<string> Warnings { get; set; }
+        public List<string> Warnings { get; set; } = new List<string>();
     }
 }

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace Kraken.NormalModesCalculation.Field
+namespace Kraken.Calculation.Field
 {
-    public class InterpMod
+    public class InterpolationCalculator
     {
-        public void Interp1(List<double> x, List<double> y, List<double> xi, List<double> yi)
+        public void PiecewiseLinearInterpolation(List<double> x, List<double> y, List<double> xi, List<double> yi)
         {
             var N = x.Count;
             var Ni = xi.Count;

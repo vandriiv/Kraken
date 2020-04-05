@@ -2,59 +2,57 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 
-namespace Kraken.NormalModesCalculation.Field
+namespace Kraken.Calculation.Field
 {
-    public class EvaluateMod
+    public class PressueFieldCalculator
     {
         public List<List<Complex>> Evaluate(List<Complex> C, List<List<Complex>> phi, int Nz,
-            List<double> r, int Nr, List<double> rr, List<Complex> k, int M,
-            string Option)
+            List<double> receiverRanges, int Nr, List<double> rr, List<Complex> k, int modesCount,
+            string option)
         {
-            var P = new List<List<Complex>>(Nz + 1);
+            var p = new List<List<Complex>>(Nz + 1);
             for (var i = 0; i <= Nz; i++)
             {
-                P.Add(Enumerable.Repeat(new Complex(), Nr + 1).ToList());
+                p.Add(Enumerable.Repeat(new Complex(), Nr + 1).ToList());
             }
 
-            if (M <= 0)
+            if (modesCount <= 0)
             {
-                return P;
+                return p;
             }
 
-            var ic = new Complex(0, 1);
-            var pi = Math.PI;
-            var factor = ic * Math.Sqrt(2 * pi) * Complex.Exp(ic * pi / 4);
+            var ic = new Complex(0, 1);           
+            var factor = ic * Math.Sqrt(2 * Math.PI) * Complex.Exp(ic * Math.PI / 4);
 
             var cnst = new List<Complex>();
             cnst.Add(new Complex());
 
-            if (Option[0] == 'X')
+            if (option[0] == 'X')
             {
-                for (var i = 1; i <= M; i++)
+                for (var i = 1; i <= modesCount; i++)
                 {
                     cnst.Add(factor * C[i] / k[i]);
                 }
             }
             else
             {
-                for (var i = 1; i <= M; i++)
+                for (var i = 1; i <= modesCount; i++)
                 {
                     cnst.Add(factor * C[i] / Complex.Sqrt(k[i]));
                 }
             }
 
-            var Cmat = new List<List<Complex>>(M + 1);
-            for (var i = 0; i <= M; i++)
+            var cMat = new List<List<Complex>>(modesCount + 1);
+            for (var i = 0; i <= modesCount; i++)
             {
-                Cmat.Add(Enumerable.Repeat(new Complex(), Nz + 1).ToList());
+                cMat.Add(Enumerable.Repeat(new Complex(), Nz + 1).ToList());
             }
 
             var ik = k.Select(x => x * (-ic)).ToList();
-            if (Option.Length >= 3)
+            if (option.Length >= 3)
             {
-                if (Option[3] == 'I')
+                if (option[3] == 'I')
                 {
                     for (var i = 1; i < ik.Count; i++)
                     {
@@ -66,28 +64,28 @@ namespace Kraken.NormalModesCalculation.Field
 
             for (var iz = 1; iz <= Nz; iz++)
             {
-                for (var i = 1; i <= M; i++)
+                for (var i = 1; i <= modesCount; i++)
                 {
-                    Cmat[i][iz] = cnst[i] * phi[i][iz] * Complex.Exp(ik[i] * rr[iz]);
+                    cMat[i][iz] = cnst[i] * phi[i][iz] * Complex.Exp(ik[i] * rr[iz]);
                 }
             }
 
             for (var ir = 1; ir <= Nr; ir++)
             {
                 //problem in exp
-                var Hank = ik.Select(x => Complex.Exp(x * r[ir])).ToList();
+                var hank = ik.Select(x => Complex.Exp(x * receiverRanges[ir])).ToList();
 
-                if (Option.Length <= 3 || Option[3] != 'I')
+                if (option.Length <= 3 || option[3] != 'I')
                 {
                     for (var iz = 1; iz <= Nz; iz++)
                     {
                         var sum = new Complex(0, 0);
-                        for (var i = 1; i <= M; i++)
+                        for (var i = 1; i <= modesCount; i++)
                         {
-                            sum += Cmat[i][iz] * Hank[i];
+                            sum += cMat[i][iz] * hank[i];
                         }
 
-                        P[iz][ir] = sum;
+                        p[iz][ir] = sum;
                     }
                 }
                 else
@@ -95,29 +93,28 @@ namespace Kraken.NormalModesCalculation.Field
                     for (var iz = 1; iz <= Nz; iz++)
                     {
                         var sum = new Complex(0, 0);
-                        for (var i = 1; i <= M; i++)
+                        for (var i = 1; i <= modesCount; i++)
                         {
-                            sum += Complex.Pow(Cmat[i][iz] * Hank[i], 2);
+                            sum += Complex.Pow(cMat[i][iz] * hank[i], 2);
                         }
 
-                        P[iz][ir] = Complex.Sqrt(sum);
+                        p[iz][ir] = Complex.Sqrt(sum);
                     }
                 }
 
-                if (Option[0] == 'R')
-                {//check
-                    
+                if (option[0] == 'R')
+                {
                     for(var i = 1; i <= Nz; i++)
                     {
-                        if(Math.Abs(r[ir]+rr[i])> 1.17549435E-38)
+                        if(Math.Abs(receiverRanges[ir]+rr[i])> 1.17549435E-38)
                         {
-                            P[i][ir] = P[i][ir] / Complex.Sqrt(r[ir] + rr[i]);
+                            p[i][ir] = p[i][ir] / Complex.Sqrt(receiverRanges[ir] + rr[i]);
                         }
                     }                    
                 }
             }
 
-            return P;
+            return p;
         }
 
     }
