@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 
-namespace Kraken.Calculation
+namespace Kraken.Calculation.Models
 {
     public class CalculatedModesInfo
     {       

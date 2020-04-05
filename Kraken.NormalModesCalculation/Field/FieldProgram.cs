@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Kraken.Calculation.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -7,45 +8,46 @@ namespace Kraken.Calculation.Field
 {
     public class FieldProgram
     {
-        public void CalculateFieldPressure(CalculatedModesInfo modesInfo, string opt, int modesCountLimit, int Nr, List<double> receiverRanges, int Nsd,
-                                           List<double> sourceDepths, int Nrd, List<double> receiverDepths, int Nrr, List<double> rr,
-                                           ref List<double> ranges, ref List<double> sources, ref List<double> receivers,
-                                           ref List<List<List<Complex>>> res, List<string> warnings)
+        public AcousticFieldSnapshots CalculateFieldPressure(FieldInputData fieldData)
         {
-            var maxM = Math.Min(modesCountLimit, modesInfo.ModesCount);
+            var maxM = Math.Min(fieldData.ModesLimit, fieldData.ModesInfo.ModesCount);
 
             string comp = "";
-            if (opt.Length > 2)
+            if (fieldData.Options.Length > 2)
             {
-                comp = opt[2].ToString();
+                comp = fieldData.Options[2].ToString();
             }
 
             var rangedDataManager = new RangedDataManager();
                   
-            rangedDataManager.ProceedReceiverRanges(Nr, receiverRanges);
+            rangedDataManager.ProceedReceiverRanges(fieldData.Nr, fieldData.ReceiverRanges);
 
             var zMin = -3.40282347E+38;
             var zMax = 3.40282347E+38;
 
-            rangedDataManager.ProceedSourceAndReceiverDepths(zMin, zMax, Nsd, Nrd, sourceDepths, receiverDepths);
+            rangedDataManager.ProceedSourceAndReceiverDepths(zMin, zMax, fieldData.Nsd, fieldData.Nrd, fieldData.SourceDepths, fieldData.ReceiverDepths);
 
-            ranges = new List<double>(rangedDataManager.ReceiverRanges);
-            sources = new List<double>(rangedDataManager.SourceDepths);
-            receivers = new List<double>(rangedDataManager.ReceiverDepths);
+            var result = new AcousticFieldSnapshots();
+
+            result.Ranges = new List<double>(rangedDataManager.ReceiverRanges);
+            result.SourceDepths = new List<double>(rangedDataManager.SourceDepths);
+            result.ReceiverDepths = new List<double>(rangedDataManager.ReceiverDepths);
 
             var C = Enumerable.Repeat(new Complex(), maxM + 1).ToList();
 
-            var receiverDisplacements = Enumerable.Repeat(0d, Nrr + 1).ToList();            
+            var receiverDisplacements = Enumerable.Repeat(0d, fieldData.Nrr + 1).ToList();
 
-            if (Nrr != rangedDataManager.Nrd)
+            var Nrr = fieldData.Nrr;
+
+            if (fieldData.Nrr != rangedDataManager.Nrd)
             {
                 Nrr = rangedDataManager.Nrd;
                 receiverDisplacements = Enumerable.Repeat(0d, Nrr + 1).ToList();
             }
 
-            for (var i = 0; i < rr.Count; i++)
+            for (var i = 0; i < fieldData.ReceiverDisplacements.Count; i++)
             {
-                receiverDisplacements[i] = rr[i];
+                receiverDisplacements[i] = fieldData.ReceiverDisplacements[i];
             }
 
             if (Nrr > 1)
@@ -63,22 +65,26 @@ namespace Kraken.Calculation.Field
 
             var readModesMod = new ModesPreparationManager();
 
-            var phiS = readModesMod.GetPreparedModes(modesInfo, maxM, rangedDataManager.SourceDepths, rangedDataManager.Nsd, "N", warnings);
-            var phiR = readModesMod.GetPreparedModes(modesInfo, maxM, rangedDataManager.ReceiverDepths, rangedDataManager.Nrd, comp, warnings);
+            var phiS = readModesMod.GetPreparedModes(fieldData.ModesInfo, maxM, rangedDataManager.SourceDepths, rangedDataManager.Nsd, "N", result.Warnings);
+            var phiR = readModesMod.GetPreparedModes(fieldData.ModesInfo, maxM, rangedDataManager.ReceiverDepths, rangedDataManager.Nrd, comp, result.Warnings);
             var evaluateMod = new PressueFieldCalculator();
-            res = new List<List<List<Complex>>>();
-            res.Add(new List<List<Complex>>());
+            
+            result.Snapshots = new List<List<List<Complex>>>();
+            result.Snapshots.Add(new List<List<Complex>>());
 
             for (var IS = 1; IS <= rangedDataManager.Nsd; IS++)
             {
-                for (var i = 1; i <= modesInfo.ModesCount; i++)
+                for (var i = 1; i <= fieldData.ModesInfo.ModesCount; i++)
                 {
                     C[i] = phiS[i][IS];
                 }
 
-                var P = evaluateMod.Evaluate(C, phiR, rangedDataManager.Nrd, rangedDataManager.ReceiverRanges, rangedDataManager.Nr, receiverDisplacements, modesInfo.K, modesInfo.ModesCount, opt);
-                res.Add(P);
+                var P = evaluateMod.Evaluate(C, phiR, rangedDataManager.Nrd, rangedDataManager.ReceiverRanges, 
+                                            rangedDataManager.Nr, receiverDisplacements, fieldData.ModesInfo.K, fieldData.ModesInfo.ModesCount, fieldData.Options);
+                result.Snapshots.Add(P);
             }
+
+            return result;
         }
     }
 }

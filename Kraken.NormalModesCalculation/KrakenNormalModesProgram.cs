@@ -1,4 +1,5 @@
 ﻿using Kraken.Calculation.Exceptions;
+using Kraken.Calculation.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,80 +7,53 @@ using System.Numerics;
 
 namespace Kraken.Calculation
 {
-    //need to take a good look at loops, arguments changing in methods, list init
-
-    /*
-    Input:
-  frq = frequency
-  nm = # modes
-  nl= no. layers, e.g., 2
-  note1 = text flags for modes, e.g., 'SVW'
-  b= NG,sigma,depth of each layer - stacked
-  ssp=depths, alphaR, betaR, rhoR, alphaI, betaI for layers 1,2 
-                   [  C       0    1.03     0      0  ]
-         matrix has each layer - stacked
-  note2 = text flag for bottom option
-  bsig=bottom sigma
-  clh= CLow, CHigh - spectral limits
-  rng = range (m); used for error estimate
-  nsr,zsr = # and source depths (m)
-  nrc,zrc = # and receiver depths (m)    
-         If nrc or nsr is greater than the number of depths given, kraken
-         will do an autointerpolation.  Thus if nrc is 500 with 
-         zrc's = [0 5000], 500 depths between 0 and 5000 will be used for 
-         the mode eigenvectors.
-
-Output:
-  cg = nm group speeds
-  cp = nm phase spees
-  zm = depths of mode functions
-  modes = nm mode functions at depths zm*/
     public class KrakenNormalModesProgram
     {
-        public CalculatedModesInfo CalculateNormalModes(int nm, double frq, int nl, string note1, List<List<double>> bb, int nc,
-                                             List<List<double>> ssp, string note2, double bsig, List<double> clh, double rng, int nsr, List<double> zsr,
-                                             int nrc, List<double> zrc, int nz, List<double> tahsp, List<double> tsp, List<double> bahsp, ref List<double> cg, ref List<double> cp,
-                                             ref List<double> zm, ref List<List<double>> modes, ref List<Complex> k, List<string> warnings)
+        public (KrakenResult, CalculatedModesInfo) CalculateNormalModes(KrakenInputProfile profile)
         {
             var krakenModule = new KrakenModule();
             krakenModule.Init();
 
             krakenModule.NV = new List<int> { 0, 1, 2, 4, 8, 16 };
 
-            krakenModule.Frequency = frq;
-            krakenModule.NMedia = nl;
-            krakenModule.BCTop = note1.Substring(0, 3);
-            krakenModule.BCBottom = note2[0].ToString();
+            krakenModule.Frequency = profile.Frequency;
+            krakenModule.NMedia = profile.NMedia;
+            krakenModule.BCTop = profile.Options.Substring(0, 3);
+            krakenModule.BCBottom = profile.BCBottom;
 
             var rangedDataManager = new RangedDataManager();
             var meshInitializer = new MeshInitializer(krakenModule);
 
             krakenModule.Depth[1] = 0;
-            for (var il = 1; il <= nl; il++)
+            for (var il = 1; il <= profile.NMedia; il++)
             {
-                krakenModule.NG[il] = (int)bb[il][1];
-                krakenModule.Sigma[il] = bb[il][2];
-                krakenModule.Depth[il + 1] = bb[il][3];
+                krakenModule.NG[il] = (int)profile.MediumInfo[il][1];
+                krakenModule.Sigma[il] = profile.MediumInfo[il][2];
+                krakenModule.Depth[il + 1] = profile.MediumInfo[il][3];
             }
 
-            krakenModule.Sigma[nl + 1] = bsig;
-            meshInitializer.ProccedMesh(krakenModule, nc, ssp, tahsp, tsp, bahsp);
+            krakenModule.Sigma[profile.NMedia + 1] = profile.BottomSigma;
+            meshInitializer.ProccedMesh(krakenModule, profile.SSP, profile.TopAcousticHSProperties, profile.TwerskyScatterParameters, profile.BottomAcousticHSProperties);
 
-            krakenModule.CLow = clh[1];
-            krakenModule.CHigh = clh[2];
+            krakenModule.CLow = profile.CLow;
+            krakenModule.CHigh = profile.CHigh;
 
-            krakenModule.RMax = rng;
+            krakenModule.RMax = profile.RMax;
 
             var zMin = krakenModule.Depth[1];
             var zMax = krakenModule.Depth[krakenModule.NMedia + 1];           
 
-            rangedDataManager.ProceedSourceAndReceiverDepths(zMin, zMax, nsr, nrc, zsr, zrc);
+            rangedDataManager.ProceedSourceAndReceiverDepths(zMin, zMax, profile.Nsd, profile.Nrd, profile.SourceDepths, profile.ReceiverDepths);
 
             krakenModule.Omega2 = Math.Pow((2.0 * Math.PI * krakenModule.Frequency), 2);
 
             double error = 0;
             var isSuccess = false;
             var modesInfo = new CalculatedModesInfo();
+
+            var zm = new List<double>();
+            var modes = new List<List<double>>();
+
             for (krakenModule.ISet = 1; krakenModule.ISet <= krakenModule.NSets; krakenModule.ISet++)
             {
                 krakenModule.N = krakenModule.NG.Select(x => x * krakenModule.NV[krakenModule.ISet]).ToList();
@@ -88,7 +62,7 @@ Output:
                     krakenModule.H[j] = (krakenModule.Depth[j + 1] - krakenModule.Depth[j]) / krakenModule.N[j];
                 }
                 krakenModule.HV[krakenModule.ISet] = krakenModule.H[1];
-                SOLVE(modesInfo, krakenModule, rangedDataManager, meshInitializer, ref error, nm, nz, ref zm, ref modes);
+                SOLVE(modesInfo, krakenModule, rangedDataManager, meshInitializer, ref error, profile.NModes, ref zm, ref modes);
 
                 if (error * 1000.0 * krakenModule.RMax < 1.0)
                 {
@@ -96,6 +70,8 @@ Output:
                     break;
                 }
             }
+
+            var result = new KrakenResult();
 
             if (isSuccess)
             {
@@ -109,13 +85,13 @@ Output:
                     krakenModule.K[i] = Complex.Sqrt(krakenModule.Extrap[1][i] + krakenModule.K[i]);
                 }
 
-                var MMM = Math.Min(krakenModule.M, nm);
+                var MMM = Math.Min(krakenModule.M, profile.NModes);
                 modesInfo.ModesCount = MMM;
                 modesInfo.K = new List<Complex>(krakenModule.K);
 
-                cp = Enumerable.Repeat(0d, MMM + 1).ToList();
-                cg = Enumerable.Repeat(0d, MMM + 1).ToList();
-                k = Enumerable.Repeat(new Complex(), MMM + 1).ToList();
+                var cp = Enumerable.Repeat(0d, MMM + 1).ToList();
+                var cg = Enumerable.Repeat(0d, MMM + 1).ToList();
+                var k = Enumerable.Repeat(new Complex(), MMM + 1).ToList();
 
                 for (krakenModule.Mode = 1; krakenModule.Mode <= MMM; krakenModule.Mode++)
                 {
@@ -123,11 +99,18 @@ Output:
                     cg[krakenModule.Mode] = krakenModule.VG[krakenModule.Mode];
                     k[krakenModule.Mode] = krakenModule.K[krakenModule.Mode];
                 }
+
+                result.GroupSpeed = cg;
+                result.PhaseSpeed = cp;
+                result.K = k;
+                result.ModesCount = MMM;
+                result.Modes = modes;
+                result.ZM = zm;
             }
 
-            warnings.AddRange(krakenModule.Warnings);
+            result.Warnings.AddRange(krakenModule.Warnings);
 
-            return modesInfo;
+            return (result,modesInfo);
         }
 
         private void INIT(KrakenModule krakenModule, MeshInitializer meshInitializer)
@@ -254,7 +237,7 @@ Output:
             krakenModule.CLow = Math.Max(krakenModule.CLow, krakenModule.CMin);
         }
 
-        private void SOLVE(CalculatedModesInfo modesInfo, KrakenModule krakenModule, RangedDataManager rangedDataManager, MeshInitializer meshInitializer, ref double error, int nm, int nz, ref List<double> zm, ref List<List<double>> modes)
+        private void SOLVE(CalculatedModesInfo modesInfo, KrakenModule krakenModule, RangedDataManager rangedDataManager, MeshInitializer meshInitializer, ref double error, int nm, ref List<double> zm, ref List<List<double>> modes)
         {
             var NOMODES = 0;
 
@@ -284,7 +267,7 @@ Output:
 
             if (krakenModule.ISet == 1 && NOMODES == 0)
             {
-                VECTOR(modesInfo, krakenModule, rangedDataManager, nm, nz, ref zm, ref modes);
+                VECTOR(modesInfo, krakenModule, rangedDataManager, nm, ref zm, ref modes);
             }
 
             error = 10;
@@ -311,7 +294,7 @@ Output:
 
         }
 
-        private void VECTOR(CalculatedModesInfo modesInfo, KrakenModule krakenModule, RangedDataManager rangedDataManager, int nm, int nz, ref List<double> zm, ref List<List<double>> modes)
+        private void VECTOR(CalculatedModesInfo modesInfo, KrakenModule krakenModule, RangedDataManager rangedDataManager, int nm, ref List<double> zm, ref List<List<double>> modes)
         {
             var BCTop = krakenModule.BCTop[1].ToString();
             var BCBottom = krakenModule.BCBottom[0].ToString();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Kraken.Calculation.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -136,37 +137,40 @@ namespace Kraken.Calculation.Field
 
         private void Extract(CalculatedModesInfo modesInfo, string Comp)
         {
-            int i = 1, j = 1, k = 1;
+            int j = 1, k = 1;
             for (var Medium = 1; Medium <= modesInfo.NMedia; Medium++)
             {
-                if (modesInfo.Material[Medium] == "ACOUSTIC")
+                for (var i = 1; i < modesInfo.N[Medium] + 1; i++)
                 {
-                    modesInfo.Phi[j] = modesInfo.Phi[k];
-                    k = k + 1;
-                }
-                else if (modesInfo.Material[Medium] == "ELASTIC")
-                {
-                    if (Comp == "H")
+                    if (modesInfo.Material[Medium] == "ACOUSTIC")
                     {
                         modesInfo.Phi[j] = modesInfo.Phi[k];
+                        k += 1;
                     }
-                    else if (Comp == "V")
+                    else if (modesInfo.Material[Medium] == "ELASTIC")
                     {
-                        modesInfo.Phi[j] = modesInfo.Phi[k + 1];
-                    }
-                    else if (Comp == "T")
-                    {
-                        modesInfo.Phi[j] = modesInfo.Phi[k + 2];
-                    }
-                    else if (Comp == "N")
-                    {
-                        modesInfo.Phi[j] = modesInfo.Phi[k + 3];
+                        if (Comp == "H")
+                        {
+                            modesInfo.Phi[j] = modesInfo.Phi[k];
+                        }
+                        else if (Comp == "V")
+                        {
+                            modesInfo.Phi[j] = modesInfo.Phi[k + 1];
+                        }
+                        else if (Comp == "T")
+                        {
+                            modesInfo.Phi[j] = modesInfo.Phi[k + 2];
+                        }
+                        else if (Comp == "N")
+                        {
+                            modesInfo.Phi[j] = modesInfo.Phi[k + 3];
+                        }
+
+                        k += 4;
                     }
 
-                    k += 4;
+                    j++;
                 }
-
-                j++;
             }
         }
 

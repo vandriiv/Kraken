@@ -61,7 +61,7 @@ namespace Kraken.Calculation
         }
 
 
-        public void ProccedMesh(KrakenModule krakenModule, int nc, List<List<double>> ssp,
+        public void ProccedMesh(KrakenModule krakenModule, List<List<double>> ssp,
                            List<double> tahsp, List<double> tsp, List<double> bahsp)
         {          
             string SSPType = krakenModule.BCTop[0].ToString();
@@ -164,7 +164,7 @@ namespace Kraken.Calculation
                 case "N":
                     N2Linear(krakenModule, depth, cP, cS, RhoTop, medium, ref n1, offset, Frequency, attenUnit, task, ssp);
                     break;
-                case "c":
+                case "C":
                     CLinear(krakenModule, depth, cP, cS, RhoTop, medium, ref n1, offset, Frequency, attenUnit, task, ssp);
                     break;
                 case "S":
