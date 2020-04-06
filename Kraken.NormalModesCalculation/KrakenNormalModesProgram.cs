@@ -600,7 +600,7 @@ namespace Kraken.Calculation
                 }
                 var errorFlag = 0;  
                 
-                var tolerance = Math.Abs(x) * (krakenModule.B1.Count - 1) * Math.Pow(0.1, 15);
+                var tolerance = Math.Abs(x) * (krakenModule.B1.Count - 1) * Math.Pow(0.1, 14);
                
                 RootFinderSecant(krakenModule, ref x, tolerance, maxIteration,ref errorFlag);
                 if (errorFlag == -1)
@@ -1072,23 +1072,28 @@ namespace Kraken.Calculation
             for (var iteration = 1; iteration <= MAXIteration; iteration++)
             {
                 double x0 = x1;
-                double F0 = f1;
+                double f0 = f1;
                 int iPower0 = iPower1;
                 x1 = x2;
                 double shift;
 
                 Funct(krakenModule, x1, ref f1, ref iPower1);
-                if (f1 == 0.0)
+
+                var cNum = f1 * (x1 - x0);
+                var cDen = f1 - f0 * Math.Pow(10,(iPower0 - iPower1));
+
+                if (Math.Abs(cNum) >= Math.Abs(cDen * x1))
                 {
-                    shift = 0.0;
+                    shift = 0.1 * tolerance;
                 }
                 else
                 {
-                    shift = (x1 - x0) / (1.0 - F0 / f1 * Math.Pow(10.0, (iPower0 - iPower1)));
+                    shift = cNum / cDen;
                 }
 
                 x2 = x1 - shift;
-                if (Math.Abs(x2 - x1) < tolerance || Math.Abs(x2 - x0) < tolerance)
+
+                if(Math.Abs(x2-x1) + Math.Abs(x2-x0) < tolerance)
                 {
                     return;
                 }
