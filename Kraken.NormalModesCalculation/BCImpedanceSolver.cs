@@ -83,7 +83,7 @@ namespace Kraken.Calculation
                 {
                     for (var medium = 1; medium <= krakenModule.FirstAcoustic - 1; medium++)
                     {
-                        ELASDN(krakenModule, x, yV, ref iPow, medium);
+                        ElasticDown(krakenModule, x, yV, ref iPow, medium);
                     }
                     f = krakenModule.Omega2 * yV[4];
                     g = yV[2];
@@ -96,7 +96,7 @@ namespace Kraken.Calculation
                 {
                     for (var medium = krakenModule.NMedia; medium >= krakenModule.LastAcoustic + 1; medium--)
                     {
-                        ELASUP(krakenModule, x, yV, ref iPow, medium);
+                        ElasticUp(krakenModule, x, yV, ref iPow, medium);
                     }
                     f = krakenModule.Omega2 * yV[4];
                     g = yV[2];
@@ -188,7 +188,7 @@ namespace Kraken.Calculation
                 {
                     for (var medium = 1; medium <= krakenModule.FirstAcoustic - 1; medium++)
                     {
-                        ELASDN(krakenModule, x, yV, ref iPow, medium);
+                        ElasticDown(krakenModule, x, yV, ref iPow, medium);
                     }
                     f = krakenModule.Omega2 * yV[4];
                     g = yV[2];
@@ -201,7 +201,7 @@ namespace Kraken.Calculation
                 {
                     for (var medium = krakenModule.NMedia; medium >= krakenModule.LastAcoustic + 1; medium--)
                     {
-                        ELASUP(krakenModule, x, yV, ref iPow, medium);
+                        ElasticUp(krakenModule, x, yV, ref iPow, medium);
                     }
                     f = krakenModule.Omega2 * yV[4];
                     g = yV[2];
@@ -209,7 +209,7 @@ namespace Kraken.Calculation
             }
         }
 
-        private void ELASUP(KrakenModule krakenModule, double x, List<double> yV, ref int iPow, int medium)
+        private void ElasticUp(KrakenModule krakenModule, double x, List<double> yV, ref int iPow, int medium)
         {
             var xV = Enumerable.Repeat(0d, 5 + 1).ToList();
             var zV = Enumerable.Repeat(0d, 5 + 1).ToList();
@@ -285,7 +285,7 @@ namespace Kraken.Calculation
             }
         }
 
-        private void ELASDN(KrakenModule krakenModule, double x, List<double> yV, ref int iPow, int medium)
+        private void ElasticDown(KrakenModule krakenModule, double x, List<double> yV, ref int iPow, int medium)
         {
             var xV = Enumerable.Repeat(0d, 5 + 1).ToList();
             var zV = Enumerable.Repeat(0d, 5 + 1).ToList();
