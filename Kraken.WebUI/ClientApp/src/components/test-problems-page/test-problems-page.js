@@ -9,7 +9,7 @@ export default class TestProblemsPage extends Component {
     render() {
         return (<Row>           
             <Col xs={12} className="problems-list">
-                <p>The following test problems have been developed to validate the model by exercising various components of the code and to illustrate the input structure required for various kinds of scenarios:</p>
+                <p>The following test problems have been developed (by <a href="https://oalib-acoustics.org/AcousticsToolbox/index_at.html">Acoustic Toolbox</a> developers) to validate the model by exercising various components of the code and to illustrate the input structure required for various kinds of scenarios:</p>
                 <ListGroup>
                     <ListGroupItem><Link to="/pekeris">PEKERIS:</Link> A simple (two-layer) Pekeris waveguide.</ListGroupItem>
                     <ListGroupItem><Link to="/twersky">TWERSKY:</Link> The Pekeris wave guide with surface roughness. Demonstrates that the Twersky scatter works properly.</ListGroupItem>
