@@ -67,7 +67,7 @@ namespace Kraken.Calculation.Field
 
             var phiS = readModesMod.GetPreparedModes(fieldData.ModesInfo, maxM, rangedDataManager.SourceDepths, rangedDataManager.Nsd, "N", result.Warnings);
             var phiR = readModesMod.GetPreparedModes(fieldData.ModesInfo, maxM, rangedDataManager.ReceiverDepths, rangedDataManager.Nrd, comp, result.Warnings);
-            var evaluateMod = new PressueFieldCalculator();
+            var pressureFieldCalculator = new PressueFieldCalculator();
             
             result.Snapshots = new List<List<List<Complex>>>();
             result.Snapshots.Add(new List<List<Complex>>());
@@ -79,7 +79,7 @@ namespace Kraken.Calculation.Field
                     C[i] = phiS[i][IS];
                 }
 
-                var P = evaluateMod.Evaluate(C, phiR, rangedDataManager.Nrd, rangedDataManager.ReceiverRanges, 
+                var P = pressureFieldCalculator.Evaluate(C, phiR, rangedDataManager.Nrd, rangedDataManager.ReceiverRanges, 
                                             rangedDataManager.Nr, receiverDisplacements, fieldData.ModesInfo.K, fieldData.ModesInfo.ModesCount, fieldData.Options);
                 result.Snapshots.Add(P);
             }
