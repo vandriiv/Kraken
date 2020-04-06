@@ -7,7 +7,7 @@ import FormWrapper from '../form-wrapper';
 export default class Scholte extends Component {
     acousticProblemData = {
         frequency: 10,
-        nModes: 44,
+        nModes: 45,
         nMedia: 1,
         topBCType: 'V',
         interpolationType: 'N',
@@ -28,7 +28,7 @@ export default class Scholte extends Component {
         sigma: 0,
         zb: 5000,
         cpb: 4000,
-        csb: 0,
+        csb: 2000,
         rhob: 2,
         apb: 0,
         asb: 0,

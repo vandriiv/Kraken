@@ -7,7 +7,7 @@ import FormWrapper from '../form-wrapper';
 export default class Flused extends Component {
     acousticProblemData = {
         frequency: 10,
-        nModes: 44,
+        nModes: 46,
         nMedia: 2,
         topBCType: 'V',
         interpolationType: 'N',
@@ -28,7 +28,7 @@ export default class Flused extends Component {
         sigma: 0,
         zb: 5100,
         cpb: 4000,
-        csb: 0,
+        csb: 2000,
         rhob: 2,
         apb: 0,
         asb: 0,
