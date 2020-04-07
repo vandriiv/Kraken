@@ -302,8 +302,7 @@ namespace Kraken.Calculation
 
             var NTot = krakenModule.N.GetRange(krakenModule.FirstAcoustic, krakenModule.LastAcoustic - krakenModule.FirstAcoustic + 1).Sum();
             var NTot1 = NTot + 1;
-
-            //allocate
+            
             var z = Enumerable.Repeat(0d, NTot1 + 1).ToList();
             var e = Enumerable.Repeat(0d, NTot1 + 1 + 1).ToList();
             var d = Enumerable.Repeat(0d, NTot1 + 1).ToList();
