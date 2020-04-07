@@ -291,12 +291,12 @@ export default class AcousticProblemForm extends Component {
             error.asb = "AS Bottom must be greater than or equal 0";
         }
 
-        if (cLow <= 0) {
-            error.cLow = "Lower phase speed limit must be greater than 0";
+        if (cLow < 0) {
+            error.cLow = "Lower phase speed limit must be greater than or equal 0";
         }
 
-        if (cHigh <= 0) {
-            error.cHigh = "Upper phase speed limit must be greater than 0";
+        if (cHigh < 0) {
+            error.cHigh = "Upper phase speed limit must be greater than or equal 0";
         }
 
         if (rMax < 0) {

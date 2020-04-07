@@ -120,13 +120,13 @@ namespace Kraken.WebUI.Models.Validators
                 }
             }
 
-            if (model.CLow <= 0)
+            if (model.CLow < 0)
             {
-                errors.Add("Lower phase speed limit must be greater than 0");
+                errors.Add("Lower phase speed limit must be greater than or equal 0");
             }
-            if (model.CHigh <= 0)
+            if (model.CHigh < 0)
             {
-                errors.Add("Upper phase speed limit must be greater than 0");
+                errors.Add("Upper phase speed limit must be greater than or equal 0");
             }
 
             if (model.RMax < 0)
