@@ -24,6 +24,7 @@ import MatlabKrakenTestTwo from '../test-problems/matlab-kraken-test-two';
 import MatlabKrakenTestThree from '../test-problems/matlab-kraken-test-three';
 import Munk from '../test-problems/munk';
 import Dickins from '../test-problems/dickins';
+import Arctic from '../test-problems/arctic';
 
 import './app.css';
 
@@ -54,7 +55,8 @@ export default class App extends Component {
                         <Route path={"/matlab-kraken-test-2"} exact component={MatlabKrakenTestTwo} />
                         <Route path={"/matlab-kraken-test-3"} exact component={MatlabKrakenTestThree} />
                         <Route path={"/munk"} exact component={Munk} />
-                        <Route path={"/dickins"} exact component={Dickins}/>
+                        <Route path={"/dickins"} exact component={Dickins} />
+                        <Route path={"/arctic"} exact component={Arctic}/>
                     </Switch>
                 </Layout>
             </Router>

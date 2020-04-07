@@ -29,7 +29,8 @@ export default class TestProblemsPage extends Component {
                     <ListGroupItem><Link to="/matlab-kraken-test-2">Matlab KRAKEN test case #2 (testkrak2.m)</Link>.</ListGroupItem>
                     <ListGroupItem><Link to="/matlab-kraken-test-3">Matlab KRAKEN test case #3 (testkrak3.m)</Link>.</ListGroupItem>
                     <ListGroupItem><Link to="/munk">Munk</Link> BB Munk profile.</ListGroupItem>
-                    <ListGroupItem><Link to="/dickins">Dickins</Link> Dickins seamount.</ListGroupItem>                    
+                    <ListGroupItem><Link to="/dickins">Dickins</Link> Dickins seamount.</ListGroupItem> 
+                    <ListGroupItem><Link to="/arctic">Arctic</Link> Arctic profile.</ListGroupItem>    
                 </ListGroup>
             </Col>
         </Row>)
