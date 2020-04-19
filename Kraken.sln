@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kraken.Calculation", "Krake
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kraken.Application", "Kraken.Application\Kraken.Application.csproj", "{4AD7E68D-7E7B-44D3-8A82-4DB989E11FD7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C21C2880-2997-493A-B2ED-794640E44CEC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kraken.Application.Tests.Unit", "Kraken.Application.Tests.Unit\Kraken.Application.Tests.Unit.csproj", "{7B99CED6-CFE7-469C-9FE4-5FA39C8C43EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,9 +31,16 @@ Global
 		{4AD7E68D-7E7B-44D3-8A82-4DB989E11FD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AD7E68D-7E7B-44D3-8A82-4DB989E11FD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AD7E68D-7E7B-44D3-8A82-4DB989E11FD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B99CED6-CFE7-469C-9FE4-5FA39C8C43EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B99CED6-CFE7-469C-9FE4-5FA39C8C43EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B99CED6-CFE7-469C-9FE4-5FA39C8C43EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B99CED6-CFE7-469C-9FE4-5FA39C8C43EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7B99CED6-CFE7-469C-9FE4-5FA39C8C43EB} = {C21C2880-2997-493A-B2ED-794640E44CEC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9AEAD359-BBBF-4EC2-BB3F-185F54EE8FDC}
