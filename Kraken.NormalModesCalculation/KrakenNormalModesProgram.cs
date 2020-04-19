@@ -87,8 +87,9 @@ namespace Kraken.Calculation
                 }
 
                 var MMM = Math.Min(krakenModule.M, profile.NModes);
+
                 modesInfo.ModesCount = MMM;
-                modesInfo.K = new List<Complex>(krakenModule.K);
+                modesInfo.K.AddRange(krakenModule.K);
 
                 var cp = Enumerable.Repeat(0d, MMM + 1).ToList();
                 var cg = Enumerable.Repeat(0d, MMM + 1).ToList();
@@ -101,12 +102,12 @@ namespace Kraken.Calculation
                     k[krakenModule.Mode] = krakenModule.K[krakenModule.Mode];
                 }
 
-                result.GroupSpeed = cg;
-                result.PhaseSpeed = cp;
-                result.K = k;
+                result.GroupSpeed.AddRange(cg);
+                result.PhaseSpeed.AddRange(cp);
+                result.K.AddRange(k);
                 result.ModesCount = MMM;
-                result.Modes = modes;
-                result.ZM = zm;
+                result.Modes.AddRange(modes);
+                result.ZM.AddRange(zm);
             }
 
             result.Warnings.AddRange(krakenModule.Warnings);
@@ -346,13 +347,13 @@ namespace Kraken.Calculation
             modesInfo.NTot = NzTab;
             modesInfo.NMat = NzTab;
 
-            modesInfo.N = new List<int>(krakenModule.N);
+            modesInfo.N.AddRange(krakenModule.N);
 
-            modesInfo.Material = Enumerable.Repeat("", krakenModule.Material.Count).ToList();        
+            modesInfo.Material.AddRange(Enumerable.Repeat("", krakenModule.Material.Count));        
 
-            modesInfo.Depth = Enumerable.Repeat(0d, krakenModule.Depth.Count).ToList();
+            modesInfo.Depth.AddRange(Enumerable.Repeat(0d, krakenModule.Depth.Count));
 
-            modesInfo.Rho = Enumerable.Repeat(0d, krakenModule.Rho.Count).ToList();
+            modesInfo.Rho.AddRange(Enumerable.Repeat(0d, krakenModule.Rho.Count));
 
             for (var medium = krakenModule.FirstAcoustic; medium <= krakenModule.LastAcoustic; medium++)
             {
@@ -362,7 +363,7 @@ namespace Kraken.Calculation
             }
 
             modesInfo.Frequency = krakenModule.Frequency;
-            modesInfo.Z = new List<double>(zTab);
+            modesInfo.Z.AddRange(zTab);
 
             modesInfo.BCTop = krakenModule.BCTop[1].ToString();
             modesInfo.CPTop = krakenModule.CPTop;

@@ -8,6 +8,6 @@ namespace Kraken.WebUI.Models
     public class TLAtSourceDepth
     {
         public double SourceDepth { get; set; }
-        public List<TLAtReceiverDepth> TLAtReceiverDepths { get; set; }
+        public List<TLAtReceiverDepth> TLAtReceiverDepths { get; } = new List<TLAtReceiverDepth>();
     }
 }

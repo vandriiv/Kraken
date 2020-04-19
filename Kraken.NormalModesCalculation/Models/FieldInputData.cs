@@ -4,20 +4,20 @@ namespace Kraken.Calculation.Models
 {
     public class FieldInputData
     {
-        public CalculatedModesInfo ModesInfo { get; private set; }
-        public string Options { get; private set; }
-        public int ModesLimit { get; private set; }
-        public int Nr { get; private set; }
-        public List<double> ReceiverRanges { get; private set; }
+        public CalculatedModesInfo ModesInfo { get; }
+        public string Options { get; }
+        public int ModesLimit { get; }
+        public int Nr { get; }
+        public List<double> ReceiverRanges { get; }
 
-        public int Nsd { get; private set; }
-        public List<double> SourceDepths { get; private set; }
+        public int Nsd { get; }
+        public List<double> SourceDepths { get; }
 
-        public int Nrd { get; private set; }
-        public List<double> ReceiverDepths { get; private set; }
+        public int Nrd { get; }
+        public List<double> ReceiverDepths { get; }
 
-        public int Nrr { get; private set; }
-        public List<double> ReceiverDisplacements { get; private set; }
+        public int Nrr { get; }
+        public List<double> ReceiverDisplacements { get; }
 
         public FieldInputData(CalculatedModesInfo modesInfo, string options, int modesLimit, int nr,
                               List<double> receiverRanges, int nsd, List<double> sourceDepths, int nrd,

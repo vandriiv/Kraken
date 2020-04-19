@@ -4,28 +4,28 @@ namespace Kraken.Calculation.Models
 {
     public class KrakenInputProfile
     {
-        public int NModes { get; private set; }
-        public double Frequency { get; private set; }
-        public int NMedia { get; private set; }
-        public string Options { get; private set; }
-        public string BCBottom { get; private set; }
-        public List<List<double>> MediumInfo { get; private set; }
-        public List<List<double>> SSP { get; private set; }
-        public double BottomSigma { get; private set; }
+        public int NModes { get; }
+        public double Frequency { get; }
+        public int NMedia { get; }
+        public string Options { get; }
+        public string BCBottom { get; }
+        public List<List<double>> MediumInfo { get; }
+        public List<List<double>> SSP { get; }
+        public double BottomSigma { get; }
 
-        public double CLow { get; private set; }
-        public double CHigh { get; private set; }
+        public double CLow { get; }
+        public double CHigh { get; }
 
-        public double RMax { get; private set; }
+        public double RMax { get; }
 
-        public int Nsd { get; private set; }
-        public List<double> SourceDepths { get; private set; }
+        public int Nsd { get; }
+        public List<double> SourceDepths { get; }
 
-        public int Nrd { get; private set; }
-        public List<double> ReceiverDepths { get; private set; }
-        public List<double> TopAcousticHSProperties { get; private set; }
-        public List<double> TwerskyScatterParameters { get; private set; }
-        public List<double> BottomAcousticHSProperties { get; private set; }
+        public int Nrd { get; }
+        public List<double> ReceiverDepths { get; }
+        public List<double> TopAcousticHSProperties { get; }
+        public List<double> TwerskyScatterParameters { get; }
+        public List<double> BottomAcousticHSProperties { get; }
 
         public KrakenInputProfile(int nModes, double frequency, int nMedia, string options, string bCBottom,
                                   List<List<double>> mediumInfo, List<List<double>> sSP, double bottomSigma, double cLow,

@@ -1,4 +1,5 @@
 ﻿using Kraken.Application.Models;
+using System.Linq;
 
 namespace Kraken.WebUI.Models.Mappers
 {
@@ -25,10 +26,7 @@ namespace Kraken.WebUI.Models.Mappers
 
                 BumDen = model.BumDen,
                 Eta = model.Eta,
-                Xi = model.Xi,
-
-                MediumInfo = model.MediumInfo,
-                SSP = model.SSP,
+                Xi = model.Xi,             
 
                 BottomBCType = model.BottomBCType,
                 Sigma = model.Sigma,
@@ -45,25 +43,41 @@ namespace Kraken.WebUI.Models.Mappers
 
                 RMax = model.RMax,
 
-                NSD = model.NSD,
-                SD = model.SD,
+                NSD = model.NSD,              
 
-                NRD = model.NRD,
-                RD = model.RD, 
+                NRD = model.NRD,            
 
                 CalculateTransmissionLoss = model.CalculateTransmissionLoss,
                 NModesForField = model.NModesForField,
                 SourceType = model.SourceType,
                 ModesTheory = model.ModesTheory,              
-                NR = model.NR,
-                R = model.R,
-                NSDField = model.NSDField,
-                SDField = model.SDField,
-                NRDField = model.NRDField,
-                RDField = model.RDField,
-                NRR = model.NRR,
-                RR = model.RR
+                NR = model.NR,               
+                NSDField = model.NSDField,               
+                NRDField = model.NRDField,               
+                NRR = model.NRR               
             };
+
+            
+            foreach(var m in model.MediumInfo)
+            {
+                acousticProblemData.MediumInfo.Add(m.ToList());
+            }
+
+            foreach(var ssp in model.SSP)
+            {
+                acousticProblemData.SSP.Add(ssp.ToList());
+            }           
+
+            acousticProblemData.SD.AddRange(model.SD);
+            acousticProblemData.RD.AddRange(model.RD);
+
+            if (acousticProblemData.CalculateTransmissionLoss)
+            {
+                acousticProblemData.SDField.AddRange(model.SDField);
+                acousticProblemData.RDField.AddRange(model.RDField);
+                acousticProblemData.R.AddRange(model.R);
+                acousticProblemData.RR.AddRange(model.RR);
+            }
 
             return acousticProblemData;
         }

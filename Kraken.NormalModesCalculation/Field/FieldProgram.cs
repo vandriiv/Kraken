@@ -30,9 +30,9 @@ namespace Kraken.Calculation.Field
 
             var result = new AcousticFieldSnapshots();
 
-            result.Ranges = new List<double>(rangedDataManager.ReceiverRanges);
-            result.SourceDepths = new List<double>(rangedDataManager.SourceDepths);
-            result.ReceiverDepths = new List<double>(rangedDataManager.ReceiverDepths);
+            result.Ranges.AddRange(rangedDataManager.ReceiverRanges);
+            result.SourceDepths.AddRange(rangedDataManager.SourceDepths);
+            result.ReceiverDepths.AddRange(rangedDataManager.ReceiverDepths);
 
             var C = Enumerable.Repeat(new Complex(), maxM + 1).ToList();
 
@@ -68,9 +68,8 @@ namespace Kraken.Calculation.Field
 
             var phiS = readModesMod.GetPreparedModes(fieldData.ModesInfo, maxM, rangedDataManager.SourceDepths, rangedDataManager.Nsd, "N", result.Warnings);
             var phiR = readModesMod.GetPreparedModes(fieldData.ModesInfo, maxM, rangedDataManager.ReceiverDepths, rangedDataManager.Nrd, comp, result.Warnings);
-            var pressureFieldCalculator = new PressueFieldCalculator();
+            var pressureFieldCalculator = new PressueFieldCalculator();           
             
-            result.Snapshots = new List<List<List<Complex>>>();
             result.Snapshots.Add(new List<List<Complex>>());
 
             for (var IS = 1; IS <= rangedDataManager.Nsd; IS++)
