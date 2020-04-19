@@ -1,4 +1,5 @@
 ﻿using Kraken.Calculation.Exceptions;
+using Kraken.Calculation.Interfaces;
 using Kraken.Calculation.Models;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Numerics;
 
 namespace Kraken.Calculation
 {
-    public class KrakenNormalModesProgram
+    public class KrakenNormalModesProgram : IKrakenNormalModesProgram
     {
         public (KrakenResult, CalculatedModesInfo) CalculateNormalModes(KrakenInputProfile profile)
         {

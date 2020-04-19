@@ -2,9 +2,9 @@
 using Kraken.Application.Models;
 using Kraken.Application.Models.Mappers;
 using Kraken.Application.Services.Interfaces;
-using Kraken.Calculation;
 using Kraken.Calculation.Exceptions;
-using Kraken.Calculation.Field;
+using Kraken.Calculation.Field.Interfaces;
+using Kraken.Calculation.Interfaces;
 using Kraken.Calculation.Models;
 using System;
 using System.Collections.Generic;
@@ -15,12 +15,12 @@ namespace Kraken.Application.Services.Implementation
 {
     public class KrakenService : IKrakenService
     {
-        private readonly KrakenNormalModesProgram _krakenNormalModeProgram;
-        private readonly FieldProgram _fieldModel;
+        private readonly IKrakenNormalModesProgram _krakenNormalModeProgram;
+        private readonly IFieldProgram _fieldModel;
         private readonly AcousticProblemDataMapper _acousticProblemDataMapper;
         private readonly KrakenComputingResultMapper _krakenComputingResultMapper;
 
-        public KrakenService(KrakenNormalModesProgram krakenNormalModeProgram, FieldProgram fieldModel,
+        public KrakenService(IKrakenNormalModesProgram krakenNormalModeProgram, IFieldProgram fieldModel,
                              AcousticProblemDataMapper acousticProblemDataMapper,
                              KrakenComputingResultMapper krakenComputingResultMapper)
         {
@@ -39,7 +39,7 @@ namespace Kraken.Application.Services.Implementation
             try
             {
                 var profile = _acousticProblemDataMapper.MapKrakenInputProfile(acousticProblemData);
-                 (krakenResult,modesInfo) = _krakenNormalModeProgram.CalculateNormalModes(profile);
+                (krakenResult,modesInfo) = _krakenNormalModeProgram.CalculateNormalModes(profile);
             }
             catch(KrakenException ex)
             {

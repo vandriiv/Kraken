@@ -1,4 +1,5 @@
-﻿using Kraken.Calculation.Models;
+﻿using Kraken.Calculation.Field.Interfaces;
+using Kraken.Calculation.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Numerics;
 
 namespace Kraken.Calculation.Field
 {
-    public class FieldProgram
+    public class FieldProgram : IFieldProgram
     {
         public AcousticFieldSnapshots CalculateFieldPressure(FieldInputData fieldData)
         {

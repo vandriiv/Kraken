@@ -3,6 +3,8 @@ using Kraken.Application.Services.Implementation;
 using Kraken.Application.Services.Interfaces;
 using Kraken.Calculation;
 using Kraken.Calculation.Field;
+using Kraken.Calculation.Field.Interfaces;
+using Kraken.Calculation.Interfaces;
 using Kraken.WebUI.Models.Mappers;
 using Kraken.WebUI.Models.Validators;
 using Microsoft.AspNetCore.Builder;
@@ -37,8 +39,8 @@ namespace Kraken.WebUI
             services.AddTransient<AcousticProblemDataMapper>();
             services.AddTransient<KrakenComputingResultMapper>();
 
-            services.AddTransient<KrakenNormalModesProgram>();
-            services.AddTransient<FieldProgram>();           
+            services.AddTransient<IKrakenNormalModesProgram, KrakenNormalModesProgram>();
+            services.AddTransient<IFieldProgram, FieldProgram>();           
 
             services.AddSpaStaticFiles(configuration =>
             {
