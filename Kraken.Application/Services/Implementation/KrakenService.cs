@@ -53,7 +53,7 @@ namespace Kraken.Application.Services.Implementation
 
                 result = _krakenComputingResultMapper.MapFromKrakenAndFieldResult(krakenResult, acousticFieldSnapshots);
 
-                result.TransmissionLoss = CalculateTransmissionLossUsingAcousticSnapshots(acousticFieldSnapshots.Snapshots);
+                result.TransmissionLoss.AddRange(CalculateTransmissionLossUsingAcousticSnapshots(acousticFieldSnapshots.Snapshots));
             }
             else
             {
@@ -63,13 +63,13 @@ namespace Kraken.Application.Services.Implementation
             return result;
         }
 
-        private List<List<List<double>>> CalculateTransmissionLossUsingAcousticSnapshots(List<List<List<Complex>>> snapshots)
+        private IEnumerable<List<List<double>>> CalculateTransmissionLossUsingAcousticSnapshots(List<List<List<Complex>>> snapshots)
         {
             return snapshots.GetRange(1, snapshots.Count - 1)
                           .Select(x => x.GetRange(1, x.Count - 1)
                           .Select(y => y.GetRange(1, y.Count - 1)
                           .Select(z => z.Real == 0 ? 1E-6 : z.Real)
-                          .Select(z => -20 * Math.Log10(Math.Abs(z))).ToList()).ToList()).ToList();
+                          .Select(z => -20 * Math.Log10(Math.Abs(z))).ToList()).ToList());
         }
     }
 }

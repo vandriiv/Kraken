@@ -24,8 +24,8 @@ namespace Kraken.Application.Models
         public double Eta { get; set; }
         public double Xi { get; set; }
 
-        public List<List<double>> MediumInfo { get; set; }
-        public List<List<double>> SSP { get; set; }
+        public List<List<double>> MediumInfo { get; } = new List<List<double>>();
+        public List<List<double>> SSP { get; } = new List<List<double>>();
 
         public string BottomBCType { get; set; }
         public double Sigma { get; set; }
@@ -43,24 +43,24 @@ namespace Kraken.Application.Models
         public double RMax { get; set; }
 
         public int NSD { get; set; }
-        public List<double> SD { get; set; }
+        public List<double> SD { get; } = new List<double>();
 
         public int NRD { get; set; }
-        public List<double> RD { get; set; }
+        public List<double> RD { get; } = new List<double>();
 
         public bool CalculateTransmissionLoss { get; set; }
         public int NModesForField { get; set; }
         public string SourceType { get; set; }
         public string ModesTheory { get; set; } 
         public int NR { get; set; }
-        public List<double> R { get; set; }
+        public List<double> R { get; } = new List<double>();
         public int NRR { get; set; }
-        public List<double> RR { get; set; }
+        public List<double> RR { get; } = new List<double>();
 
         public int NSDField { get; set; }
-        public List<double> SDField { get; set; }
+        public List<double> SDField { get; } = new List<double>();
 
         public int NRDField { get; set; }
-        public List<double> RDField { get; set; }
+        public List<double> RDField { get; } = new List<double>();
     }
 }

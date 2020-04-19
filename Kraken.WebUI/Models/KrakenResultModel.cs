@@ -4,19 +4,19 @@ namespace Kraken.WebUI.Models
 {
     public class KrakenResultModel
     {
-        public IEnumerable<double> K { get; set; }
-        public IEnumerable<double> Alpha { get; set; }
-        public IEnumerable<double> PhaseSpeed { get; set; }
-        public IEnumerable<double> GroupSpeed { get; set; }
-        public IEnumerable<DepthModes> Modes { get; set; }
+        public List<double> K { get; } = new List<double>();
+        public List<double> Alpha { get; } = new List<double>();
+        public List<double> PhaseSpeed { get; } = new List<double>();
+        public List<double> GroupSpeed { get; } = new List<double>();
+        public List<DepthModes> Modes { get; } = new List<DepthModes>();
         public int ModesCount { get; set; }
 
         public bool TransmissionLossCalculated { get; set; }
-        public IEnumerable<double> Ranges { get; set; }
-        public IEnumerable<double> SourceDepths { get; set; }
-        public IEnumerable<double> ReceiverDepths { get; set; }    
-        public List<TLAtSourceDepth> TransmissionLoss { get; set; }
+        public List<double> Ranges { get; } = new List<double>();
+        public List<double> SourceDepths { get; } = new List<double>();
+        public List<double> ReceiverDepths { get; } = new List<double>();
+        public List<TLAtSourceDepth> TransmissionLoss { get; } = new List<TLAtSourceDepth>();
 
-        public List<string> Warnings { get; set; }
+        public List<string> Warnings { get; } = new List<string>();
     }
 }
