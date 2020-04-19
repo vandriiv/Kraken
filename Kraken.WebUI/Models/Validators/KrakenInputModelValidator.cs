@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Kraken.WebUI.Models.Common;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Kraken.WebUI.Models.Validators
 {
-    public class KrakenInputModelValidator
+    public class KrakenInputModelValidator : IModelValidator<KrakenInputModel>
     {
-        public List<string> Validate(KrakenInputModel model)
+        public IEnumerable<string> Validate(KrakenInputModel model)
         {
             var errors = new List<string>();
 

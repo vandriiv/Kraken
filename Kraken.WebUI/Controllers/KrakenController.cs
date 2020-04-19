@@ -1,9 +1,10 @@
 ﻿using Kraken.Application.Exceptions;
 using Kraken.Application.Services.Interfaces;
 using Kraken.WebUI.Models;
+using Kraken.WebUI.Models.Common;
 using Kraken.WebUI.Models.Mappers;
-using Kraken.WebUI.Models.Validators;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace Kraken.WebUI.Controllers
 {
@@ -12,12 +13,12 @@ namespace Kraken.WebUI.Controllers
         private readonly IKrakenService _krakenService;
         private readonly KrakenInputModelMapper _krakenInputModelMapper;
         private readonly KrakenResultModelMapper _krakenResultModelMapper;
-        private readonly KrakenInputModelValidator _krakenInputModelValidator;
+        private readonly IModelValidator<KrakenInputModel> _krakenInputModelValidator;
 
         public KrakenController(IKrakenService krakenService,
                                 KrakenInputModelMapper krakenInputModelMapper,
                                 KrakenResultModelMapper krakenResultModelMapper,
-                                KrakenInputModelValidator krakenInputModelValidator)
+                                IModelValidator<KrakenInputModel> krakenInputModelValidator)
         {
             _krakenService = krakenService;
             _krakenInputModelMapper = krakenInputModelMapper;
@@ -34,7 +35,7 @@ namespace Kraken.WebUI.Controllers
             }
 
             var errors = _krakenInputModelValidator.Validate(model);
-            if (errors.Count != 0)
+            if (errors.Any())
             {
                 return BadRequest(new { validationErrors= errors });
             }

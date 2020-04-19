@@ -5,6 +5,8 @@ using Kraken.Calculation;
 using Kraken.Calculation.Field;
 using Kraken.Calculation.Field.Interfaces;
 using Kraken.Calculation.Interfaces;
+using Kraken.WebUI.Models;
+using Kraken.WebUI.Models.Common;
 using Kraken.WebUI.Models.Mappers;
 using Kraken.WebUI.Models.Validators;
 using Microsoft.AspNetCore.Builder;
@@ -32,8 +34,8 @@ namespace Kraken.WebUI
             services.AddControllersWithViews().AddNewtonsoftJson();
 
             services.AddTransient<KrakenInputModelMapper>();
-            services.AddTransient<KrakenResultModelMapper>();
-            services.AddTransient<KrakenInputModelValidator>();
+            services.AddTransient<KrakenResultModelMapper>();         
+            services.AddTransient<IModelValidator<KrakenInputModel>, KrakenInputModelValidator>();
 
             services.AddTransient<IKrakenService, KrakenService>();
             services.AddTransient<AcousticProblemDataMapper>();
