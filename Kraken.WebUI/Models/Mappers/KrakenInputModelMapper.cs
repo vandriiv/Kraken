@@ -1,85 +1,86 @@
-﻿using Kraken.Application.Models;
+﻿using Kraken.Common.Mappers;
+using Kraken.Application.Models;
 using System.Linq;
 
 namespace Kraken.WebUI.Models.Mappers
 {
-    public class KrakenInputModelMapper
+    public class KrakenInputModelMapper : IMapper<KrakenInputModel, AcousticProblemData>
     {
-        public AcousticProblemData MapAcousticProblemData(KrakenInputModel model)
+        public AcousticProblemData Map(KrakenInputModel source)
         {
             var acousticProblemData = new AcousticProblemData
             {
-                Frequency = model.Frequency,
-                NModes = model.NModes,
-                NMedia = model.NMedia,
-                TopBCType = model.TopBCType,
-                InterpolationType = model.InterpolationType,
-                AttenuationUnits = model.AttenuationUnits,
-                AddedVolumeAttenuation = model.AddedVolumeAttenuation,
+                Frequency = source.Frequency,
+                NModes = source.NModes,
+                NMedia = source.NMedia,
+                TopBCType = source.TopBCType,
+                InterpolationType = source.InterpolationType,
+                AttenuationUnits = source.AttenuationUnits,
+                AddedVolumeAttenuation = source.AddedVolumeAttenuation,
 
-                ZT = model.ZT,
-                CPT = model.CPT,
-                CST = model.CST,
-                RHOT = model.RHOT,
-                APT = model.APT,
-                AST = model.AST,
+                ZT = source.ZT,
+                CPT = source.CPT,
+                CST = source.CST,
+                RHOT = source.RHOT,
+                APT = source.APT,
+                AST = source.AST,
 
-                BumDen = model.BumDen,
-                Eta = model.Eta,
-                Xi = model.Xi,             
+                BumDen = source.BumDen,
+                Eta = source.Eta,
+                Xi = source.Xi,
 
-                BottomBCType = model.BottomBCType,
-                Sigma = model.Sigma,
+                BottomBCType = source.BottomBCType,
+                Sigma = source.Sigma,
 
-                ZB = model.ZB,
-                CPB = model.CPB,
-                CSB = model.CSB,
-                RHOB = model.RHOB,
-                APB = model.APB,
-                ASB = model.ASB,
+                ZB = source.ZB,
+                CPB = source.CPB,
+                CSB = source.CSB,
+                RHOB = source.RHOB,
+                APB = source.APB,
+                ASB = source.ASB,
 
-                CLow = model.CLow,
-                CHigh = model.CHigh,
+                CLow = source.CLow,
+                CHigh = source.CHigh,
 
-                RMax = model.RMax,
+                RMax = source.RMax,
 
-                NSD = model.NSD,              
+                NSD = source.NSD,
 
-                NRD = model.NRD,            
+                NRD = source.NRD,
 
-                CalculateTransmissionLoss = model.CalculateTransmissionLoss,
-                NModesForField = model.NModesForField,
-                SourceType = model.SourceType,
-                ModesTheory = model.ModesTheory,              
-                NR = model.NR,               
-                NSDField = model.NSDField,               
-                NRDField = model.NRDField,               
-                NRR = model.NRR               
+                CalculateTransmissionLoss = source.CalculateTransmissionLoss,
+                NModesForField = source.NModesForField,
+                SourceType = source.SourceType,
+                ModesTheory = source.ModesTheory,
+                NR = source.NR,
+                NSDField = source.NSDField,
+                NRDField = source.NRDField,
+                NRR = source.NRR
             };
 
-            
-            foreach(var m in model.MediumInfo)
+
+            foreach (var m in source.MediumInfo)
             {
                 acousticProblemData.MediumInfo.Add(m.ToList());
             }
 
-            foreach(var ssp in model.SSP)
+            foreach (var ssp in source.SSP)
             {
                 acousticProblemData.SSP.Add(ssp.ToList());
-            }           
+            }
 
-            acousticProblemData.SD.AddRange(model.SD);
-            acousticProblemData.RD.AddRange(model.RD);
+            acousticProblemData.SD.AddRange(source.SD);
+            acousticProblemData.RD.AddRange(source.RD);
 
             if (acousticProblemData.CalculateTransmissionLoss)
             {
-                acousticProblemData.SDField.AddRange(model.SDField);
-                acousticProblemData.RDField.AddRange(model.RDField);
-                acousticProblemData.R.AddRange(model.R);
-                acousticProblemData.RR.AddRange(model.RR);
+                acousticProblemData.SDField.AddRange(source.SDField);
+                acousticProblemData.RDField.AddRange(source.RDField);
+                acousticProblemData.R.AddRange(source.R);
+                acousticProblemData.RR.AddRange(source.RR);
             }
 
             return acousticProblemData;
-        }
+        }       
     }
 }

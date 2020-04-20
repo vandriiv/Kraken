@@ -1,6 +1,6 @@
-﻿using Kraken.Application.Exceptions;
+﻿using Kraken.Common.Mappers;
+using Kraken.Application.Exceptions;
 using Kraken.Application.Models;
-using Kraken.Application.Models.Mappers;
 using Kraken.Application.Services.Interfaces;
 using Kraken.Calculation.Exceptions;
 using Kraken.Calculation.Field.Interfaces;
@@ -17,29 +17,34 @@ namespace Kraken.Application.Services.Implementation
     {
         private readonly IKrakenNormalModesProgram _krakenNormalModeProgram;
         private readonly IFieldProgram _fieldModel;
-        private readonly AcousticProblemDataMapper _acousticProblemDataMapper;
-        private readonly KrakenComputingResultMapper _krakenComputingResultMapper;
 
-        public KrakenService(IKrakenNormalModesProgram krakenNormalModeProgram, IFieldProgram fieldModel,
-                             AcousticProblemDataMapper acousticProblemDataMapper,
-                             KrakenComputingResultMapper krakenComputingResultMapper)
+        private readonly IMapper<AcousticProblemData, KrakenInputProfile> _krakenInputProfileMapper;
+        private readonly IMapper<FieldComputingRequiredData, FieldInputData> _fieldInputDataMapper;
+        private readonly IMapper<KrakenResultAndAcousticFieldSnapshots, KrakenComputingResult> _krakenComputingResultMapper;
+
+        public KrakenService(IKrakenNormalModesProgram krakenNormalModeProgram,
+            IFieldProgram fieldModel,
+            IMapper<AcousticProblemData, KrakenInputProfile> krakenInputProfileMapper,
+            IMapper<FieldComputingRequiredData, FieldInputData> fieldInputDataMapper,
+            IMapper<KrakenResultAndAcousticFieldSnapshots, KrakenComputingResult> krakenComputingResultMapper)
         {
             _krakenNormalModeProgram = krakenNormalModeProgram;
             _fieldModel = fieldModel;
-            _acousticProblemDataMapper = acousticProblemDataMapper;
+            _krakenInputProfileMapper = krakenInputProfileMapper;
+            _fieldInputDataMapper = fieldInputDataMapper;
             _krakenComputingResultMapper = krakenComputingResultMapper;
         }
 
         public KrakenComputingResult ComputeModes(AcousticProblemData acousticProblemData)
-        {
-            KrakenComputingResult result = null;
-
+        {         
             CalculatedModesInfo modesInfo;
-            KrakenResult krakenResult;
+            KrakenResultAndAcousticFieldSnapshots krakenResultAndAcousticFieldSnapshots = new KrakenResultAndAcousticFieldSnapshots();
+            
             try
             {
-                var profile = _acousticProblemDataMapper.MapKrakenInputProfile(acousticProblemData);
-                (krakenResult,modesInfo) = _krakenNormalModeProgram.CalculateNormalModes(profile);
+                var profile = _krakenInputProfileMapper.Map(acousticProblemData);
+                (krakenResultAndAcousticFieldSnapshots.KrakenResult, modesInfo) = 
+                    _krakenNormalModeProgram.CalculateNormalModes(profile);
             }
             catch(KrakenException ex)
             {
@@ -48,17 +53,23 @@ namespace Kraken.Application.Services.Implementation
 
             if (acousticProblemData.CalculateTransmissionLoss)
             {
-                var fieldInput = _acousticProblemDataMapper.MapFieldInputData(acousticProblemData, modesInfo);
-                var acousticFieldSnapshots = _fieldModel.CalculateFieldPressure(fieldInput);
+                var fieldComputingRequiredData = new FieldComputingRequiredData
+                {
+                    AcousticProblemData = acousticProblemData,
+                    ModesInfo = modesInfo
+                };
 
-                result = _krakenComputingResultMapper.MapFromKrakenAndFieldResult(krakenResult, acousticFieldSnapshots);
+                var fieldInput = _fieldInputDataMapper.Map(fieldComputingRequiredData);
 
-                result.TransmissionLoss.AddRange(CalculateTransmissionLossUsingAcousticSnapshots(acousticFieldSnapshots.Snapshots));
+                krakenResultAndAcousticFieldSnapshots.AcousticFieldSnapshots = _fieldModel.CalculateFieldPressure(fieldInput);
+
+                krakenResultAndAcousticFieldSnapshots.TransmissionLoss.AddRange(
+                    CalculateTransmissionLossUsingAcousticSnapshots(krakenResultAndAcousticFieldSnapshots.
+                    AcousticFieldSnapshots.Snapshots)
+                );
             }
-            else
-            {
-                result = _krakenComputingResultMapper.MapFromKrakenResult(krakenResult);
-            }            
+
+            var result = _krakenComputingResultMapper.Map(krakenResultAndAcousticFieldSnapshots);          
 
             return result;
         }
