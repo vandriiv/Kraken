@@ -15,6 +15,54 @@ namespace Kraken.Application.Tests.Unit
             return data;
         }
 
+        public KrakenInputProfile GetKrakenInputProfile()
+        {
+            var nModes = 44;
+            var frequency = 10.0;
+            var nMedia = 2;
+            var options = "RTR";
+            var bcBottom = "R";
+            var mediumInfo = new List<List<double>>();
+            var ssp = new List<List<double>>();
+            var bsigma = 0.0;
+            var cLow = 0;
+            var cHigh = 0;
+            var rMax = 100;
+            var nsd = 1;
+            var sDepths = new List<double>();
+            var nrd = 1;
+            var rDepths = new List<double>();
+            var tahsp = new List<double>();
+            var tsp = new List<double>();
+            var bahsp = new List<double>();
+
+            var krakenInputProfile = new KrakenInputProfile(nModes, frequency, nMedia,
+                options, bcBottom, mediumInfo, ssp, bsigma, cLow, cHigh, rMax,
+                nsd, sDepths, nrd, rDepths, tahsp, tsp, bahsp);
+
+            return krakenInputProfile;
+        }
+
+        public FieldInputData GetFieldInputData()
+        {
+            var modesInfo = GetCalculatedModesInfo();
+            var options = "RA";
+            var mLimit = 999;
+            var nr = 1;
+            var rr = new List<double>();
+            var nsd = 1;
+            var sDepths = new List<double>();
+            var nrd = 1;
+            var rDepths = new List<double>();
+            var nrr = 1;
+            var rd = new List<double>();
+
+            var fieldInputData = new FieldInputData(modesInfo, options,
+                mLimit, nr, rr, nsd, sDepths, nrd, rDepths, nrr, rd);
+
+            return fieldInputData;
+        }
+
         public AcousticProblemData GetAcousticProblemDataForKrakenAndField()
         {
             var data = GetAcousticProblemDataForKraken();

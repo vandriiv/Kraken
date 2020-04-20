@@ -1,5 +1,5 @@
 ﻿using Kraken.Application.Exceptions;
-using Kraken.Application.Models.Mappers;
+using Kraken.Application.Models;
 using Kraken.Application.Services.Implementation;
 using Kraken.Application.Tests.Unit.Mocks;
 using Kraken.Calculation.Models;
@@ -13,12 +13,14 @@ namespace Kraken.Application.Tests.Unit.Services
         private readonly TestDataHelper _testDataHelper;
         private readonly FieldProgramMocks _fieldProgramMocks;
         private readonly KrakenNormalModesProgramMocks _krakenNormalModesProgramMocks;
+        private readonly MappersMocks _mappersMocks;
 
         public KrakenServiceTests()
         {
             _testDataHelper = new TestDataHelper();
             _fieldProgramMocks = new FieldProgramMocks();
             _krakenNormalModesProgramMocks = new KrakenNormalModesProgramMocks();
+            _mappersMocks = new MappersMocks();
         }
 
         [Fact]
@@ -29,27 +31,39 @@ namespace Kraken.Application.Tests.Unit.Services
             var krakenNormalProgramMock = _krakenNormalModesProgramMocks.CalculateNormalModesThrowsKrakenExceptionWithMessage(exceptionMessage);
             var fieldProgramMock = _fieldProgramMocks.CalculateFieldPressureReturnsAcousticFieldSnapshots();
 
-            var sut = new KrakenService(krakenNormalProgramMock.Object, fieldProgramMock.Object, new AcousticProblemDataMapper(),
-                                        new KrakenComputingResultMapper());
+            var krakenInputProfileMapperMock = _mappersMocks.KrakenInputProfileMapper(_testDataHelper.GetKrakenInputProfile());
+            var fieldInputDataMapperMock = _mappersMocks.FieldInputDataMapper(_testDataHelper.GetFieldInputData());
+            var krakenComputingResultMapperMock = _mappersMocks.KrakenComputingResultMapper();
 
-            var acousticProblemData = _testDataHelper.GetAcousticProblemDataForKraken();
+            var sut = new KrakenService(krakenNormalProgramMock.Object, fieldProgramMock.Object,
+                                       krakenInputProfileMapperMock.Object, fieldInputDataMapperMock.Object,
+                                       krakenComputingResultMapperMock.Object);
+
+            var acousticProblemData = _testDataHelper.GetAcousticProblemDataForKraken();           
 
             var message = Assert.Throws<KrakenComputingException>(() => sut.ComputeModes(acousticProblemData)).Message;
             Assert.Equal(exceptionMessage, message);
+
+            krakenInputProfileMapperMock.Verify(x => x.Map(It.IsAny<AcousticProblemData>()), Times.Once());
+            fieldInputDataMapperMock.Verify(x => x.Map(It.IsAny<FieldComputingRequiredData>()), Times.Never());
+            krakenComputingResultMapperMock.Verify(x => x.Map(It.IsAny<KrakenResultAndAcousticFieldSnapshots>()), Times.Never());
         }
 
         [Fact]
         public void ComputeModesMustNotCalculateFieldPressure()
         {
             var krakenNormalProgramMock = _krakenNormalModesProgramMocks
-                                           .CalculateNormalModesReturnsKrakenResultAndCalculatedModesInfo
-                                           (_testDataHelper.GetKrakenResult(),
-                                            null);
+                                           .CalculateNormalModesReturnsKrakenResultAndCalculatedModesInfo();
 
             var fieldProgramMock = _fieldProgramMocks.CalculateFieldPressureReturnsAcousticFieldSnapshots();
 
-            var sut = new KrakenService(krakenNormalProgramMock.Object, fieldProgramMock.Object, new AcousticProblemDataMapper(),
-                                        new KrakenComputingResultMapper());
+            var krakenInputProfileMapperMock = _mappersMocks.KrakenInputProfileMapper(_testDataHelper.GetKrakenInputProfile());
+            var fieldInputDataMapperMock = _mappersMocks.FieldInputDataMapper(_testDataHelper.GetFieldInputData());
+            var krakenComputingResultMapperMock = _mappersMocks.KrakenComputingResultMapper();
+
+            var sut = new KrakenService(krakenNormalProgramMock.Object, fieldProgramMock.Object,
+                                       krakenInputProfileMapperMock.Object, fieldInputDataMapperMock.Object,
+                                       krakenComputingResultMapperMock.Object);
 
             var acousticProblemData = _testDataHelper.GetAcousticProblemDataForKraken();
 
@@ -57,22 +71,28 @@ namespace Kraken.Application.Tests.Unit.Services
 
             krakenNormalProgramMock.Verify(x => x.CalculateNormalModes(It.IsAny<KrakenInputProfile>()),Times.Once());
             fieldProgramMock.Verify(x => x.CalculateFieldPressure(It.IsAny<FieldInputData>()),Times.Never());
+
+            krakenInputProfileMapperMock.Verify(x => x.Map(It.IsAny<AcousticProblemData>()), Times.Once());
+            fieldInputDataMapperMock.Verify(x => x.Map(It.IsAny<FieldComputingRequiredData>()), Times.Never());
+            krakenComputingResultMapperMock.Verify(x => x.Map(It.IsAny<KrakenResultAndAcousticFieldSnapshots>()), Times.Once());
         }
 
         [Fact]
         public void ComputeModesMustCalculateFieldPressure()
         {
             var krakenNormalProgramMock = _krakenNormalModesProgramMocks
-                                           .CalculateNormalModesReturnsKrakenResultAndCalculatedModesInfo(
-                                           _testDataHelper.GetKrakenResult(),
-                                           _testDataHelper.GetCalculatedModesInfo());
+                                           .CalculateNormalModesReturnsKrakenResultAndCalculatedModesInfo();
 
             var fieldProgramMock = _fieldProgramMocks
-                                    .CalculateFieldPressureReturnsAcousticFieldSnapshots(
-                                    _testDataHelper.GetAcousticFieldSnapshots());
+                                    .CalculateFieldPressureReturnsAcousticFieldSnapshots(_testDataHelper.GetAcousticFieldSnapshots());
 
-            var sut = new KrakenService(krakenNormalProgramMock.Object, fieldProgramMock.Object, new AcousticProblemDataMapper(),
-                                        new KrakenComputingResultMapper());
+            var krakenInputProfileMapperMock = _mappersMocks.KrakenInputProfileMapper(_testDataHelper.GetKrakenInputProfile());
+            var fieldInputDataMapperMock = _mappersMocks.FieldInputDataMapper(_testDataHelper.GetFieldInputData());
+            var krakenComputingResultMapperMock = _mappersMocks.KrakenComputingResultMapper();
+
+            var sut = new KrakenService(krakenNormalProgramMock.Object, fieldProgramMock.Object,
+                                       krakenInputProfileMapperMock.Object, fieldInputDataMapperMock.Object,
+                                       krakenComputingResultMapperMock.Object);
 
             var acousticProblemData = _testDataHelper.GetAcousticProblemDataForKrakenAndField();
 
@@ -80,6 +100,10 @@ namespace Kraken.Application.Tests.Unit.Services
 
             krakenNormalProgramMock.Verify(x => x.CalculateNormalModes(It.IsAny<KrakenInputProfile>()), Times.Once());
             fieldProgramMock.Verify(x => x.CalculateFieldPressure(It.IsAny<FieldInputData>()), Times.Once());
+
+            krakenInputProfileMapperMock.Verify(x => x.Map(It.IsAny<AcousticProblemData>()), Times.Once());
+            fieldInputDataMapperMock.Verify(x => x.Map(It.IsAny<FieldComputingRequiredData>()), Times.Once());
+            krakenComputingResultMapperMock.Verify(x => x.Map(It.IsAny<KrakenResultAndAcousticFieldSnapshots>()), Times.Once());
         }
     }
 }

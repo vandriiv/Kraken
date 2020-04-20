@@ -1,72 +1,69 @@
-﻿using Kraken.Calculation.Models;
-using System;
+﻿using Kraken.Common.Mappers;
+using Kraken.Calculation.Models;
 using System.Collections.Generic;
-using System.Numerics;
 
 namespace Kraken.Application.Models.Mappers
 {
-    public class KrakenComputingResultMapper
+    public class KrakenComputingResultMapper : IMapper<KrakenResultAndAcousticFieldSnapshots, KrakenComputingResult>
     {
-        public KrakenComputingResult MapFromKrakenResult(KrakenResult krakenResult)
+        public KrakenComputingResult Map(KrakenResultAndAcousticFieldSnapshots source)
         {
             var result = new KrakenComputingResult();
 
-            MapKrakenOnlyProperties(result, krakenResult);
+            MapKrakenOnlyProperties(result, source.KrakenResult);
 
-            result.TransmissionLossCalculated = false;
+            if (source.AcousticFieldSnapshots != null)
+            {
+                result.TransmissionLossCalculated = true;
+
+                result.SourceDepths.AddRange(source.AcousticFieldSnapshots.SourceDepths);
+                result.ReceiverDepths.AddRange(source.AcousticFieldSnapshots.ReceiverDepths);
+                result.Ranges.AddRange(source.AcousticFieldSnapshots.Ranges);
+
+                if (result.SourceDepths.Count > 3 && result.SourceDepths[3] == -999.9)
+                {
+                    var val = result.SourceDepths[1];
+                    result.SourceDepths.Clear();
+                    result.SourceDepths.AddRange(new List<double>() { val });
+                }
+                else
+                {
+                    result.SourceDepths.RemoveAt(0);
+                }
+
+                if (result.ReceiverDepths.Count > 3 && result.ReceiverDepths[3] == -999.9)
+                {
+                    var val = result.ReceiverDepths[1];
+                    result.ReceiverDepths.Clear();
+                    result.ReceiverDepths.AddRange(new List<double>() { val });
+                }
+                else
+                {
+                    result.ReceiverDepths.RemoveAt(0);
+                }
+
+                if (result.Ranges.Count > 3 && result.Ranges[3] == -999.9)
+                {
+                    var val = result.Ranges[1];
+                    result.Ranges.Clear();
+                    result.Ranges.AddRange(new List<double>() { val });
+                }
+                else
+                {
+                    result.Ranges.RemoveAt(0);
+                }
+
+                result.TransmissionLoss.AddRange(source.TransmissionLoss);
+
+                result.Warnings.AddRange(source.AcousticFieldSnapshots.Warnings);
+            }
+            else
+            {
+                result.TransmissionLossCalculated = false;
+            }
 
             return result;
-        }
-
-        public KrakenComputingResult MapFromKrakenAndFieldResult(KrakenResult krakenResult, AcousticFieldSnapshots fieldResult)
-        {
-            var result = new KrakenComputingResult();
-
-            MapKrakenOnlyProperties(result, krakenResult);
-
-            result.TransmissionLossCalculated = true;
-
-            result.SourceDepths.AddRange(fieldResult.SourceDepths);
-            result.ReceiverDepths.AddRange(fieldResult.ReceiverDepths);
-            result.Ranges.AddRange(fieldResult.Ranges);           
-
-            if (result.SourceDepths.Count > 3 && result.SourceDepths[3] == -999.9)
-            {
-                var val = result.SourceDepths[1];
-                result.SourceDepths.Clear();
-                result.SourceDepths.AddRange(new List<double>() { val });
-            }
-            else
-            {
-                result.SourceDepths.RemoveAt(0);
-            }
-
-            if (result.ReceiverDepths.Count > 3 && result.ReceiverDepths[3] == -999.9)
-            {
-                var val = result.ReceiverDepths[1];
-                result.ReceiverDepths.Clear();
-                result.ReceiverDepths.AddRange(new List<double>() { val});
-            }
-            else
-            {
-                result.ReceiverDepths.RemoveAt(0);
-            }
-
-            if (result.Ranges.Count > 3 && result.Ranges[3] == -999.9)
-            {
-                var val = result.Ranges[1];
-                result.Ranges.Clear();
-                result.Ranges.AddRange(new List<double>() { result.Ranges[1] });
-            }
-            else
-            {
-                result.Ranges.RemoveAt(0);
-            }
-
-            result.Warnings.AddRange(fieldResult.Warnings);
-
-            return result;
-        }
+        }       
 
         private void MapKrakenOnlyProperties(KrakenComputingResult result, KrakenResult krakenResult)
         {
@@ -89,6 +86,6 @@ namespace Kraken.Application.Models.Mappers
             {
                 modes.RemoveAt(0);
             }
-        }
+        }       
     }
 }

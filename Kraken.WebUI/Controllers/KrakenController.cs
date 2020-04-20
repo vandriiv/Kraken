@@ -1,8 +1,9 @@
-﻿using Kraken.Application.Exceptions;
+﻿using Kraken.Common.Mappers;
+using Kraken.Application.Exceptions;
+using Kraken.Application.Models;
 using Kraken.Application.Services.Interfaces;
 using Kraken.WebUI.Models;
 using Kraken.WebUI.Models.Common;
-using Kraken.WebUI.Models.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
@@ -11,13 +12,15 @@ namespace Kraken.WebUI.Controllers
     public class KrakenController:Controller
     {
         private readonly IKrakenService _krakenService;
-        private readonly KrakenInputModelMapper _krakenInputModelMapper;
-        private readonly KrakenResultModelMapper _krakenResultModelMapper;
+
+        private readonly IMapper<KrakenInputModel, AcousticProblemData> _krakenInputModelMapper;
+        private readonly IMapper<KrakenComputingResult, KrakenResultModel> _krakenResultModelMapper;
+
         private readonly IModelValidator<KrakenInputModel> _krakenInputModelValidator;
 
         public KrakenController(IKrakenService krakenService,
-                                KrakenInputModelMapper krakenInputModelMapper,
-                                KrakenResultModelMapper krakenResultModelMapper,
+                                IMapper<KrakenInputModel, AcousticProblemData> krakenInputModelMapper,
+                                IMapper<KrakenComputingResult, KrakenResultModel> krakenResultModelMapper,
                                 IModelValidator<KrakenInputModel> krakenInputModelValidator)
         {
             _krakenService = krakenService;
@@ -40,13 +43,13 @@ namespace Kraken.WebUI.Controllers
                 return BadRequest(new { validationErrors= errors });
             }
 
-            var acousticProblem = _krakenInputModelMapper.MapAcousticProblemData(model);
+            var acousticProblem = _krakenInputModelMapper.Map(model);
 
             try
             {
                 var computingResult = _krakenService.ComputeModes(acousticProblem);
 
-                var viewModel = _krakenResultModelMapper.MapKrakenComputingResult(computingResult);
+                var viewModel = _krakenResultModelMapper.Map(computingResult);
 
                 return Json(viewModel);
             }

@@ -16,15 +16,6 @@ namespace Kraken.Application.Tests.Unit.Mocks
             return mock;
         }
 
-        public Mock<IKrakenNormalModesProgram> CalculateNormalModesReturnsKrakenResultAndCalculatedModesInfo(KrakenResult krakenResult, CalculatedModesInfo calculatedModesInfo)
-        {
-            var mock = new Mock<IKrakenNormalModesProgram>();
-
-            mock.Setup(x => x.CalculateNormalModes(It.IsAny<KrakenInputProfile>())).Returns((krakenResult, calculatedModesInfo));
-
-            return mock;
-        }
-
         public Mock<IKrakenNormalModesProgram> CalculateNormalModesThrowsKrakenExceptionWithMessage(string message)
         {
             var mock = new Mock<IKrakenNormalModesProgram>();
@@ -32,7 +23,6 @@ namespace Kraken.Application.Tests.Unit.Mocks
             mock.Setup(x => x.CalculateNormalModes(It.IsAny<KrakenInputProfile>())).Throws(new KrakenException(message));
            
             return mock;
-        }
-       
+        }       
     }
 }

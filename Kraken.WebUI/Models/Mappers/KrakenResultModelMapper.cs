@@ -1,42 +1,41 @@
-﻿using Kraken.Application.Models;
-using System.Collections.Generic;
+﻿using Kraken.Common.Mappers;
+using Kraken.Application.Models;
 using System.Linq;
 
 namespace Kraken.WebUI.Models.Mappers
 {
-    public class KrakenResultModelMapper
+    public class KrakenResultModelMapper : IMapper<KrakenComputingResult, KrakenResultModel>
     {
-        public KrakenResultModel MapKrakenComputingResult(KrakenComputingResult computingResult)
+        public KrakenResultModel Map(KrakenComputingResult source)
         {
             var resultModel = new KrakenResultModel();
-            resultModel.Alpha.AddRange(computingResult.K.Select(x => x.Imaginary));
-            resultModel.GroupSpeed.AddRange(computingResult.GroupSpeed);
-            resultModel.PhaseSpeed.AddRange(computingResult.PhaseSpeed);
-            resultModel.K.AddRange(computingResult.K.Select(x => x.Real));
-         
+            resultModel.Alpha.AddRange(source.K.Select(x => x.Imaginary));
+            resultModel.GroupSpeed.AddRange(source.GroupSpeed);
+            resultModel.PhaseSpeed.AddRange(source.PhaseSpeed);
+            resultModel.K.AddRange(source.K.Select(x => x.Real));
 
-            var depthsCount = computingResult.ZM.Count;
+            var depthsCount = source.ZM.Count;
 
-            resultModel.ModesCount = computingResult.ModesCount;
+            resultModel.ModesCount = source.ModesCount;
 
-            resultModel.Modes.AddRange(computingResult.ZM.Select((x, idx) => new DepthModes(x, computingResult.Modes[idx])));
+            resultModel.Modes.AddRange(source.ZM.Select((x, idx) => new DepthModes(x, source.Modes[idx])));
 
-            resultModel.TransmissionLossCalculated = computingResult.TransmissionLossCalculated;
-            if (computingResult.TransmissionLossCalculated)
+            resultModel.TransmissionLossCalculated = source.TransmissionLossCalculated;
+            if (source.TransmissionLossCalculated)
             {
-                resultModel.Ranges.AddRange(computingResult.Ranges);
-                resultModel.SourceDepths.AddRange(computingResult.SourceDepths);
-                resultModel.ReceiverDepths.AddRange(computingResult.ReceiverDepths);
+                resultModel.Ranges.AddRange(source.Ranges);
+                resultModel.SourceDepths.AddRange(source.SourceDepths);
+                resultModel.ReceiverDepths.AddRange(source.ReceiverDepths);
 
-                var sourceDepthsCount = computingResult.SourceDepths.Count;
-                var receiverDepthsCount = computingResult.ReceiverDepths.Count;
-                var rangesCount = computingResult.Ranges.Count;
-               
+                var sourceDepthsCount = source.SourceDepths.Count;
+                var receiverDepthsCount = source.ReceiverDepths.Count;
+                var rangesCount = source.Ranges.Count;
+
                 resultModel.TransmissionLoss.Capacity = sourceDepthsCount;
                 for (var i = 0; i < sourceDepthsCount; i++)
                 {
                     var tlAtSource = new TLAtSourceDepth();
-                    tlAtSource.SourceDepth = computingResult.SourceDepths[i];
+                    tlAtSource.SourceDepth = source.SourceDepths[i];
 
                     tlAtSource.TLAtReceiverDepths.Clear();
                     tlAtSource.TLAtReceiverDepths.Capacity = receiverDepthsCount;
@@ -44,14 +43,14 @@ namespace Kraken.WebUI.Models.Mappers
                     for (var j = 0; j < receiverDepthsCount; j++)
                     {
                         var tlAtReceiver = new TLAtReceiverDepth();
-                        tlAtReceiver.ReceiverDepth = computingResult.ReceiverDepths[j];
+                        tlAtReceiver.ReceiverDepth = source.ReceiverDepths[j];
 
                         tlAtReceiver.TransmissionLoss.Clear();
                         tlAtReceiver.TransmissionLoss.Capacity = rangesCount;
 
                         for (var k = 0; k < rangesCount; k++)
                         {
-                            tlAtReceiver.TransmissionLoss.Add(computingResult.TransmissionLoss[i][j][k]);
+                            tlAtReceiver.TransmissionLoss.Add(source.TransmissionLoss[i][j][k]);
                         }
 
                         tlAtSource.TLAtReceiverDepths.Add(tlAtReceiver);
@@ -61,7 +60,7 @@ namespace Kraken.WebUI.Models.Mappers
                 }
             }
 
-            resultModel.Warnings.AddRange(computingResult.Warnings);
+            resultModel.Warnings.AddRange(source.Warnings);
 
             return resultModel;
         }

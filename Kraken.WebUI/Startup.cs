@@ -1,3 +1,4 @@
+using Kraken.Application.Models;
 using Kraken.Application.Models.Mappers;
 using Kraken.Application.Services.Implementation;
 using Kraken.Application.Services.Interfaces;
@@ -5,6 +6,8 @@ using Kraken.Calculation;
 using Kraken.Calculation.Field;
 using Kraken.Calculation.Field.Interfaces;
 using Kraken.Calculation.Interfaces;
+using Kraken.Calculation.Models;
+using Kraken.Common.Mappers;
 using Kraken.WebUI.Models;
 using Kraken.WebUI.Models.Common;
 using Kraken.WebUI.Models.Mappers;
@@ -32,17 +35,20 @@ namespace Kraken.WebUI
         {
 
             services.AddControllersWithViews().AddNewtonsoftJson();
-
-            services.AddTransient<KrakenInputModelMapper>();
-            services.AddTransient<KrakenResultModelMapper>();         
+         
             services.AddTransient<IModelValidator<KrakenInputModel>, KrakenInputModelValidator>();
+            services.AddTransient<IMapper<KrakenInputModel, AcousticProblemData>, KrakenInputModelMapper>();
+            services.AddTransient<IMapper<KrakenComputingResult, KrakenResultModel>, KrakenResultModelMapper>();
 
-            services.AddTransient<IKrakenService, KrakenService>();
-            services.AddTransient<AcousticProblemDataMapper>();
+            services.AddTransient<IKrakenService, KrakenService>();          
             services.AddTransient<KrakenComputingResultMapper>();
 
             services.AddTransient<IKrakenNormalModesProgram, KrakenNormalModesProgram>();
-            services.AddTransient<IFieldProgram, FieldProgram>();           
+            services.AddTransient<IFieldProgram, FieldProgram>();
+
+            services.AddTransient<IMapper<AcousticProblemData, KrakenInputProfile>, KrakenInputProfileMapper>();
+            services.AddTransient<IMapper<FieldComputingRequiredData, FieldInputData>, FieldInputDataMapper>();
+            services.AddTransient<IMapper<KrakenResultAndAcousticFieldSnapshots, KrakenComputingResult>, KrakenComputingResultMapper>();
 
             services.AddSpaStaticFiles(configuration =>
             {
