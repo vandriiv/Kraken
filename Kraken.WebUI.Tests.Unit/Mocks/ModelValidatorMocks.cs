@@ -7,11 +7,11 @@ namespace Kraken.WebUI.Tests.Unit.Mocks
 {
     public class ModelValidatorMocks
     {
-        public Mock<IModelValidator<KrakenInputModel>> ValidateReturnsNotEmptyList(string validationError)
+        public Mock<IModelValidator<KrakenInputModel>> ValidateReturnsNotEmptyList(IEnumerable<string> validationError)
         {
             var mock = new Mock<IModelValidator<KrakenInputModel>>();
 
-            mock.Setup(x => x.Validate(It.IsAny<KrakenInputModel>())).Returns(new List<string> { validationError });
+            mock.Setup(x => x.Validate(It.IsAny<KrakenInputModel>())).Returns(new List<string>(validationError));
 
             return mock;
         }
