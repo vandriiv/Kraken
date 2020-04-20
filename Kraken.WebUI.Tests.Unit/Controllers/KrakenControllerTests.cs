@@ -3,9 +3,7 @@ using Kraken.WebUI.Models;
 using Kraken.WebUI.Tests.Unit.Helpers;
 using Kraken.WebUI.Tests.Unit.Mocks;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace Kraken.WebUI.Tests.Unit.Controllers
