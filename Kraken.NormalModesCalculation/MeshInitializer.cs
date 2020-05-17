@@ -89,7 +89,7 @@ namespace Kraken.Calculation
 
                 if (alphaR == 0 || rhoR == 0)
                 {
-                    throw new Exception("Sound speed or density vanishes in halfspace");
+                    throw new KrakenException("Sound speed or density vanishes in halfspace");
                 }
 
                 krakenModule.CPTop = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, krakenModule.Frequency, attenUnit);
@@ -147,7 +147,7 @@ namespace Kraken.Calculation
 
                 if (alphaR == 0 || rhoR == 0)
                 {
-                    throw new Exception("Sound speed or density vanishes in halfspace");
+                    throw new KrakenException("Sound speed or density vanishes in halfspace");
                 }
 
                 krakenModule.CPBottom = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, krakenModule.Frequency, attenUnit);
@@ -171,7 +171,7 @@ namespace Kraken.Calculation
                     CubicSpline(krakenModule, depth, cP, cS, RhoTop, medium, ref n1, offset, Frequency, attenUnit, task, ssp);
                     break;
                 default:
-                    throw new ArgumentException("Unknown profile option (SSPType)");
+                    throw new KrakenException("Unknown profile option (SSPType)");
             }
         }
 
@@ -252,17 +252,25 @@ namespace Kraken.Calculation
                 n1 = 1;
                 for (var i = 1; i <= maxSSP; i++)
                 {
-                    int ind = ILoc + i;
-                    z[ind] = ssp[ind][1];
-                    alphaR = ssp[ind][2];
-                    betaR = ssp[ind][3];
-                    rhoR = ssp[ind][4];
-                    alphaI = ssp[ind][5];
-                    betaI = ssp[ind][6];
+                    try
+                    {
+                        int ind = ILoc + i;
+                        z[ind] = ssp[ind][1];
+                        alphaR = ssp[ind][2];
+                        betaR = ssp[ind][3];
+                        rhoR = ssp[ind][4];
+                        alphaI = ssp[ind][5];
+                        betaI = ssp[ind][6];
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        throw new KrakenException("The SSP reading error. Check the medium info and the SSP values");
+                    }
 
                     alpha[ILoc + i] = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, Frequency, attenUnit);
                     beta[ILoc + i] = ConvertToSingleComplexWaveSpeed(betaR, betaI, Frequency, attenUnit);
                     rho[ILoc + i] = rhoR;
+
 
                     if (Math.Abs(z[ILoc + i] - depth[medium + 1]) < 0.000000119 * depth[medium + 1])
                     {
@@ -270,6 +278,10 @@ namespace Kraken.Calculation
                         if (medium == 1)
                         {
                             depth[1] = z[1];
+                        }
+                        if (NSSPPts[medium] == 1)
+                        {
+                            throw new KrakenException("The SSP must have at least 2 points in each layer");
                         }
 
                         return;
@@ -343,13 +355,20 @@ namespace Kraken.Calculation
                 n1 = 1;
                 for (var i = 1; i <= maxSSP; i++)
                 {
-                    int ind = ILoc + i;
-                    z[ind] = ssp[ind][1];
-                    alphaR = ssp[ind][2];
-                    betaR = ssp[ind][3];
-                    rhoR = ssp[ind][4];
-                    alphaI = ssp[ind][5];
-                    betaI = ssp[ind][6];
+                    try
+                    {
+                        int ind = ILoc + i;
+                        z[ind] = ssp[ind][1];
+                        alphaR = ssp[ind][2];
+                        betaR = ssp[ind][3];
+                        rhoR = ssp[ind][4];
+                        alphaI = ssp[ind][5];
+                        betaI = ssp[ind][6];
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        throw new KrakenException("SSP reading error. Check medium info and SSP values");
+                    }
 
                     alpha[ILoc + i] = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, Frequency, attenUnit);
                     beta[ILoc + i] = ConvertToSingleComplexWaveSpeed(betaR, betaI, Frequency, attenUnit);
@@ -361,6 +380,10 @@ namespace Kraken.Calculation
                         if (medium == 1)
                         {
                             depth[1] = z[1];
+                        }
+                        if (NSSPPts[medium] == 1)
+                        {
+                            throw new KrakenException("The SSP must have at least 2 points in each layer");
                         }
 
                         return;
@@ -401,7 +424,7 @@ namespace Kraken.Calculation
 
         private void CubicSpline(KrakenModule krakenModule, List<double> depth, List<Complex> cP, List<Complex> cS, List<double> RhoTop, int medium,
             ref int n1, int offset, double Frequency, string attenUnit, string task, List<List<double>> ssp)
-        {           
+        {
             int ILoc;
             if (task.Contains("INIT"))
             {
@@ -420,17 +443,24 @@ namespace Kraken.Calculation
                 n1 = 1;
                 for (var i = 1; i <= maxSSP; i++)
                 {
-                    int ind = ILoc + i;
-                    z[ind] = ssp[ind][1];
-                    alphaR = ssp[ind][2];
-                    betaR = ssp[ind][3];
-                    rhoR = ssp[ind][4];
-                    alphaI = ssp[ind][5];
-                    betaI = ssp[ind][6];
+                    try
+                    {
+                        int ind = ILoc + i;
+                        z[ind] = ssp[ind][1];
+                        alphaR = ssp[ind][2];
+                        betaR = ssp[ind][3];
+                        rhoR = ssp[ind][4];
+                        alphaI = ssp[ind][5];
+                        betaI = ssp[ind][6];
 
-                    cpSpline[1][ILoc + i] = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, Frequency, attenUnit);
-                    csSpline[1][ILoc + i] = ConvertToSingleComplexWaveSpeed(betaR, betaI, Frequency, attenUnit);
-                    rhoSpline[1][ILoc + i] = rhoR;
+                        cpSpline[1][ILoc + i] = ConvertToSingleComplexWaveSpeed(alphaR, alphaI, Frequency, attenUnit);
+                        csSpline[1][ILoc + i] = ConvertToSingleComplexWaveSpeed(betaR, betaI, Frequency, attenUnit);
+                        rhoSpline[1][ILoc + i] = rhoR;
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        throw new KrakenException("The SSP reading error. Check the medium info and the SSP values");
+                    }
 
                     if (Math.Abs(z[ILoc + i] - depth[medium + 1]) < 0.0000001 * depth[medium + 1])
                     {
@@ -438,7 +468,11 @@ namespace Kraken.Calculation
                         if (medium == 1)
                         {
                             depth[1] = z[1];
-                        }                       
+                        }
+                        if (NSSPPts[medium] == 1)
+                        {
+                            throw new KrakenException("The SSP must have at least 2 points in each layer");
+                        }
 
                         var IBCBEG = 0;
                         var IBCEND = 0;

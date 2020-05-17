@@ -42,7 +42,7 @@ namespace Kraken.Calculation
             krakenModule.RMax = profile.RMax;
 
             var zMin = krakenModule.Depth[1];
-            var zMax = krakenModule.Depth[krakenModule.NMedia + 1];           
+            var zMax = krakenModule.Depth[krakenModule.NMedia + 1];
 
             rangedDataManager.ProceedSourceAndReceiverDepths(zMin, zMax, profile.Nsd, profile.Nrd, profile.SourceDepths, profile.ReceiverDepths);
 
@@ -74,45 +74,47 @@ namespace Kraken.Calculation
 
             var result = new KrakenResult();
 
-            if (isSuccess)
+            if (!isSuccess)
             {
-                var omega = Math.Sqrt(krakenModule.Omega2);
-                var minVal = krakenModule.Extrap[1].GetRange(1, krakenModule.M).Where(x => x > krakenModule.Omega2 / Math.Pow(krakenModule.CHigh, 2)).Min();
-                var minLoc = krakenModule.Extrap[1].FindIndex(x => x == minVal);
-                krakenModule.M = minLoc;
-
-                for (var i = 1; i <= krakenModule.M; i++)
-                {
-                    krakenModule.K[i] = Complex.Sqrt(krakenModule.Extrap[1][i] + krakenModule.K[i]);
-                }
-
-                var MMM = Math.Min(krakenModule.M, profile.NModes);
-
-                modesInfo.ModesCount = MMM;
-                modesInfo.K.AddRange(krakenModule.K);
-
-                var cp = Enumerable.Repeat(0d, MMM + 1).ToList();
-                var cg = Enumerable.Repeat(0d, MMM + 1).ToList();
-                var k = Enumerable.Repeat(new Complex(), MMM + 1).ToList();
-
-                for (krakenModule.Mode = 1; krakenModule.Mode <= MMM; krakenModule.Mode++)
-                {
-                    cp[krakenModule.Mode] = (omega / krakenModule.K[krakenModule.Mode]).Real;
-                    cg[krakenModule.Mode] = krakenModule.VG[krakenModule.Mode];
-                    k[krakenModule.Mode] = krakenModule.K[krakenModule.Mode];
-                }
-
-                result.GroupSpeed.AddRange(cg);
-                result.PhaseSpeed.AddRange(cp);
-                result.K.AddRange(k);
-                result.ModesCount = MMM;
-                result.Modes.AddRange(modes);
-                result.ZM.AddRange(zm);
+                result.Warnings.Add("Too many meshes needed: check convergence");
             }
+
+            var omega = Math.Sqrt(krakenModule.Omega2);
+            var minVal = krakenModule.Extrap[1].GetRange(1, krakenModule.M).Where(x => x > krakenModule.Omega2 / Math.Pow(krakenModule.CHigh, 2)).Min();
+            var minLoc = krakenModule.Extrap[1].FindIndex(x => x == minVal);
+            krakenModule.M = minLoc;
+
+            for (var i = 1; i <= krakenModule.M; i++)
+            {
+                krakenModule.K[i] = Complex.Sqrt(krakenModule.Extrap[1][i] + krakenModule.K[i]);
+            }
+
+            var MMM = Math.Min(krakenModule.M, profile.NModes);
+
+            modesInfo.ModesCount = MMM;
+            modesInfo.K.AddRange(krakenModule.K);
+
+            var cp = Enumerable.Repeat(0d, MMM + 1).ToList();
+            var cg = Enumerable.Repeat(0d, MMM + 1).ToList();
+            var k = Enumerable.Repeat(new Complex(), MMM + 1).ToList();
+
+            for (krakenModule.Mode = 1; krakenModule.Mode <= MMM; krakenModule.Mode++)
+            {
+                cp[krakenModule.Mode] = (omega / krakenModule.K[krakenModule.Mode]).Real;
+                cg[krakenModule.Mode] = krakenModule.VG[krakenModule.Mode];
+                k[krakenModule.Mode] = krakenModule.K[krakenModule.Mode];
+            }
+
+            result.GroupSpeed.AddRange(cg);
+            result.PhaseSpeed.AddRange(cp);
+            result.K.AddRange(k);
+            result.ModesCount = MMM;
+            result.Modes.AddRange(modes);
+            result.ZM.AddRange(zm);
 
             result.Warnings.AddRange(krakenModule.Warnings);
 
-            return (result,modesInfo);
+            return (result, modesInfo);
         }
 
         private void Initialize(KrakenModule krakenModule, MeshInitializer meshInitializer)
@@ -518,7 +520,12 @@ namespace Kraken.Calculation
             var xMax = krakenModule.Omega2 / Math.Pow(krakenModule.CLow, 2);
             Funct(krakenModule, xMax, ref delta, ref iPower);
             krakenModule.M -= krakenModule.ModeCount;
-            krakenModule.M = Math.Min(krakenModule.M, nm + 1);
+            if (krakenModule.M == 0)
+            {
+                throw new KrakenException("No modes for given phase speed interval");
+            }
+
+            krakenModule.M = Math.Min(krakenModule.M, nm + 1);           
 
             var NTot = krakenModule.N.GetRange(krakenModule.FirstAcoustic, krakenModule.LastAcoustic - krakenModule.FirstAcoustic + 1).Sum();
             if (krakenModule.M > NTot / 5)
