@@ -17,11 +17,11 @@ export default class Select extends Component {
     }
 
     render() {
-        const { label, name, options, onChange, initValue } = this.props;
+        const { label, name, options, onChange, initValue } = this.props;       
         return (
             <>
                 <Label for="name">{label}</Label>
-                <Input ref={"select"} type="select" name={name} id={name} onChange={onChange} defaultValue={initValue} required>
+                <Input ref={"select"} type="select" name={name} id={name} onChange={onChange} value={initValue} required>
                     {options && this.renderOptions(options)}
                 </Input>
             </>

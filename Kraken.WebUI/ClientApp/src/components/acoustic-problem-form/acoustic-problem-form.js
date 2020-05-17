@@ -616,8 +616,8 @@ export default class AcousticProblemForm extends Component {
             cst, rhot, apt, ast, bumDen, eta, xi, mediumInfo, ssp, bottomBCType, sigma, zb, cpb,
             csb, rhob, apb, asb, cLow, cHigh, rMax, nsd, sd, nrd, rd,
             calculateTransmissionLoss, sourceType, modesTheory, nModesForField,
-            nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;      
-
+            nr, r, nsdField, sdField, nrdField, rdField, nrr, rr } = this.state;
+       
         const isTopAcoustic = topBCType === 'A';
         const isTopTwersky = (topBCType === 'T' || topBCType === 'S'
             || topBCType === 'I' || topBCType === 'H');
