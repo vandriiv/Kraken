@@ -17,7 +17,7 @@ RUN apt-get update -yq \
 WORKDIR /src
 COPY ["Kraken.WebUI/Kraken.WebUI.csproj", "Kraken.WebUI/"]
 COPY ["Kraken.Application/Kraken.Application.csproj", "Kraken.Application/"]
-COPY ["Kraken.NormalModesCalculation/Kraken.NormalModesCalculation.csproj", "Kraken.NormalModesCalculation/"]
+COPY ["Kraken.NormalModesCalculation/Kraken.Calculation.csproj", "Kraken.Calculation/"]
 RUN dotnet restore "Kraken.WebUI/Kraken.WebUI.csproj"
 COPY . .
 WORKDIR "/src/Kraken.WebUI"
